@@ -22,6 +22,7 @@ export async function GET(req: NextRequest) {
       gender: searchParams.get("gender") || "",
       category: searchParams.get("category") || "",
       featured: searchParams.get("featured") === "true",
+      defaultOnly: searchParams.get("defaultOnly") === "true",
       sortBy: (searchParams.get("sortBy") || "popular") as "popular" | "newest" | "name",
     };
 

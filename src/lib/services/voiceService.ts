@@ -39,6 +39,7 @@ export interface VoiceQueryOptions {
   gender?: string;
   category?: string;
   featured?: boolean;
+  defaultOnly?: boolean;
   sortBy?: "popular" | "newest" | "name";
 }
 
@@ -238,6 +239,7 @@ export async function getVoices(
     gender = "",
     category = "",
     featured = false,
+    defaultOnly = false,
     sortBy = "popular",
   } = options;
 
@@ -279,6 +281,10 @@ export async function getVoices(
 
     if (featured) {
       query.isFeatured = true;
+    }
+
+    if (defaultOnly) {
+      query.isDefault = true;
     }
 
     // Build sort

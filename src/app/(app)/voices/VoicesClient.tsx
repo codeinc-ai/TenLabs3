@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import * as Sentry from "@sentry/nextjs";
 import {
@@ -66,7 +67,7 @@ export function VoicesClient({ initialData, canUsePVC = false }: VoicesClientPro
 
   const [data, setData] = useState<VoiceListResponse>(initialData);
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState("explore");
+  const [activeTab, setActiveTab] = useState<"explore" | "my-voices" | "default">("explore");
   const [search, setSearch] = useState("");
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [savingId, setSavingId] = useState<string | null>(null);
@@ -90,6 +91,7 @@ export function VoicesClient({ initialData, canUsePVC = false }: VoicesClientPro
           limit: "12",
         });
         if (search) params.set("search", search);
+        if (activeTab === "default") params.set("defaultOnly", "true");
 
         const res = await fetch(`/api/voices?${params}`);
         if (!res.ok) throw new Error("Failed to fetch");
@@ -101,8 +103,21 @@ export function VoicesClient({ initialData, canUsePVC = false }: VoicesClientPro
         setLoading(false);
       }
     },
-    [search]
+    [search, activeTab]
   );
+
+  // Refetch when tab changes between explore and default (skip initial mount)
+  const isFirstRender = useRef(true);
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    if (activeTab === "explore" || activeTab === "default") {
+      fetchVoices(1);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -184,14 +199,12 @@ export function VoicesClient({ initialData, canUsePVC = false }: VoicesClientPro
               <Mic size={16} />
               Explore
             </button>
-            <button
-              onClick={() => setActiveTab("my-voices")}
-              className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                activeTab === "my-voices" ? "bg-gray-100 text-black" : "text-gray-600 hover:bg-gray-50"
-              }`}
+            <Link
+              href="/voices/my-voices"
+              className="px-4 py-2 text-sm font-medium rounded-lg transition-colors text-gray-600 hover:bg-gray-50"
             >
               My Voices
-            </button>
+            </Link>
             <button
               onClick={() => setActiveTab("default")}
               className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
@@ -383,7 +396,9 @@ export function VoicesClient({ initialData, canUsePVC = false }: VoicesClientPro
         {/* Voice List */}
         <div className="mb-10">
           <div className="flex items-center gap-2 mb-4">
-            <h2 className="text-lg font-semibold text-black">All Voices</h2>
+            <h2 className="text-lg font-semibold text-black">
+              {activeTab === "default" ? "Default Voices" : "All Voices"}
+            </h2>
             <span className="text-sm text-gray-500">({data.total})</span>
           </div>
           <div className="divide-y divide-gray-100">

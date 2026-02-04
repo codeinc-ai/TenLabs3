@@ -423,7 +423,7 @@ export async function createPVCVoice(
 
     const apiKey = await getElevenLabsApiKey();
 
-    const response = await fetch(`${ELEVENLABS_API_URL}/voices/pvc/create`, {
+    const response = await fetch(`${ELEVENLABS_API_URL}/voices/pvc`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -480,7 +480,7 @@ export async function uploadPVCSamples(
     }
 
     const response = await fetch(
-      `${ELEVENLABS_API_URL}/voices/pvc/${voiceId}/samples/create`,
+      `${ELEVENLABS_API_URL}/voices/pvc/${voiceId}/samples`,
       {
         method: "POST",
         headers: {
