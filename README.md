@@ -197,3 +197,4 @@ Do not hardcode secrets (always use .env).
 
 Keep code DRY, modular, and consistent with ShadCN.# tenlabs
 # tenlabsupadted
+# TenLabs3
