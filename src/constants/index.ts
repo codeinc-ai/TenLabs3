@@ -23,6 +23,10 @@ export const PLANS = {
     maxVoiceConversions: 5,
     // Maximum voice conversion minutes per month
     maxVoiceConversionMinutes: 5,
+    // Maximum number of voice isolations per month
+    maxVoiceIsolations: 5,
+    // Maximum voice isolation minutes per month
+    maxVoiceIsolationMinutes: 5,
   },
   pro: {
     maxChars: 50000,
@@ -32,6 +36,8 @@ export const PLANS = {
     maxSoundEffects: 50,
     maxVoiceConversions: 50,
     maxVoiceConversionMinutes: 60,
+    maxVoiceIsolations: 50,
+    maxVoiceIsolationMinutes: 60,
   },
 };
 
@@ -232,4 +238,29 @@ export const VOICE_CHANGER_CONFIG = {
     removeBackgroundNoise: false,
     speakerBoost: true,
   },
+};
+
+/**
+ * ==========================================
+ * Voice Isolator Configuration
+ * ==========================================
+ * Configuration for the voice isolator (audio isolation) feature.
+ */
+export const VOICE_ISOLATOR_CONFIG = {
+  // Maximum file size in megabytes
+  maxFileSizeMB: 50,
+  // Allowed audio file extensions
+  allowedFormats: ["mp3", "wav", "m4a", "flac", "ogg", "webm", "mp4"],
+  // Allowed MIME types for upload validation
+  allowedMimeTypes: [
+    "audio/mpeg",
+    "audio/wav",
+    "audio/x-wav",
+    "audio/x-m4a",
+    "audio/mp4",
+    "audio/flac",
+    "audio/ogg",
+    "audio/webm",
+    "video/mp4",
+  ],
 };

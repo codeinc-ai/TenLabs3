@@ -175,6 +175,23 @@ export function buildVoiceConversionFileName(input: {
   return `voiceconversions/${input.userId}/${year}/${month}/${input.conversionId}_${input.type}.${input.extension}`;
 }
 
+/**
+ * Builds the canonical B2 file name for a voice isolation audio file.
+ */
+export function buildVoiceIsolationFileName(input: {
+  userId: string;
+  isolationId: string;
+  type: "original" | "isolated";
+  extension: string;
+  date?: Date;
+}): string {
+  const d = input.date ?? new Date();
+  const year = d.getUTCFullYear();
+  const month = pad2(d.getUTCMonth() + 1);
+
+  return `voiceisolations/${input.userId}/${year}/${month}/${input.isolationId}_${input.type}.${input.extension}`;
+}
+
 function encodeFileNameForHeader(fileName: string): string {
   // B2 requires URL-encoding for X-Bz-File-Name.
   return encodeURIComponent(fileName);
@@ -373,6 +390,16 @@ export interface UploadVoiceConversionInput {
   date?: Date;
 }
 
+export interface UploadVoiceIsolationInput {
+  userId: string;
+  isolationId: string;
+  audioBuffer: Buffer;
+  type: "original" | "isolated";
+  extension: string;
+  contentType: string;
+  date?: Date;
+}
+
 export async function uploadSoundEffectToBackblaze(input: UploadSoundEffectInput): Promise<UploadAudioResult> {
   try {
     const config = getConfig();
@@ -527,6 +554,90 @@ export async function uploadVoiceConversionToBackblaze(input: UploadVoiceConvers
 
       scope.setContext("backblaze", {
         conversionId: input.conversionId,
+        type: input.type,
+        contentLength: input.audioBuffer?.byteLength ?? 0,
+      });
+
+      Sentry.captureException(error);
+    });
+
+    throw error;
+  }
+}
+
+export async function uploadVoiceIsolationToBackblaze(input: UploadVoiceIsolationInput): Promise<UploadAudioResult> {
+  try {
+    const config = getConfig();
+
+    if (!input.audioBuffer?.byteLength) {
+      throw new BackblazeServiceError("Cannot upload empty audio buffer", {
+        context: { op: "uploadVoiceIsolationToBackblaze" },
+      });
+    }
+
+    const fileName = buildVoiceIsolationFileName({
+      userId: input.userId,
+      isolationId: input.isolationId,
+      type: input.type,
+      extension: input.extension,
+      date: input.date,
+    });
+
+    const sha1 = createHash("sha1").update(input.audioBuffer).digest("hex");
+
+    const auth = await authorizeAccount(config);
+    const uploadUrl = await getUploadUrl({
+      apiUrl: auth.apiUrl,
+      authorizationToken: auth.authorizationToken,
+      bucketId: config.bucketId,
+    });
+
+    const res = await fetch(uploadUrl.uploadUrl, {
+      method: "POST",
+      headers: {
+        Authorization: uploadUrl.uploadAuthorizationToken,
+        "X-Bz-File-Name": encodeFileNameForHeader(fileName),
+        "Content-Type": input.contentType,
+        "Content-Length": String(input.audioBuffer.byteLength),
+        "X-Bz-Content-Sha1": sha1,
+      },
+      body: input.audioBuffer as unknown as BodyInit,
+    });
+
+    await assertOk(res, { op: "b2_upload_file", fileName });
+
+    const json = (await res.json()) as {
+      fileId: string;
+      fileName: string;
+      contentLength: number;
+      contentSha1: string;
+    };
+
+    if (!json.fileId || !json.fileName) {
+      throw new BackblazeServiceError("Unexpected Backblaze upload response", {
+        context: { op: "b2_upload_file", json },
+      });
+    }
+
+    const url = `${auth.downloadUrl}/file/${config.bucketName}/${encodeFileNameForUrlPath(fileName)}`;
+
+    return {
+      fileId: json.fileId,
+      fileName: json.fileName,
+      url,
+      sha1: json.contentSha1 ?? sha1,
+      contentLength: json.contentLength ?? input.audioBuffer.byteLength,
+    };
+  } catch (error) {
+    Sentry.withScope((scope) => {
+      scope.setTag("feature", "voice-isolator");
+      scope.setTag("service", "backblaze");
+      scope.setTag("operation", "upload");
+      scope.setUser({ id: input.userId });
+      scope.setTag("userId", input.userId);
+
+      scope.setContext("backblaze", {
+        isolationId: input.isolationId,
         type: input.type,
         contentLength: input.audioBuffer?.byteLength ?? 0,
       });

@@ -123,11 +123,38 @@ export interface VoiceConversionDeletedEvent {
   conversionId: string;
 }
 
-export interface UsageLimitHitEvent {
-  feature: "tts" | "stt" | "sfx" | "voice-changer";
+export interface VoiceIsolationCompletedEvent {
+  feature: "voice-isolator";
+  userId?: string;
+}
+
+export interface VoiceIsolationFailedEvent {
+  feature: "voice-isolator";
+  userId?: string;
+  error: string;
+}
+
+export interface VoiceIsolationCreatedEvent {
+  feature: "voice-isolator";
   userId: string;
   plan: PlanType;
-  limitType: "characters" | "generations" | "transcriptions" | "transcription_minutes" | "sound_effects" | "voice_conversions" | "voice_conversion_minutes";
+  isolationId: string;
+  durationSeconds: number;
+  fileExtension: string;
+  fileSizeMB: number;
+}
+
+export interface VoiceIsolationDeletedEvent {
+  feature: "voice-isolator";
+  userId: string;
+  isolationId: string;
+}
+
+export interface UsageLimitHitEvent {
+  feature: "tts" | "stt" | "sfx" | "voice-changer" | "voice-isolator";
+  userId: string;
+  plan: PlanType;
+  limitType: "characters" | "generations" | "transcriptions" | "transcription_minutes" | "sound_effects" | "voice_conversions" | "voice_conversion_minutes" | "voice_isolations" | "voice_isolation_minutes";
   attempted: number;
   limit: number;
 }
@@ -156,6 +183,10 @@ export type PostHogEventPropertiesMap = {
   voice_conversion_failed: VoiceConversionFailedEvent;
   voice_conversion_created: VoiceConversionCreatedEvent;
   voice_conversion_deleted: VoiceConversionDeletedEvent;
+  voice_isolation_completed: VoiceIsolationCompletedEvent;
+  voice_isolation_failed: VoiceIsolationFailedEvent;
+  voice_isolation_created: VoiceIsolationCreatedEvent;
+  voice_isolation_deleted: VoiceIsolationDeletedEvent;
   usage_limit_hit: UsageLimitHitEvent;
   billing_event: BillingEvent;
 };

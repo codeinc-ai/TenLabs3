@@ -79,6 +79,13 @@ export function VoiceChangerClient({ userPlan = "free", currentUsage }: VoiceCha
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
 
+  // Recording state
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingError, setRecordingError] = useState<string | null>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
+
   // Settings state
   const [selectedVoice, setSelectedVoice] = useState<Voice>(voicesList[0]);
   const [selectedModel, setSelectedModel] = useState(modelsList[0]);
@@ -175,6 +182,70 @@ export function VoiceChangerClient({ userPlan = "free", currentUsage }: VoiceCha
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
+  };
+
+  // Recording handlers
+  const startRecording = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setRecordingError(null);
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
+
+      const mimeType = MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
+        ? "audio/webm;codecs=opus"
+        : "audio/webm";
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      chunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          chunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = () => {
+        stream.getTracks().forEach((track) => track.stop());
+        streamRef.current = null;
+
+        if (chunksRef.current.length === 0) return;
+
+        const blob = new Blob(chunksRef.current, { type: mimeType });
+        const file = new File([blob], `recording-${Date.now()}.webm`, {
+          type: blob.type,
+        });
+
+        const validationError = validateFile(file);
+        if (validationError) {
+          setError(validationError);
+          return;
+        }
+
+        setUploadedFile(file);
+        setError(null);
+        setAudioUrl(null);
+        setConversionId(null);
+      };
+
+      mediaRecorder.start();
+      setIsRecording(true);
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Failed to access microphone";
+      setRecordingError(message);
+      Sentry.captureException(err);
+    }
+  };
+
+  const stopRecording = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+      mediaRecorderRef.current.stop();
+      mediaRecorderRef.current = null;
+    }
+    setIsRecording(false);
   };
 
   // Convert voice
@@ -354,16 +425,29 @@ export function VoiceChangerClient({ userPlan = "free", currentUsage }: VoiceCha
                   <div className="h-px w-12 bg-gray-200"></div>
                 </div>
 
+                {recordingError && (
+                  <p className="text-sm text-red-600 mb-4">{recordingError}</p>
+                )}
                 <button
                   type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    // TODO: Implement recording
-                  }}
-                  className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-colors"
+                  onClick={isRecording ? stopRecording : startRecording}
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                    isRecording
+                      ? "bg-red-500 text-white hover:bg-red-600"
+                      : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300"
+                  }`}
                 >
-                  <Mic size={16} />
-                  Record audio
+                  {isRecording ? (
+                    <>
+                      <span className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                      Stop recording
+                    </>
+                  ) : (
+                    <>
+                      <Mic size={16} />
+                      Record audio
+                    </>
+                  )}
                 </button>
               </div>
             </div>
