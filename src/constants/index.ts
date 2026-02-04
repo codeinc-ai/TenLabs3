@@ -17,12 +17,15 @@ export const PLANS = {
     maxTranscriptionMinutes: 10,
     // Maximum number of STT transcriptions per month
     maxTranscriptions: 5,
+    // Maximum number of sound effect generations per month
+    maxSoundEffects: 5,
   },
   pro: {
     maxChars: 50000,
     maxGenerations: 100,
     maxTranscriptionMinutes: 120,
     maxTranscriptions: 50,
+    maxSoundEffects: 50,
   },
 };
 
@@ -163,4 +166,23 @@ export const STT_CONFIG = {
   ],
   // ElevenLabs Scribe model
   model: "scribe_v1",
+};
+
+/**
+ * ==========================================
+ * Sound Effects Configuration
+ * ==========================================
+ * Configuration for the SFX (sound effects) feature.
+ */
+export const SFX_CONFIG = {
+  // Maximum text prompt length
+  maxPromptLength: 500,
+  // Default duration in seconds (null = auto)
+  defaultDuration: null as number | null,
+  // Default prompt influence (0-1)
+  defaultPromptInfluence: 0.3,
+  // Minimum duration in seconds
+  minDuration: 0.5,
+  // Maximum duration in seconds
+  maxDuration: 22,
 };

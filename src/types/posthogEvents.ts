@@ -76,11 +76,26 @@ export interface TranscriptionDeletedEvent {
   transcriptionId: string;
 }
 
-export interface UsageLimitHitEvent {
-  feature: "tts" | "stt";
+export interface SoundEffectCreatedEvent {
+  feature: "sfx";
   userId: string;
   plan: PlanType;
-  limitType: "characters" | "generations" | "transcriptions" | "transcription_minutes";
+  soundEffectId: string;
+  durationSeconds: number;
+  promptLength: number;
+}
+
+export interface SoundEffectDeletedEvent {
+  feature: "sfx";
+  userId: string;
+  soundEffectId: string;
+}
+
+export interface UsageLimitHitEvent {
+  feature: "tts" | "stt" | "sfx";
+  userId: string;
+  plan: PlanType;
+  limitType: "characters" | "generations" | "transcriptions" | "transcription_minutes" | "sound_effects";
   attempted: number;
   limit: number;
 }
@@ -103,6 +118,8 @@ export type PostHogEventPropertiesMap = {
   generation_deleted: GenerationDeletedEvent;
   transcription_created: TranscriptionCreatedEvent;
   transcription_deleted: TranscriptionDeletedEvent;
+  sound_effect_created: SoundEffectCreatedEvent;
+  sound_effect_deleted: SoundEffectDeletedEvent;
   usage_limit_hit: UsageLimitHitEvent;
   billing_event: BillingEvent;
 };
