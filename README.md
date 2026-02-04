@@ -196,3 +196,4 @@ Write tests for every new feature/service.
 Do not hardcode secrets (always use .env).
 
 Keep code DRY, modular, and consistent with ShadCN.# tenlabs
+# tenlabsupadted
