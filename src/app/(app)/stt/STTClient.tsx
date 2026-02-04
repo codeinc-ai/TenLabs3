@@ -15,9 +15,12 @@ import {
   Trash2,
   Clock,
   ChevronRight,
+  Mic,
+  Upload,
 } from "lucide-react";
 
 import { PLANS, STT_CONFIG } from "@/constants";
+import { RealtimeSTT } from "./RealtimeSTT";
 
 interface STTClientProps {
   userPlan?: "free" | "pro";
@@ -97,6 +100,7 @@ export function STTClient({ userPlan = "free", currentUsage }: STTClientProps) {
   const [playingHistoryId, setPlayingHistoryId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<"upload" | "realtime">("upload");
 
   const limits = PLANS[userPlan];
   const remainingTranscriptions = Math.max(
@@ -265,37 +269,73 @@ export function STTClient({ userPlan = "free", currentUsage }: STTClientProps) {
   return (
     <div className="flex-1 overflow-y-auto">
       <div className="p-8 max-w-5xl mx-auto">
-        {/* Title and Actions */}
-        <div className="flex items-center justify-between mb-2">
-          <h1 className="text-2xl font-bold text-black">Speech to text</h1>
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 rounded-lg transition-colors"
-          >
-            <FileText size={16} />
-            Transcribe files
-          </button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept={STT_CONFIG.allowedMimeTypes.join(",")}
-            onChange={(e) => {
-              const f = e.target.files?.[0] ?? null;
-              setFile(f);
-              setError(null);
-              setResult(null);
-            }}
-            className="hidden"
-          />
+        {/* Title */}
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-black mb-2">Speech to text</h1>
+          <p className="text-gray-600">
+            Transcribe audio with our industry-leading ASR model.
+          </p>
         </div>
 
-        <p className="text-gray-600 mb-8">
-          Transcribe audio and video files with our{" "}
-          <span className="underline underline-offset-2 cursor-pointer hover:text-black">
-            industry-leading ASR model
-          </span>
-          .
-        </p>
+        {/* Tabs */}
+        <div className="flex items-center gap-1 mb-8 p-1 bg-gray-100 rounded-xl w-fit">
+          <button
+            onClick={() => setActiveTab("upload")}
+            className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg transition-colors ${
+              activeTab === "upload"
+                ? "bg-white text-black shadow-sm"
+                : "text-gray-500 hover:text-black"
+            }`}
+          >
+            <Upload size={16} />
+            Upload File
+          </button>
+          <button
+            onClick={() => setActiveTab("realtime")}
+            className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg transition-colors ${
+              activeTab === "realtime"
+                ? "bg-white text-black shadow-sm"
+                : "text-gray-500 hover:text-black"
+            }`}
+          >
+            <Mic size={16} />
+            Realtime
+            <span className="px-1.5 py-0.5 text-xs bg-emerald-100 text-emerald-700 rounded-full">
+              New
+            </span>
+          </button>
+        </div>
+
+        {/* Realtime Tab Content */}
+        {activeTab === "realtime" && (
+          <RealtimeSTT userPlan={userPlan} />
+        )}
+
+        {/* Upload Tab Content */}
+        {activeTab === "upload" && (
+          <>
+            {/* Upload Button */}
+            <div className="mb-6">
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 rounded-lg transition-colors"
+              >
+                <FileText size={16} />
+                Select file to transcribe
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept={STT_CONFIG.allowedMimeTypes.join(",")}
+                onChange={(e) => {
+                  const f = e.target.files?.[0] ?? null;
+                  setFile(f);
+                  setError(null);
+                  setResult(null);
+                }}
+                className="hidden"
+              />
+            </div>
 
         {/* File Selected */}
         {file && (
@@ -577,6 +617,8 @@ export function STTClient({ userPlan = "free", currentUsage }: STTClientProps) {
           <div className="py-8 text-center">
             <p className="text-gray-500">No transcriptions match &quot;{searchQuery}&quot;</p>
           </div>
+        )}
+          </>
         )}
       </div>
     </div>
