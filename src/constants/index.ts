@@ -19,6 +19,10 @@ export const PLANS = {
     maxTranscriptions: 5,
     // Maximum number of sound effect generations per month
     maxSoundEffects: 5,
+    // Maximum number of voice conversions per month
+    maxVoiceConversions: 5,
+    // Maximum voice conversion minutes per month
+    maxVoiceConversionMinutes: 5,
   },
   pro: {
     maxChars: 50000,
@@ -26,6 +30,8 @@ export const PLANS = {
     maxTranscriptionMinutes: 120,
     maxTranscriptions: 50,
     maxSoundEffects: 50,
+    maxVoiceConversions: 50,
+    maxVoiceConversionMinutes: 60,
   },
 };
 
@@ -185,4 +191,45 @@ export const SFX_CONFIG = {
   minDuration: 0.5,
   // Maximum duration in seconds
   maxDuration: 22,
+};
+
+/**
+ * ==========================================
+ * Voice Changer Configuration
+ * ==========================================
+ * Configuration for the voice changer (speech-to-speech) feature.
+ */
+export const VOICE_CHANGER_CONFIG = {
+  // Maximum file size in megabytes
+  maxFileSizeMB: 50,
+  // Allowed audio file extensions
+  allowedFormats: ["mp3", "wav", "m4a", "flac", "ogg", "webm"],
+  // Allowed MIME types for upload validation
+  allowedMimeTypes: [
+    "audio/mpeg",
+    "audio/wav",
+    "audio/x-wav",
+    "audio/x-m4a",
+    "audio/mp4",
+    "audio/flac",
+    "audio/ogg",
+    "audio/webm",
+  ],
+  // Default ElevenLabs model for voice conversion
+  defaultModel: "eleven_multilingual_sts_v2",
+  // Available models
+  models: [
+    { id: "eleven_multilingual_sts_v2", name: "Eleven Multilingual v2" },
+    { id: "eleven_english_sts_v2", name: "Eleven English v2" },
+  ],
+  // Default output format
+  outputFormat: "mp3_44100_128",
+  // Default voice settings
+  defaults: {
+    stability: 0.5,
+    similarityBoost: 0.75,
+    styleExaggeration: 0,
+    removeBackgroundNoise: false,
+    speakerBoost: true,
+  },
 };

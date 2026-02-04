@@ -91,11 +91,43 @@ export interface SoundEffectDeletedEvent {
   soundEffectId: string;
 }
 
-export interface UsageLimitHitEvent {
-  feature: "tts" | "stt" | "sfx";
+export interface VoiceConversionCompletedEvent {
+  feature: "voice-changer";
+  userId?: string;
+  voiceId: string;
+  modelId: string;
+}
+
+export interface VoiceConversionFailedEvent {
+  feature: "voice-changer";
+  userId?: string;
+  error: string;
+}
+
+export interface VoiceConversionCreatedEvent {
+  feature: "voice-changer";
   userId: string;
   plan: PlanType;
-  limitType: "characters" | "generations" | "transcriptions" | "transcription_minutes" | "sound_effects";
+  conversionId: string;
+  durationSeconds: number;
+  targetVoiceId: string;
+  targetVoiceName: string;
+  modelId: string;
+  fileExtension: string;
+  fileSizeMB: number;
+}
+
+export interface VoiceConversionDeletedEvent {
+  feature: "voice-changer";
+  userId: string;
+  conversionId: string;
+}
+
+export interface UsageLimitHitEvent {
+  feature: "tts" | "stt" | "sfx" | "voice-changer";
+  userId: string;
+  plan: PlanType;
+  limitType: "characters" | "generations" | "transcriptions" | "transcription_minutes" | "sound_effects" | "voice_conversions" | "voice_conversion_minutes";
   attempted: number;
   limit: number;
 }
@@ -120,6 +152,10 @@ export type PostHogEventPropertiesMap = {
   transcription_deleted: TranscriptionDeletedEvent;
   sound_effect_created: SoundEffectCreatedEvent;
   sound_effect_deleted: SoundEffectDeletedEvent;
+  voice_conversion_completed: VoiceConversionCompletedEvent;
+  voice_conversion_failed: VoiceConversionFailedEvent;
+  voice_conversion_created: VoiceConversionCreatedEvent;
+  voice_conversion_deleted: VoiceConversionDeletedEvent;
   usage_limit_hit: UsageLimitHitEvent;
   billing_event: BillingEvent;
 };

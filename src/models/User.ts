@@ -19,6 +19,8 @@ export interface IUser extends Document {
     transcriptionMinutesUsed: number;  // Minutes of audio transcribed
     transcriptionsUsed: number;        // Number of STT transcriptions
     soundEffectsUsed: number;          // Number of SFX generations
+    voiceConversionsUsed: number;      // Number of voice conversions
+    voiceConversionMinutesUsed: number; // Minutes of voice conversion audio
   };
   createdAt: Date;               // Account creation date
   updatedAt: Date;               // Last update date
@@ -42,6 +44,8 @@ const UserSchema: Schema = new Schema<IUser>(
       transcriptionMinutesUsed: { type: Number, default: 0 },
       transcriptionsUsed: { type: Number, default: 0 },
       soundEffectsUsed: { type: Number, default: 0 },
+      voiceConversionsUsed: { type: Number, default: 0 },
+      voiceConversionMinutesUsed: { type: Number, default: 0 },
     },
   },
   {
