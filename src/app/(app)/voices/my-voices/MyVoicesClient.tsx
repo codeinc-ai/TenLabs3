@@ -80,6 +80,21 @@ export function MyVoicesClient({ initialVoices }: MyVoicesClientProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [voiceToDelete, setVoiceToDelete] = useState<VoiceItem | null>(null);
 
+  // Voice creation dialogs
+  const [instantCloneOpen, setInstantCloneOpen] = useState(false);
+  const [voiceDesignOpen, setVoiceDesignOpen] = useState(false);
+  const [voiceRemixOpen, setVoiceRemixOpen] = useState(false);
+  const [voiceToRemix, setVoiceToRemix] = useState<{ voiceId: string; name: string } | null>(null);
+
+  const handleVoiceCreated = () => {
+    router.refresh();
+  };
+
+  const handleRemixVoice = (voice: VoiceItem) => {
+    setVoiceToRemix({ voiceId: voice.voiceId, name: voice.name });
+    setVoiceRemixOpen(true);
+  };
+
   // Remix dialog state
   const [remixDialogOpen, setRemixDialogOpen] = useState(false);
   const [voiceToRemix, setVoiceToRemix] = useState<VoiceItem | null>(null);
