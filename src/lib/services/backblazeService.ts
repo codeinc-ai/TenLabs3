@@ -214,6 +214,22 @@ export function buildDubbingFileName(input: {
   }
 }
 
+/**
+ * Builds the canonical B2 file name for a dialogue audio file.
+ */
+export function buildDialogueFileName(input: {
+  userId: string;
+  dialogueId: string;
+  extension: string;
+  date?: Date;
+}): string {
+  const d = input.date ?? new Date();
+  const year = d.getUTCFullYear();
+  const month = pad2(d.getUTCMonth() + 1);
+
+  return `dialogues/${input.userId}/${year}/${month}/${input.dialogueId}.${input.extension}`;
+}
+
 function encodeFileNameForHeader(fileName: string): string {
   // B2 requires URL-encoding for X-Bz-File-Name.
   return encodeURIComponent(fileName);
@@ -428,6 +444,15 @@ export interface UploadDubbingInput {
   audioBuffer: Buffer;
   type: "original" | "dubbed";
   languageCode?: string;
+  extension: string;
+  contentType: string;
+  date?: Date;
+}
+
+export interface UploadDialogueInput {
+  userId: string;
+  dialogueId: string;
+  audioBuffer: Buffer;
   extension: string;
   contentType: string;
   date?: Date;
@@ -758,6 +783,88 @@ export async function uploadDubbingToBackblaze(input: UploadDubbingInput): Promi
         projectId: input.projectId,
         type: input.type,
         languageCode: input.languageCode,
+        contentLength: input.audioBuffer?.byteLength ?? 0,
+      });
+
+      Sentry.captureException(error);
+    });
+
+    throw error;
+  }
+}
+
+export async function uploadDialogueToBackblaze(input: UploadDialogueInput): Promise<UploadAudioResult> {
+  try {
+    const config = getConfig();
+
+    if (!input.audioBuffer?.byteLength) {
+      throw new BackblazeServiceError("Cannot upload empty audio buffer", {
+        context: { op: "uploadDialogueToBackblaze" },
+      });
+    }
+
+    const fileName = buildDialogueFileName({
+      userId: input.userId,
+      dialogueId: input.dialogueId,
+      extension: input.extension,
+      date: input.date,
+    });
+
+    const sha1 = createHash("sha1").update(input.audioBuffer).digest("hex");
+
+    const auth = await authorizeAccount(config);
+    const uploadUrl = await getUploadUrl({
+      apiUrl: auth.apiUrl,
+      authorizationToken: auth.authorizationToken,
+      bucketId: config.bucketId,
+    });
+
+    const res = await fetch(uploadUrl.uploadUrl, {
+      method: "POST",
+      headers: {
+        Authorization: uploadUrl.uploadAuthorizationToken,
+        "X-Bz-File-Name": encodeFileNameForHeader(fileName),
+        "Content-Type": input.contentType,
+        "Content-Length": String(input.audioBuffer.byteLength),
+        "X-Bz-Content-Sha1": sha1,
+      },
+      body: input.audioBuffer as unknown as BodyInit,
+    });
+
+    await assertOk(res, { op: "b2_upload_file", fileName });
+
+    const json = (await res.json()) as {
+      fileId: string;
+      fileName: string;
+      contentLength: number;
+      contentSha1: string;
+    };
+
+    if (!json.fileId || !json.fileName) {
+      throw new BackblazeServiceError("Unexpected Backblaze upload response", {
+        context: { op: "b2_upload_file", json },
+      });
+    }
+
+    const url = `${auth.downloadUrl}/file/${config.bucketName}/${encodeFileNameForUrlPath(fileName)}`;
+
+    return {
+      fileId: json.fileId,
+      fileName: json.fileName,
+      url,
+      sha1: json.contentSha1 ?? sha1,
+      contentLength: json.contentLength ?? input.audioBuffer.byteLength,
+    };
+  } catch (error) {
+    Sentry.withScope((scope) => {
+      scope.setTag("feature", "text-to-dialogue");
+      scope.setTag("service", "backblaze");
+      scope.setTag("operation", "upload");
+      scope.setUser({ id: input.userId });
+      scope.setTag("userId", input.userId);
+
+      scope.setContext("backblaze", {
+        dialogueId: input.dialogueId,
         contentLength: input.audioBuffer?.byteLength ?? 0,
       });
 

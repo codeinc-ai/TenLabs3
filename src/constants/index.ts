@@ -31,6 +31,10 @@ export const PLANS = {
     maxDubbings: 3,
     // Maximum dubbing minutes per month
     maxDubbingMinutes: 10,
+    // Maximum number of dialogue generations per month
+    maxDialogueGenerations: 10,
+    // Maximum dialogue characters per month
+    maxDialogueCharacters: 5000,
   },
   pro: {
     maxChars: 50000,
@@ -44,6 +48,8 @@ export const PLANS = {
     maxVoiceIsolationMinutes: 60,
     maxDubbings: 30,
     maxDubbingMinutes: 120,
+    maxDialogueGenerations: 100,
+    maxDialogueCharacters: 50000,
   },
 };
 
@@ -332,5 +338,40 @@ export const DUBBING_CONFIG = {
     { code: "sk", name: "Slovak" },
     { code: "hr", name: "Croatian" },
     { code: "da", name: "Danish" },
+  ],
+};
+
+/**
+ * ==========================================
+ * Text to Dialogue Configuration
+ * ==========================================
+ * Configuration for the text-to-dialogue feature.
+ */
+export const TEXT_TO_DIALOGUE_CONFIG = {
+  // Maximum number of dialogue lines
+  maxLines: 20,
+  // Maximum characters per line
+  maxCharsPerLine: 1000,
+  // Maximum total characters
+  maxTotalChars: 5000,
+  // Output audio format
+  outputFormat: "mp3_44100_128",
+  // Emotion tags that can be used
+  emotionTags: [
+    "cheerfully",
+    "sadly",
+    "angrily",
+    "excitedly",
+    "nervously",
+    "sarcastically",
+    "whispering",
+    "shouting",
+    "stuttering",
+    "laughing",
+    "crying",
+    "fearfully",
+    "suspiciously",
+    "lovingly",
+    "tiredly",
   ],
 };

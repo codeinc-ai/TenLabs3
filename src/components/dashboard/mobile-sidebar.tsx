@@ -16,6 +16,7 @@ import {
   Video,
   Menu,
   Zap,
+  MessageSquare,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -44,6 +45,7 @@ const MAIN_NAV_ITEMS: NavItem[] = [
 
 const PLAYGROUND_ITEMS: NavItem[] = [
   { href: "/tts", label: "Text to Speech", icon: FileAudio },
+  { href: "/text-to-dialogue", label: "Text to Dialogue", icon: MessageSquare },
   { href: "/voice-changer", label: "Voice Changer", icon: Wand2 },
   { href: "/sound-effects", label: "Sound Effects", icon: Sparkles },
   { href: "/voice-isolator", label: "Voice Isolator", icon: AudioWaveform },

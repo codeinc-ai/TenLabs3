@@ -175,11 +175,27 @@ export interface DubbingFailedEvent {
   error: string;
 }
 
-export interface UsageLimitHitEvent {
-  feature: "tts" | "stt" | "sfx" | "voice-changer" | "voice-isolator" | "dubbing";
+export interface DialogueGeneratedEvent {
+  feature: "text-to-dialogue";
   userId: string;
   plan: PlanType;
-  limitType: "characters" | "generations" | "transcriptions" | "transcription_minutes" | "sound_effects" | "voice_conversions" | "voice_conversion_minutes" | "voice_isolations" | "voice_isolation_minutes" | "dubbings" | "dubbing_minutes";
+  dialogueId: string;
+  totalCharacters: number;
+  lineCount: number;
+  durationSeconds: number;
+}
+
+export interface DialogueDeletedEvent {
+  feature: "text-to-dialogue";
+  userId: string;
+  dialogueId: string;
+}
+
+export interface UsageLimitHitEvent {
+  feature: "tts" | "stt" | "sfx" | "voice-changer" | "voice-isolator" | "dubbing" | "text-to-dialogue";
+  userId: string;
+  plan: PlanType;
+  limitType: "characters" | "generations" | "transcriptions" | "transcription_minutes" | "sound_effects" | "voice_conversions" | "voice_conversion_minutes" | "voice_isolations" | "voice_isolation_minutes" | "dubbings" | "dubbing_minutes" | "dialogue_generations" | "dialogue_characters";
   attempted: number;
   limit: number;
 }
@@ -215,6 +231,8 @@ export type PostHogEventPropertiesMap = {
   dubbing_created: DubbingCreatedEvent;
   dubbing_completed: DubbingCompletedEvent;
   dubbing_failed: DubbingFailedEvent;
+  dialogue_generated: DialogueGeneratedEvent;
+  dialogue_deleted: DialogueDeletedEvent;
   usage_limit_hit: UsageLimitHitEvent;
   billing_event: BillingEvent;
 };

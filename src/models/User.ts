@@ -25,6 +25,8 @@ export interface IUser extends Document {
     voiceIsolationMinutesUsed: number; // Minutes of voice isolation audio
     dubbingsUsed: number;              // Number of dubbing projects
     dubbingMinutesUsed: number;        // Minutes of dubbed audio
+    dialogueGenerationsUsed: number;   // Number of dialogue generations
+    dialogueCharactersUsed: number;    // Characters used for dialogue
   };
   createdAt: Date;               // Account creation date
   updatedAt: Date;               // Last update date
@@ -54,6 +56,8 @@ const UserSchema: Schema = new Schema<IUser>(
       voiceIsolationMinutesUsed: { type: Number, default: 0 },
       dubbingsUsed: { type: Number, default: 0 },
       dubbingMinutesUsed: { type: Number, default: 0 },
+      dialogueGenerationsUsed: { type: Number, default: 0 },
+      dialogueCharactersUsed: { type: Number, default: 0 },
     },
   },
   {
