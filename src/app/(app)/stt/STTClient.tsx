@@ -1,17 +1,20 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { useUser } from "@clerk/nextjs";
 import * as Sentry from "@sentry/nextjs";
 import {
   Search,
   FileText,
-  MoreHorizontal,
   Loader2,
   Copy,
   Download,
   Play,
   Pause,
+  Trash2,
+  Clock,
+  ChevronRight,
 } from "lucide-react";
 
 import { PLANS, STT_CONFIG } from "@/constants";
@@ -32,14 +35,23 @@ type TranscriptionResult = {
   audioUrl: string;
 };
 
-// Sample transcripts for display
-const sampleTranscripts = [
-  { title: "Product Launch Presentation", createdAt: "2 hours ago" },
-  { title: "Quarterly Business Review Meeting", createdAt: "5 hours ago" },
-  { title: "Customer Interview Session", createdAt: "yesterday" },
-  { title: "Podcast Episode 42: Future of AI", createdAt: "3 days ago" },
-  { title: "Team Training Workshop", createdAt: "last week" },
-];
+interface TranscriptionListItem {
+  id: string;
+  originalFileName: string;
+  textPreview: string;
+  language: string;
+  duration: number;
+  audioUrl: string;
+  createdAt: string;
+}
+
+interface PaginatedTranscriptions {
+  transcriptions: TranscriptionListItem[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
 
 function formatSeconds(seconds: number): string {
   const s = Math.max(0, seconds || 0);
@@ -48,10 +60,28 @@ function formatSeconds(seconds: number): string {
   return `${mins}:${secs.toString().padStart(2, "0")}`;
 }
 
+function formatRelativeTime(dateString: string): string {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffSecs = Math.floor(diffMs / 1000);
+  const diffMins = Math.floor(diffSecs / 60);
+  const diffHours = Math.floor(diffMins / 60);
+  const diffDays = Math.floor(diffHours / 24);
+
+  if (diffSecs < 60) return "just now";
+  if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? "s" : ""} ago`;
+  if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? "s" : ""} ago`;
+  if (diffDays === 1) return "yesterday";
+  if (diffDays < 7) return `${diffDays} days ago`;
+  return date.toLocaleDateString();
+}
+
 export function STTClient({ userPlan = "free", currentUsage }: STTClientProps) {
   const { user } = useUser();
   const userId = user?.id;
   const audioRef = useRef<HTMLAudioElement>(null);
+  const historyAudioRef = useRef<HTMLAudioElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [file, setFile] = useState<File | null>(null);
@@ -60,11 +90,99 @@ export function STTClient({ userPlan = "free", currentUsage }: STTClientProps) {
   const [result, setResult] = useState<TranscriptionResult | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
+  // History state
+  const [history, setHistory] = useState<PaginatedTranscriptions | null>(null);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [historyError, setHistoryError] = useState<string | null>(null);
+  const [playingHistoryId, setPlayingHistoryId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
   const limits = PLANS[userPlan];
   const remainingTranscriptions = Math.max(
     0,
     limits.maxTranscriptions - (currentUsage?.transcriptionsUsed ?? 0)
   );
+
+  // Fetch transcription history
+  const fetchHistory = useCallback(async (page: number = 1) => {
+    setHistoryLoading(true);
+    setHistoryError(null);
+
+    try {
+      const params = new URLSearchParams({ page: String(page), limit: "10" });
+      const res = await fetch(`/api/stt?${params}`);
+      if (!res.ok) throw new Error(`Request failed (${res.status})`);
+      const json = (await res.json()) as PaginatedTranscriptions;
+      setHistory(json);
+    } catch (err) {
+      const e = err instanceof Error ? err : new Error("Unknown error");
+      setHistoryError(e.message);
+      Sentry.captureException(e);
+    } finally {
+      setHistoryLoading(false);
+    }
+  }, []);
+
+  // Load history on mount
+  useEffect(() => {
+    fetchHistory();
+  }, [fetchHistory]);
+
+  // Filter transcriptions by search query
+  const filteredTranscriptions = useMemo(() => {
+    if (!history?.transcriptions) return [];
+    if (!searchQuery.trim()) return history.transcriptions;
+    
+    const query = searchQuery.toLowerCase();
+    return history.transcriptions.filter(
+      (t) =>
+        t.originalFileName.toLowerCase().includes(query) ||
+        t.textPreview.toLowerCase().includes(query)
+    );
+  }, [history?.transcriptions, searchQuery]);
+
+  // Handle delete transcription
+  const handleDelete = async (id: string) => {
+    setDeletingId(id);
+    try {
+      const res = await fetch(`/api/stt/${id}`, { method: "DELETE" });
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}));
+        throw new Error(json.error || `Delete failed (${res.status})`);
+      }
+      // Refresh the list
+      await fetchHistory(history?.page ?? 1);
+    } catch (err) {
+      const e = err instanceof Error ? err : new Error("Unknown error");
+      Sentry.withScope((scope) => {
+        scope.setTag("feature", "stt");
+        if (userId) scope.setUser({ id: userId });
+        Sentry.captureException(e);
+      });
+      setHistoryError(e.message);
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  // Toggle play for history item
+  const toggleHistoryPlay = (item: TranscriptionListItem) => {
+    if (!historyAudioRef.current) return;
+
+    if (playingHistoryId === item.id) {
+      historyAudioRef.current.pause();
+      setPlayingHistoryId(null);
+      return;
+    }
+
+    setPlayingHistoryId(item.id);
+    historyAudioRef.current.src = item.audioUrl;
+    historyAudioRef.current.play().catch(() => {
+      setHistoryError("Failed to play audio");
+      setPlayingHistoryId(null);
+    });
+  };
 
   const fileTooLarge = useMemo(() => {
     if (!file) return false;
@@ -109,6 +227,8 @@ export function STTClient({ userPlan = "free", currentUsage }: STTClientProps) {
       }
 
       setResult(data);
+      // Refresh history to show the new transcription
+      await fetchHistory();
     } catch (err) {
       const e = err instanceof Error ? err : new Error("Unknown error");
 
@@ -310,41 +430,154 @@ export function STTClient({ userPlan = "free", currentUsage }: STTClientProps) {
           </p>
         </div>
 
+        {/* History Section Header */}
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-gray-900">Recent Transcriptions</h2>
+          {history && history.total > 0 && (
+            <Link
+              href="/stt/history"
+              className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-900 transition-colors"
+            >
+              View all
+              <ChevronRight size={16} />
+            </Link>
+          )}
+        </div>
+
+        {/* Hidden audio element for history playback */}
+        <audio ref={historyAudioRef} onEnded={() => setPlayingHistoryId(null)} />
+
         {/* Search */}
         <div className="relative mb-6">
           <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
             type="text"
             placeholder="Search transcripts..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-11 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-sm placeholder:text-gray-400 focus:outline-none focus:border-gray-300 focus:ring-1 focus:ring-gray-200"
           />
         </div>
 
-        {/* Table Header */}
-        <div className="grid grid-cols-[1fr_150px_50px] gap-4 px-4 py-3 text-xs font-medium text-gray-500">
-          <div>Title</div>
-          <div>Created at</div>
-          <div></div>
-        </div>
+        {/* History Error */}
+        {historyError && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-100 rounded-lg">
+            <p className="text-sm text-red-600">{historyError}</p>
+          </div>
+        )}
 
-        {/* Table Rows */}
-        <div className="divide-y divide-gray-100">
-          {sampleTranscripts.map((transcript, index) => (
-            <div
-              key={index}
-              className="grid grid-cols-[1fr_150px_50px] gap-4 px-4 py-4 items-center hover:bg-gray-50 transition-colors group"
-              style={{ opacity: 1 - index * 0.15 }}
-            >
-              <div className="text-sm text-gray-900">{transcript.title}</div>
-              <div className="text-sm text-gray-500">{transcript.createdAt}</div>
-              <div className="flex justify-end">
-                <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors opacity-0 group-hover:opacity-100">
-                  <MoreHorizontal size={16} />
-                </button>
-              </div>
+        {/* Loading State */}
+        {historyLoading && !history && (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+          </div>
+        )}
+
+        {/* Empty State */}
+        {!historyLoading && history && history.transcriptions.length === 0 && (
+          <div className="py-12 text-center">
+            <FileText size={48} className="mx-auto text-gray-300 mb-4" />
+            <p className="text-gray-500 mb-2">No transcriptions yet</p>
+            <p className="text-sm text-gray-400">
+              Upload an audio or video file to get started
+            </p>
+          </div>
+        )}
+
+        {/* Table Header */}
+        {filteredTranscriptions.length > 0 && (
+          <>
+            <div className="grid grid-cols-[1fr_120px_100px_80px] gap-4 px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <div>File</div>
+              <div>Duration</div>
+              <div>Created</div>
+              <div className="text-right">Actions</div>
             </div>
-          ))}
-        </div>
+
+            {/* Table Rows */}
+            <div className="divide-y divide-gray-100 border border-gray-100 rounded-xl overflow-hidden">
+              {filteredTranscriptions.map((transcript) => (
+                <div
+                  key={transcript.id}
+                  className="grid grid-cols-[1fr_120px_100px_80px] gap-4 px-4 py-4 items-center hover:bg-gray-50 transition-colors group bg-white"
+                >
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-gray-900 truncate">
+                      {transcript.originalFileName}
+                    </p>
+                    <p className="text-xs text-gray-500 truncate mt-0.5">
+                      {transcript.textPreview || "(no text)"}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-sm text-gray-500">
+                    <Clock size={14} />
+                    {formatSeconds(transcript.duration)}
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    {formatRelativeTime(transcript.createdAt)}
+                  </div>
+                  <div className="flex items-center justify-end gap-1">
+                    <button
+                      onClick={() => toggleHistoryPlay(transcript)}
+                      className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                      title={playingHistoryId === transcript.id ? "Pause" : "Play"}
+                    >
+                      {playingHistoryId === transcript.id ? (
+                        <Pause size={16} />
+                      ) : (
+                        <Play size={16} />
+                      )}
+                    </button>
+                    <button
+                      onClick={() => handleDelete(transcript.id)}
+                      disabled={deletingId === transcript.id}
+                      className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+                      title="Delete"
+                    >
+                      {deletingId === transcript.id ? (
+                        <Loader2 size={16} className="animate-spin" />
+                      ) : (
+                        <Trash2 size={16} />
+                      )}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Pagination */}
+            {history && history.totalPages > 1 && (
+              <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
+                <p className="text-sm text-gray-500">
+                  Page {history.page} of {history.totalPages} ({history.total} total)
+                </p>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => fetchHistory(history.page - 1)}
+                    disabled={history.page <= 1 || historyLoading}
+                    className="px-3 py-1.5 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    Previous
+                  </button>
+                  <button
+                    onClick={() => fetchHistory(history.page + 1)}
+                    disabled={history.page >= history.totalPages || historyLoading}
+                    className="px-3 py-1.5 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* No search results */}
+        {searchQuery && filteredTranscriptions.length === 0 && history && history.transcriptions.length > 0 && (
+          <div className="py-8 text-center">
+            <p className="text-gray-500">No transcriptions match &quot;{searchQuery}&quot;</p>
+          </div>
+        )}
       </div>
     </div>
   );
