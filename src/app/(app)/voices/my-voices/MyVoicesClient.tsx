@@ -20,6 +20,8 @@ import {
   Grid3X3,
   List,
   MoreVertical,
+  Wand2,
+  ChevronDown,
 } from "lucide-react";
 
 import type { VoiceItem } from "@/lib/services/voiceService";
@@ -45,6 +47,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { InstantCloneDialog } from "@/components/voices/InstantCloneDialog";
+import { VoiceDesignDialog } from "@/components/voices/VoiceDesignDialog";
+import { VoiceRemixDialog } from "@/components/voices/VoiceRemixDialog";
 
 interface MyVoicesClientProps {
   initialVoices: VoiceItem[];
@@ -74,6 +79,10 @@ export function MyVoicesClient({ initialVoices }: MyVoicesClientProps) {
   // Dialog state
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [voiceToDelete, setVoiceToDelete] = useState<VoiceItem | null>(null);
+
+  // Remix dialog state
+  const [remixDialogOpen, setRemixDialogOpen] = useState(false);
+  const [voiceToRemix, setVoiceToRemix] = useState<VoiceItem | null>(null);
 
   // Filter voices by search
   const filteredVoices = voices.filter((voice) => {
@@ -172,6 +181,24 @@ export function MyVoicesClient({ initialVoices }: MyVoicesClientProps) {
     setDeleteDialogOpen(true);
   };
 
+  // Check if voice can be remixed (only user-created voices)
+  const canRemixVoice = (voice: VoiceItem) => {
+    const remixableCategories = ["Cloned", "Designed", "Remixed", "Custom"];
+    return remixableCategories.includes(voice.category || "");
+  };
+
+  // Open remix dialog
+  const openRemixDialog = (voice: VoiceItem) => {
+    setVoiceToRemix(voice);
+    setRemixDialogOpen(true);
+  };
+
+  // Handle remix success
+  const handleRemixSuccess = (newVoice: { voiceId: string; name: string }) => {
+    // Refresh the page to show the new voice
+    router.refresh();
+  };
+
   // Get gender icon
   const getGenderIcon = (gender?: string) => {
     switch (gender) {
@@ -228,6 +255,15 @@ export function MyVoicesClient({ initialVoices }: MyVoicesClientProps) {
                   </>
                 )}
               </DropdownMenuItem>
+              {canRemixVoice(voice) && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => openRemixDialog(voice)}>
+                    <Wand2 className="mr-2 h-4 w-4" />
+                    Remix Voice
+                  </DropdownMenuItem>
+                </>
+              )}
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 className="text-destructive"
@@ -412,6 +448,15 @@ export function MyVoicesClient({ initialVoices }: MyVoicesClientProps) {
                     </>
                   )}
                 </DropdownMenuItem>
+                {canRemixVoice(voice) && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => openRemixDialog(voice)}>
+                      <Wand2 className="mr-2 h-4 w-4" />
+                      Remix Voice
+                    </DropdownMenuItem>
+                  </>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   className="text-destructive"
@@ -624,6 +669,21 @@ export function MyVoicesClient({ initialVoices }: MyVoicesClientProps) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Voice Remix Dialog */}
+      <VoiceRemixDialog
+        open={remixDialogOpen}
+        onOpenChange={(open) => {
+          setRemixDialogOpen(open);
+          if (!open) setVoiceToRemix(null);
+        }}
+        sourceVoice={
+          voiceToRemix
+            ? { voiceId: voiceToRemix.voiceId, name: voiceToRemix.name }
+            : null
+        }
+        onSuccess={handleRemixSuccess}
+      />
     </div>
   );
 }

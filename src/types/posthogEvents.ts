@@ -191,11 +191,70 @@ export interface DialogueDeletedEvent {
   dialogueId: string;
 }
 
-export interface UsageLimitHitEvent {
-  feature: "tts" | "stt" | "sfx" | "voice-changer" | "voice-isolator" | "dubbing" | "text-to-dialogue";
+// Professional Voice Clone (PVC) Events
+
+export interface PVCCreatedEvent {
+  feature: "pvc";
   userId: string;
   plan: PlanType;
-  limitType: "characters" | "generations" | "transcriptions" | "transcription_minutes" | "sound_effects" | "voice_conversions" | "voice_conversion_minutes" | "voice_isolations" | "voice_isolation_minutes" | "dubbings" | "dubbing_minutes" | "dialogue_generations" | "dialogue_characters";
+  voiceId: string;
+  language: string;
+}
+
+export interface PVCSamplesUploadedEvent {
+  feature: "pvc";
+  userId: string;
+  voiceId: string;
+  sampleCount: number;
+  totalSizeMB: number;
+}
+
+export interface PVCVerificationStartedEvent {
+  feature: "pvc";
+  userId: string;
+  voiceId: string;
+}
+
+export interface PVCVerificationCompletedEvent {
+  feature: "pvc";
+  userId: string;
+  voiceId: string;
+}
+
+export interface PVCVerificationFailedEvent {
+  feature: "pvc";
+  userId: string;
+  voiceId: string;
+  error: string;
+}
+
+export interface PVCTrainingStartedEvent {
+  feature: "pvc";
+  userId: string;
+  voiceId: string;
+  modelId: string;
+}
+
+export interface PVCTrainingCompletedEvent {
+  feature: "pvc";
+  userId: string;
+  voiceId: string;
+  modelId: string;
+  durationMinutes?: number;
+}
+
+export interface PVCTrainingFailedEvent {
+  feature: "pvc";
+  userId: string;
+  voiceId: string;
+  error: string;
+}
+
+export interface UsageLimitHitEvent {
+  feature: "tts" | "stt" | "sfx" | "voice-changer" | "voice-isolator" | "dubbing" | "text-to-dialogue" | "pvc";
+  userId: string;
+  plan: PlanType;
+  limitType: "characters" | "generations" | "transcriptions" | "transcription_minutes" | "sound_effects" | "voice_conversions" | "voice_conversion_minutes" | "voice_isolations" | "voice_isolation_minutes" | "dubbings" | "dubbing_minutes" | "dialogue_generations" | "dialogue_characters" | "cloned_voices" | "pvc_access";
   attempted: number;
   limit: number;
 }
@@ -233,6 +292,14 @@ export type PostHogEventPropertiesMap = {
   dubbing_failed: DubbingFailedEvent;
   dialogue_generated: DialogueGeneratedEvent;
   dialogue_deleted: DialogueDeletedEvent;
+  pvc_created: PVCCreatedEvent;
+  pvc_samples_uploaded: PVCSamplesUploadedEvent;
+  pvc_verification_started: PVCVerificationStartedEvent;
+  pvc_verification_completed: PVCVerificationCompletedEvent;
+  pvc_verification_failed: PVCVerificationFailedEvent;
+  pvc_training_started: PVCTrainingStartedEvent;
+  pvc_training_completed: PVCTrainingCompletedEvent;
+  pvc_training_failed: PVCTrainingFailedEvent;
   usage_limit_hit: UsageLimitHitEvent;
   billing_event: BillingEvent;
 };

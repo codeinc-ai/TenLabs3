@@ -35,6 +35,10 @@ export const PLANS = {
     maxDialogueGenerations: 10,
     // Maximum dialogue characters per month
     maxDialogueCharacters: 5000,
+    // Maximum number of cloned/designed voices
+    maxClonedVoices: 0,
+    // Professional Voice Clone access
+    canUsePVC: false,
   },
   pro: {
     maxChars: 50000,
@@ -50,6 +54,10 @@ export const PLANS = {
     maxDubbingMinutes: 120,
     maxDialogueGenerations: 100,
     maxDialogueCharacters: 50000,
+    // Maximum number of cloned/designed voices
+    maxClonedVoices: 10,
+    // Professional Voice Clone access
+    canUsePVC: true,
   },
 };
 
@@ -374,4 +382,76 @@ export const TEXT_TO_DIALOGUE_CONFIG = {
     "lovingly",
     "tiredly",
   ],
+};
+
+/**
+ * ==========================================
+ * Professional Voice Clone Configuration
+ * ==========================================
+ * Configuration for the Professional Voice Clone (PVC) feature.
+ */
+export const PVC_CONFIG = {
+  // Supported languages for PVC
+  supportedLanguages: [
+    { code: "en", name: "English" },
+    { code: "es", name: "Spanish" },
+    { code: "fr", name: "French" },
+    { code: "de", name: "German" },
+    { code: "it", name: "Italian" },
+    { code: "pt", name: "Portuguese" },
+    { code: "pl", name: "Polish" },
+    { code: "tr", name: "Turkish" },
+    { code: "ru", name: "Russian" },
+    { code: "nl", name: "Dutch" },
+    { code: "cs", name: "Czech" },
+    { code: "ar", name: "Arabic" },
+    { code: "zh", name: "Chinese" },
+    { code: "ja", name: "Japanese" },
+    { code: "ko", name: "Korean" },
+    { code: "hi", name: "Hindi" },
+    { code: "id", name: "Indonesian" },
+    { code: "ms", name: "Malay" },
+    { code: "ta", name: "Tamil" },
+    { code: "fil", name: "Filipino" },
+    { code: "uk", name: "Ukrainian" },
+    { code: "el", name: "Greek" },
+    { code: "bg", name: "Bulgarian" },
+    { code: "ro", name: "Romanian" },
+    { code: "sv", name: "Swedish" },
+    { code: "hu", name: "Hungarian" },
+    { code: "no", name: "Norwegian" },
+    { code: "fi", name: "Finnish" },
+    { code: "sk", name: "Slovak" },
+    { code: "hr", name: "Croatian" },
+    { code: "da", name: "Danish" },
+  ],
+  // Maximum number of audio samples
+  maxSamples: 25,
+  // Maximum file size per sample in bytes (50MB)
+  maxSampleSize: 50 * 1024 * 1024,
+  // Allowed audio/video file extensions
+  allowedFormats: ["mp3", "wav", "m4a", "flac", "ogg", "webm", "mp4", "avi", "mov", "mkv"],
+  // Allowed MIME types for upload validation
+  allowedMimeTypes: [
+    "audio/mpeg",
+    "audio/wav",
+    "audio/x-wav",
+    "audio/x-m4a",
+    "audio/mp4",
+    "audio/flac",
+    "audio/ogg",
+    "audio/webm",
+    "video/mp4",
+    "video/avi",
+    "video/quicktime",
+    "video/x-matroska",
+  ],
+  // Default training model
+  trainingModel: "eleven_multilingual_v2",
+  // Minimum audio duration for good quality clone (in seconds)
+  minAudioDuration: 30,
+  // Maximum audio duration per sample (in seconds)
+  maxAudioDuration: 1800, // 30 minutes
+  // Recommended total audio duration (in seconds)
+  recommendedTotalDuration: 300, // 5 minutes minimum recommended
 };

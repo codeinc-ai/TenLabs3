@@ -21,9 +21,23 @@ import {
   Folder,
   X,
   Loader2,
+  Mic2,
+  Wand2,
+  ChevronDown,
+  Crown,
 } from "lucide-react";
 
 import type { VoiceListResponse, VoiceItem } from "@/lib/services/voiceService";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { InstantCloneDialog } from "@/components/voices/InstantCloneDialog";
+import { VoiceDesignDialog } from "@/components/voices/VoiceDesignDialog";
+import { ProfessionalCloneDialog } from "@/components/voices/ProfessionalCloneDialog";
 
 const categories = [
   { icon: MessageCircle, label: "Conversational" },
@@ -43,9 +57,10 @@ const useCaseCards = [
 
 interface VoicesClientProps {
   initialData: VoiceListResponse;
+  canUsePVC?: boolean;
 }
 
-export function VoicesClient({ initialData }: VoicesClientProps) {
+export function VoicesClient({ initialData, canUsePVC = false }: VoicesClientProps) {
   const router = useRouter();
   const audioRef = useRef<HTMLAudioElement>(null);
 
@@ -55,6 +70,16 @@ export function VoicesClient({ initialData }: VoicesClientProps) {
   const [search, setSearch] = useState("");
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [savingId, setSavingId] = useState<string | null>(null);
+
+  // Voice creation dialogs
+  const [instantCloneOpen, setInstantCloneOpen] = useState(false);
+  const [voiceDesignOpen, setVoiceDesignOpen] = useState(false);
+  const [professionalCloneOpen, setProfessionalCloneOpen] = useState(false);
+
+  const handleVoiceCreated = () => {
+    fetchVoices(1);
+    router.push("/voices/my-voices");
+  };
 
   const fetchVoices = useCallback(
     async (page: number = 1) => {
@@ -178,10 +203,49 @@ export function VoicesClient({ initialData }: VoicesClientProps) {
           </div>
           <div className="flex items-center gap-3">
             <span className="text-sm text-gray-500">○ 0 / 3 slots used</span>
-            <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-colors">
-              <Sparkles size={16} />
-              Create a Voice
-            </button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-colors">
+                  <Sparkles size={16} />
+                  Create a Voice
+                  <ChevronDown size={14} />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuItem onClick={() => setInstantCloneOpen(true)} className="cursor-pointer">
+                  <Mic2 className="mr-2 h-4 w-4 text-emerald-600" />
+                  <div>
+                    <p className="font-medium">Instant Voice Clone</p>
+                    <p className="text-xs text-muted-foreground">Clone from audio samples</p>
+                  </div>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setVoiceDesignOpen(true)} className="cursor-pointer">
+                  <Sparkles className="mr-2 h-4 w-4 text-purple-600" />
+                  <div>
+                    <p className="font-medium">Design a Voice</p>
+                    <p className="text-xs text-muted-foreground">Create from description</p>
+                  </div>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={() => canUsePVC && setProfessionalCloneOpen(true)}
+                  className={`cursor-pointer ${!canUsePVC ? "opacity-60" : ""}`}
+                >
+                  <Crown className="mr-2 h-4 w-4 text-amber-600" />
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium">Professional Clone</p>
+                      {!canUsePVC && (
+                        <span className="text-[10px] px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded font-medium">
+                          PRO
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground">High-quality trained clone</p>
+                  </div>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
 
@@ -396,6 +460,23 @@ export function VoicesClient({ initialData }: VoicesClientProps) {
           </div>
         )}
       </div>
+
+      {/* Voice Creation Dialogs */}
+      <InstantCloneDialog
+        open={instantCloneOpen}
+        onOpenChange={setInstantCloneOpen}
+        onSuccess={handleVoiceCreated}
+      />
+      <VoiceDesignDialog
+        open={voiceDesignOpen}
+        onOpenChange={setVoiceDesignOpen}
+        onSuccess={handleVoiceCreated}
+      />
+      <ProfessionalCloneDialog
+        open={professionalCloneOpen}
+        onOpenChange={setProfessionalCloneOpen}
+        onSuccess={handleVoiceCreated}
+      />
     </div>
   );
 }
