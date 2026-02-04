@@ -128,7 +128,7 @@ export const generateDialogue = async (
     }));
 
     const response = await fetch(
-      "https://api.elevenlabs.io/v1/text-to-dialogue/convert",
+      "https://api.elevenlabs.io/v1/text-to-dialogue",
       {
         method: "POST",
         headers: {
