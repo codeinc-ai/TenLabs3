@@ -27,6 +27,10 @@ export const PLANS = {
     maxVoiceIsolations: 5,
     // Maximum voice isolation minutes per month
     maxVoiceIsolationMinutes: 5,
+    // Maximum number of dubbing projects per month
+    maxDubbings: 3,
+    // Maximum dubbing minutes per month
+    maxDubbingMinutes: 10,
   },
   pro: {
     maxChars: 50000,
@@ -38,6 +42,8 @@ export const PLANS = {
     maxVoiceConversionMinutes: 60,
     maxVoiceIsolations: 50,
     maxVoiceIsolationMinutes: 60,
+    maxDubbings: 30,
+    maxDubbingMinutes: 120,
   },
 };
 
@@ -262,5 +268,69 @@ export const VOICE_ISOLATOR_CONFIG = {
     "audio/ogg",
     "audio/webm",
     "video/mp4",
+  ],
+};
+
+/**
+ * ==========================================
+ * Dubbing Configuration
+ * ==========================================
+ * Configuration for the dubbing feature.
+ */
+export const DUBBING_CONFIG = {
+  // Maximum file size in megabytes
+  maxFileSizeMB: 1000,
+  // Maximum duration in minutes
+  maxDurationMinutes: 45,
+  // Allowed audio/video file extensions
+  allowedFormats: ["mp3", "wav", "m4a", "flac", "ogg", "webm", "mp4", "avi", "mov", "mkv"],
+  // Allowed MIME types for upload validation
+  allowedMimeTypes: [
+    "audio/mpeg",
+    "audio/wav",
+    "audio/x-wav",
+    "audio/x-m4a",
+    "audio/mp4",
+    "audio/flac",
+    "audio/ogg",
+    "audio/webm",
+    "video/mp4",
+    "video/avi",
+    "video/quicktime",
+    "video/x-matroska",
+  ],
+  // Supported languages for dubbing
+  supportedLanguages: [
+    { code: "en", name: "English" },
+    { code: "es", name: "Spanish" },
+    { code: "fr", name: "French" },
+    { code: "de", name: "German" },
+    { code: "it", name: "Italian" },
+    { code: "pt", name: "Portuguese" },
+    { code: "pl", name: "Polish" },
+    { code: "tr", name: "Turkish" },
+    { code: "ru", name: "Russian" },
+    { code: "nl", name: "Dutch" },
+    { code: "cs", name: "Czech" },
+    { code: "ar", name: "Arabic" },
+    { code: "zh", name: "Chinese (Simplified)" },
+    { code: "ja", name: "Japanese" },
+    { code: "ko", name: "Korean" },
+    { code: "hi", name: "Hindi" },
+    { code: "id", name: "Indonesian" },
+    { code: "ms", name: "Malay" },
+    { code: "ta", name: "Tamil" },
+    { code: "fil", name: "Filipino" },
+    { code: "uk", name: "Ukrainian" },
+    { code: "el", name: "Greek" },
+    { code: "bg", name: "Bulgarian" },
+    { code: "ro", name: "Romanian" },
+    { code: "sv", name: "Swedish" },
+    { code: "hu", name: "Hungarian" },
+    { code: "no", name: "Norwegian" },
+    { code: "fi", name: "Finnish" },
+    { code: "sk", name: "Slovak" },
+    { code: "hr", name: "Croatian" },
+    { code: "da", name: "Danish" },
   ],
 };

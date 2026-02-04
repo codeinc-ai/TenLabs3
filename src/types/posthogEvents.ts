@@ -150,11 +150,36 @@ export interface VoiceIsolationDeletedEvent {
   isolationId: string;
 }
 
-export interface UsageLimitHitEvent {
-  feature: "tts" | "stt" | "sfx" | "voice-changer" | "voice-isolator";
+export interface DubbingCreatedEvent {
+  feature: "dubbing";
   userId: string;
   plan: PlanType;
-  limitType: "characters" | "generations" | "transcriptions" | "transcription_minutes" | "sound_effects" | "voice_conversions" | "voice_conversion_minutes" | "voice_isolations" | "voice_isolation_minutes";
+  projectId: string;
+  dubbingId: string;
+  durationSeconds: number;
+  targetLanguages: string;
+  fileExtension: string;
+  fileSizeMB: number;
+}
+
+export interface DubbingCompletedEvent {
+  feature: "dubbing";
+  userId?: string;
+  projectId: string;
+}
+
+export interface DubbingFailedEvent {
+  feature: "dubbing";
+  userId?: string;
+  projectId?: string;
+  error: string;
+}
+
+export interface UsageLimitHitEvent {
+  feature: "tts" | "stt" | "sfx" | "voice-changer" | "voice-isolator" | "dubbing";
+  userId: string;
+  plan: PlanType;
+  limitType: "characters" | "generations" | "transcriptions" | "transcription_minutes" | "sound_effects" | "voice_conversions" | "voice_conversion_minutes" | "voice_isolations" | "voice_isolation_minutes" | "dubbings" | "dubbing_minutes";
   attempted: number;
   limit: number;
 }
@@ -187,6 +212,9 @@ export type PostHogEventPropertiesMap = {
   voice_isolation_failed: VoiceIsolationFailedEvent;
   voice_isolation_created: VoiceIsolationCreatedEvent;
   voice_isolation_deleted: VoiceIsolationDeletedEvent;
+  dubbing_created: DubbingCreatedEvent;
+  dubbing_completed: DubbingCompletedEvent;
+  dubbing_failed: DubbingFailedEvent;
   usage_limit_hit: UsageLimitHitEvent;
   billing_event: BillingEvent;
 };
