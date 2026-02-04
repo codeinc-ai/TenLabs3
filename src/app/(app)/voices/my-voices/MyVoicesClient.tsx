@@ -83,21 +83,14 @@ export function MyVoicesClient({ initialVoices }: MyVoicesClientProps) {
   // Voice creation dialogs
   const [instantCloneOpen, setInstantCloneOpen] = useState(false);
   const [voiceDesignOpen, setVoiceDesignOpen] = useState(false);
-  const [voiceRemixOpen, setVoiceRemixOpen] = useState(false);
+
+  // Remix dialog state
+  const [remixDialogOpen, setRemixDialogOpen] = useState(false);
   const [voiceToRemix, setVoiceToRemix] = useState<{ voiceId: string; name: string } | null>(null);
 
   const handleVoiceCreated = () => {
     router.refresh();
   };
-
-  const handleRemixVoice = (voice: VoiceItem) => {
-    setVoiceToRemix({ voiceId: voice.voiceId, name: voice.name });
-    setVoiceRemixOpen(true);
-  };
-
-  // Remix dialog state
-  const [remixDialogOpen, setRemixDialogOpen] = useState(false);
-  const [voiceToRemix, setVoiceToRemix] = useState<VoiceItem | null>(null);
 
   // Filter voices by search
   const filteredVoices = voices.filter((voice) => {
@@ -204,7 +197,7 @@ export function MyVoicesClient({ initialVoices }: MyVoicesClientProps) {
 
   // Open remix dialog
   const openRemixDialog = (voice: VoiceItem) => {
-    setVoiceToRemix(voice);
+    setVoiceToRemix({ voiceId: voice.voiceId, name: voice.name });
     setRemixDialogOpen(true);
   };
 
@@ -692,11 +685,7 @@ export function MyVoicesClient({ initialVoices }: MyVoicesClientProps) {
           setRemixDialogOpen(open);
           if (!open) setVoiceToRemix(null);
         }}
-        sourceVoice={
-          voiceToRemix
-            ? { voiceId: voiceToRemix.voiceId, name: voiceToRemix.name }
-            : null
-        }
+        sourceVoice={voiceToRemix}
         onSuccess={handleRemixSuccess}
       />
     </div>
