@@ -321,8 +321,8 @@ export function VoiceIsolatorClient({ userPlan = "free", currentUsage }: VoiceIs
 
       <div className="p-8 max-w-5xl mx-auto">
         {/* Title */}
-        <h1 className="text-2xl font-bold text-black mb-2">Voice Isolator</h1>
-        <p className="text-sm text-gray-500 mb-8">
+        <h1 className="text-2xl font-bold text-black dark:text-white mb-2">Voice Isolator</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-8">
           Remove background noise and isolate voices from audio files
         </p>
 
@@ -335,28 +335,28 @@ export function VoiceIsolatorClient({ userPlan = "free", currentUsage }: VoiceIs
             onClick={() => fileInputRef.current?.click()}
             className={`h-[200px] rounded-2xl border-2 border-dashed flex flex-col items-center justify-center transition-colors cursor-pointer group mb-6 ${
               isDragging
-                ? "border-black bg-gray-50"
-                : "border-gray-200 hover:border-gray-300 hover:bg-gray-50/50"
+                ? "border-black dark:border-white bg-gray-50 dark:bg-[#1a1a1a]"
+                : "border-gray-200 dark:border-[#333] hover:border-gray-300 dark:hover:border-[#444] hover:bg-gray-50/50 dark:hover:bg-[#1a1a1a]/80"
             }`}
           >
-            <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mb-4 group-hover:bg-gray-200 transition-colors">
-              <Upload size={24} className="text-gray-500" />
+            <div className="w-12 h-12 bg-gray-100 dark:bg-[#252525] rounded-xl flex items-center justify-center mb-4 group-hover:bg-gray-200 dark:group-hover:bg-[#333] transition-colors">
+              <Upload size={24} className="text-gray-500 dark:text-gray-400" />
             </div>
-            <h3 className="text-base font-medium text-gray-900 mb-2">
+            <h3 className="text-base font-medium text-gray-900 dark:text-white mb-2">
               Click to upload, or drag and drop
             </h3>
-            <p className="text-sm text-gray-500 mb-6">
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
               Audio or video files up to {VOICE_ISOLATOR_CONFIG.maxFileSizeMB}MB
             </p>
 
             <div className="flex items-center gap-4 mb-6">
-              <div className="h-px w-12 bg-gray-200"></div>
-              <span className="text-sm text-gray-400">or</span>
-              <div className="h-px w-12 bg-gray-200"></div>
+              <div className="h-px w-12 bg-gray-200 dark:bg-[#444]"></div>
+              <span className="text-sm text-gray-400 dark:text-gray-500">or</span>
+              <div className="h-px w-12 bg-gray-200 dark:bg-[#444]"></div>
             </div>
 
             {recordingError && (
-              <p className="text-sm text-red-600 mb-4">{recordingError}</p>
+              <p className="text-sm text-red-600 dark:text-red-400 mb-4">{recordingError}</p>
             )}
             <button
               type="button"
@@ -364,7 +364,7 @@ export function VoiceIsolatorClient({ userPlan = "free", currentUsage }: VoiceIs
               className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                 isRecording
                   ? "bg-red-500 text-white hover:bg-red-600"
-                  : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300"
+                  : "bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-[#252525] hover:border-gray-300 dark:hover:border-[#444]"
               }`}
             >
               {isRecording ? (
@@ -384,22 +384,22 @@ export function VoiceIsolatorClient({ userPlan = "free", currentUsage }: VoiceIs
           /* File Uploaded - Show Preview and Result */
           <div className="space-y-6">
             {/* Uploaded File Card */}
-            <div className="bg-white border border-gray-200 rounded-xl p-6">
+            <div className="bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-xl p-6">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                    <AudioWaveform size={20} className="text-gray-400" />
+                  <div className="w-10 h-10 bg-gray-100 dark:bg-[#252525] rounded-lg flex items-center justify-center">
+                    <AudioWaveform size={20} className="text-gray-400 dark:text-gray-500" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-medium text-gray-900 truncate max-w-[400px]">
+                    <h4 className="text-sm font-medium text-gray-900 dark:text-white truncate max-w-[400px]">
                       {uploadedFile.name}
                     </h4>
-                    <p className="text-xs text-gray-500">{fileSizeMB} MB</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{fileSizeMB} MB</p>
                   </div>
                 </div>
                 <button
                   onClick={clearFile}
-                  className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                  className="p-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#252525] rounded-lg transition-colors"
                 >
                   <Trash2 size={18} />
                 </button>
@@ -407,18 +407,18 @@ export function VoiceIsolatorClient({ userPlan = "free", currentUsage }: VoiceIs
 
               {/* Error Message */}
               {error && (
-                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
+                <div className="mb-4 p-3 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-900 rounded-lg text-sm text-red-600 dark:text-red-300">
                   {error}
                 </div>
               )}
 
               {/* Result Audio Player */}
               {audioUrl && (
-                <div className="bg-gray-50 rounded-xl p-4">
+                <div className="bg-gray-50 dark:bg-[#0a0a0a] rounded-xl p-4">
                   <div className="flex items-center gap-4">
                     <button
                       onClick={togglePlayPause}
-                      className="w-10 h-10 bg-black rounded-full flex items-center justify-center text-white hover:bg-gray-800 transition-colors"
+                      className="w-10 h-10 bg-black dark:bg-white rounded-full flex items-center justify-center text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors"
                     >
                       {isPlaying ? <Pause size={18} /> : <Play size={18} className="ml-0.5" />}
                     </button>
@@ -426,7 +426,7 @@ export function VoiceIsolatorClient({ userPlan = "free", currentUsage }: VoiceIs
                     {/* Progress Bar */}
                     <div className="flex-1">
                       <div
-                        className="h-1.5 bg-gray-200 rounded-full cursor-pointer"
+                        className="h-1.5 bg-gray-200 dark:bg-[#333] rounded-full cursor-pointer"
                         onClick={(e) => {
                           if (!audioRef.current || !duration) return;
                           const rect = e.currentTarget.getBoundingClientRect();
@@ -435,11 +435,11 @@ export function VoiceIsolatorClient({ userPlan = "free", currentUsage }: VoiceIs
                         }}
                       >
                         <div
-                          className="h-full bg-black rounded-full"
+                          className="h-full bg-black dark:bg-white rounded-full"
                           style={{ width: `${duration ? (currentTime / duration) * 100 : 0}%` }}
                         />
                       </div>
-                      <div className="flex justify-between text-xs text-gray-500 mt-1">
+                      <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
                         <span>{formatTime(currentTime)}</span>
                         <span>{formatTime(duration)}</span>
                       </div>
@@ -447,7 +447,7 @@ export function VoiceIsolatorClient({ userPlan = "free", currentUsage }: VoiceIs
 
                     <button
                       onClick={handleDownload}
-                      className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                      className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#252525] rounded-lg transition-colors"
                     >
                       <Download size={18} />
                     </button>
@@ -460,13 +460,13 @@ export function VoiceIsolatorClient({ userPlan = "free", currentUsage }: VoiceIs
             <div className="flex items-center justify-between">
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="px-4 py-2.5 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                className="px-4 py-2.5 border border-gray-200 dark:border-[#333] rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#252525] transition-colors"
               >
                 Upload another file
               </button>
 
               <div className="flex items-center gap-3">
-                <span className="text-sm text-gray-500">
+                <span className="text-sm text-gray-500 dark:text-gray-400">
                   {remainingIsolations} isolations remaining
                 </span>
 
@@ -475,8 +475,8 @@ export function VoiceIsolatorClient({ userPlan = "free", currentUsage }: VoiceIs
                   disabled={!uploadedFile || loading || remainingIsolations <= 0}
                   className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                     uploadedFile && !loading && remainingIsolations > 0
-                      ? "bg-black text-white hover:bg-gray-800"
-                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      ? "bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200"
+                      : "bg-gray-300 dark:bg-[#333] text-gray-500 dark:text-gray-400 cursor-not-allowed"
                   }`}
                 >
                   {loading ? (

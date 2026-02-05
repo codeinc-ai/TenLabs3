@@ -115,13 +115,13 @@ export default function StudioPage() {
       <div className="p-8 max-w-6xl mx-auto">
         {/* Title and Actions */}
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-2xl font-bold text-black">Studio</h1>
+          <h1 className="text-2xl font-bold text-black dark:text-white">Studio</h1>
           <div className="flex items-center gap-3">
-            <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 border border-gray-200 rounded-lg transition-colors">
+            <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-lg transition-colors">
               <Upload size={16} />
               Upload
             </button>
-            <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 rounded-lg transition-colors">
+            <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white dark:text-black bg-gray-900 dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-200 rounded-lg transition-colors">
               <Plus size={16} />
               New blank project
             </button>
@@ -130,7 +130,7 @@ export default function StudioPage() {
 
         {/* Audio Section */}
         <div className="mb-10">
-          <h2 className="text-sm font-medium text-gray-500 mb-4">Audio</h2>
+          <h2 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-4">Audio</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {audioTools.map((tool, index) => (
               <ToolCard key={index} {...tool} />
@@ -140,7 +140,7 @@ export default function StudioPage() {
 
         {/* Video Section */}
         <div className="mb-10">
-          <h2 className="text-sm font-medium text-gray-500 mb-4">Video</h2>
+          <h2 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-4">Video</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {videoTools.map((tool, index) => (
               <ToolCard key={index} {...tool} />
@@ -150,7 +150,7 @@ export default function StudioPage() {
 
         {/* Recent Projects Section */}
         <div>
-          <h2 className="text-lg font-semibold text-black mb-4">
+          <h2 className="text-lg font-semibold text-black dark:text-white mb-4">
             Recent Projects
           </h2>
 
@@ -159,21 +159,21 @@ export default function StudioPage() {
             <div className="flex-1 relative">
               <Search
                 size={18}
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500"
               />
               <input
                 type="text"
                 placeholder="Search projects..."
-                className="w-full pl-11 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-sm placeholder:text-gray-400 focus:outline-none focus:border-gray-300 focus:ring-1 focus:ring-gray-200"
+                className="w-full pl-11 pr-4 py-3 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-xl text-sm text-black dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-300 dark:focus:border-[#444] focus:ring-1 focus:ring-gray-200 dark:focus:ring-0"
               />
             </div>
-            <div className="flex border border-gray-200 rounded-lg overflow-hidden">
+            <div className="flex border border-gray-200 dark:border-[#333] rounded-lg overflow-hidden">
               <button
                 onClick={() => setViewMode("grid")}
                 className={`p-2.5 transition-colors ${
                   viewMode === "grid"
-                    ? "bg-gray-100 text-black"
-                    : "text-gray-400 hover:text-gray-600 hover:bg-gray-50"
+                    ? "bg-gray-100 dark:bg-[#1a1a1a] text-black dark:text-white"
+                    : "text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1a1a1a]"
                 }`}
               >
                 <LayoutGrid size={18} />
@@ -182,8 +182,8 @@ export default function StudioPage() {
                 onClick={() => setViewMode("list")}
                 className={`p-2.5 transition-colors ${
                   viewMode === "list"
-                    ? "bg-gray-100 text-black"
-                    : "text-gray-400 hover:text-gray-600 hover:bg-gray-50"
+                    ? "bg-gray-100 dark:bg-[#1a1a1a] text-black dark:text-white"
+                    : "text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1a1a1a]"
                 }`}
               >
                 <List size={18} />
@@ -215,15 +215,15 @@ function ToolCard({
   icon: React.ComponentType<{ size?: number; className?: string }>;
 }) {
   return (
-    <button className="flex items-center gap-4 p-4 bg-white border border-gray-200 rounded-xl hover:border-gray-300 hover:shadow-sm transition-all text-left group">
+    <button className="flex items-center gap-4 p-4 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-xl hover:border-gray-300 dark:hover:border-[#444] hover:shadow-sm dark:hover:shadow-none transition-all text-left group">
       <div
         className={`w-10 h-10 ${color} rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform`}
       >
         <Icon size={20} className="text-white" />
       </div>
       <div className="min-w-0">
-        <h3 className="font-medium text-gray-900 text-sm">{title}</h3>
-        <p className="text-xs text-gray-500 truncate">{description}</p>
+        <h3 className="font-medium text-gray-900 dark:text-white text-sm">{title}</h3>
+        <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{description}</p>
       </div>
     </button>
   );
@@ -240,15 +240,15 @@ function ProjectCard({
 }) {
   return (
     <button className="text-left group">
-      <div className="aspect-video bg-gray-100 rounded-xl mb-3 overflow-hidden group-hover:bg-gray-200 transition-colors">
+      <div className="aspect-video bg-gray-100 dark:bg-[#1a1a1a] rounded-xl mb-3 overflow-hidden group-hover:bg-gray-200 dark:group-hover:bg-[#252525] transition-colors">
         <div className="w-full h-full flex items-center justify-center">
-          <div className="w-2/3 h-2/3 bg-gray-200 rounded-lg group-hover:bg-gray-300 transition-colors"></div>
+          <div className="w-2/3 h-2/3 bg-gray-200 dark:bg-[#252525] rounded-lg group-hover:bg-gray-300 dark:group-hover:bg-[#333] transition-colors"></div>
         </div>
       </div>
-      <h3 className="font-medium text-gray-900 text-sm truncate mb-1 group-hover:text-black">
+      <h3 className="font-medium text-gray-900 dark:text-white text-sm truncate mb-1 group-hover:text-black dark:group-hover:text-gray-200">
         {title}
       </h3>
-      <p className="text-xs text-gray-400">
+      <p className="text-xs text-gray-400 dark:text-gray-500">
         Created {created} · {owner}
       </p>
     </button>

@@ -164,17 +164,17 @@ export function RealtimeSTT({ userPlan: _userPlan = "free" }: RealtimeSTTProps) 
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
           </span>
-          <span className="text-sm text-gray-600">Listening...</span>
+          <span className="text-sm text-gray-600 dark:text-gray-400">Listening...</span>
         </div>
       )}
 
       {/* Error display */}
       {error && (
-        <div className="p-4 bg-red-50 border border-red-100 rounded-xl">
-          <p className="text-sm text-red-600">{error}</p>
+        <div className="p-4 bg-red-50 dark:bg-red-950 border border-red-100 dark:border-red-900 rounded-xl">
+          <p className="text-sm text-red-600 dark:text-red-300">{error}</p>
           <button
             onClick={() => setError(null)}
-            className="mt-2 text-xs text-red-500 underline"
+            className="mt-2 text-xs text-red-500 dark:text-red-400 underline"
           >
             Dismiss
           </button>
@@ -182,32 +182,32 @@ export function RealtimeSTT({ userPlan: _userPlan = "free" }: RealtimeSTTProps) 
       )}
 
       {/* Transcription display */}
-      <div className="p-6 bg-white border border-gray-200 rounded-xl min-h-[200px]">
+      <div className="p-6 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-xl min-h-[200px]">
         {/* Header with actions */}
-        <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-100">
+        <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-100 dark:border-[#333]">
           <div className="flex items-center gap-2">
-            <Volume2 size={18} className="text-gray-400" />
-            <span className="text-sm font-medium text-gray-700">Live Transcription</span>
+            <Volume2 size={18} className="text-gray-400 dark:text-gray-500" />
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Live Transcription</span>
           </div>
           {hasTranscript && (
             <div className="flex items-center gap-2">
               <button
                 onClick={handleCopy}
-                className="p-2 text-gray-500 hover:text-black hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#252525] rounded-lg transition-colors"
                 title="Copy transcript"
               >
                 <Copy size={16} />
               </button>
               <button
                 onClick={handleDownload}
-                className="p-2 text-gray-500 hover:text-black hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#252525] rounded-lg transition-colors"
                 title="Download transcript"
               >
                 <Download size={16} />
               </button>
               <button
                 onClick={handleClear}
-                className="p-2 text-gray-500 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                className="p-2 text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950 rounded-lg transition-colors"
                 title="Clear and restart"
               >
                 <Trash2 size={16} />
@@ -218,7 +218,7 @@ export function RealtimeSTT({ userPlan: _userPlan = "free" }: RealtimeSTTProps) 
 
         {/* Copy success message */}
         {copied && (
-          <div className="mb-4 p-2 bg-green-50 text-green-700 text-sm rounded-lg text-center">
+          <div className="mb-4 p-2 bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 text-sm rounded-lg text-center">
             Copied to clipboard!
           </div>
         )}
@@ -227,14 +227,14 @@ export function RealtimeSTT({ userPlan: _userPlan = "free" }: RealtimeSTTProps) 
         <div className="space-y-2 max-h-[400px] overflow-y-auto">
           {/* Committed transcripts */}
           {scribe.committedTranscripts.map((transcript, index) => (
-            <p key={transcript.id || index} className="text-gray-800">
+            <p key={transcript.id || index} className="text-gray-800 dark:text-gray-200">
               {transcript.text}
             </p>
           ))}
 
           {/* Partial transcript (live) */}
           {scribe.partialTranscript && (
-            <p className="text-gray-500 italic">
+            <p className="text-gray-500 dark:text-gray-400 italic">
               {scribe.partialTranscript}
             </p>
           )}
@@ -242,9 +242,9 @@ export function RealtimeSTT({ userPlan: _userPlan = "free" }: RealtimeSTTProps) 
           {/* Empty state */}
           {!hasTranscript && !scribe.isConnected && (
             <div className="py-12 text-center">
-              <Mic size={48} className="mx-auto text-gray-300 mb-4" />
-              <p className="text-gray-500 mb-2">Ready to transcribe</p>
-              <p className="text-sm text-gray-400">
+              <Mic size={48} className="mx-auto text-gray-300 dark:text-gray-600 mb-4" />
+              <p className="text-gray-500 dark:text-gray-400 mb-2">Ready to transcribe</p>
+              <p className="text-sm text-gray-400 dark:text-gray-500">
                 Click &quot;Start Recording&quot; to begin realtime transcription
               </p>
             </div>
@@ -257,7 +257,7 @@ export function RealtimeSTT({ userPlan: _userPlan = "free" }: RealtimeSTTProps) 
                 {[...Array(5)].map((_, i) => (
                   <div
                     key={i}
-                    className="w-1 bg-gray-400 rounded-full animate-pulse"
+                    className="w-1 bg-gray-400 dark:bg-gray-500 rounded-full animate-pulse"
                     style={{
                       height: `${20 + Math.random() * 20}px`,
                       animationDelay: `${i * 0.1}s`,
@@ -265,14 +265,14 @@ export function RealtimeSTT({ userPlan: _userPlan = "free" }: RealtimeSTTProps) 
                   />
                 ))}
               </div>
-              <p className="text-gray-500">Waiting for speech...</p>
+              <p className="text-gray-500 dark:text-gray-400">Waiting for speech...</p>
             </div>
           )}
         </div>
       </div>
 
       {/* Info */}
-      <div className="text-center text-xs text-gray-400">
+      <div className="text-center text-xs text-gray-400 dark:text-gray-500">
         
        <p className="mt-1">Supports 99+ languages with automatic detection</p>
       </div>

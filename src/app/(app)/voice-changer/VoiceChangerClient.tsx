@@ -404,29 +404,29 @@ export function VoiceChangerClient({ userPlan = "free", currentUsage }: VoiceCha
                 onClick={() => fileInputRef.current?.click()}
                 className={`border-2 border-dashed rounded-2xl p-12 flex flex-col items-center justify-center transition-colors cursor-pointer group ${
                   isDragging
-                    ? "border-black bg-gray-50"
-                    : "border-gray-200 hover:border-gray-300 hover:bg-gray-50/50"
+                    ? "border-black dark:border-white bg-gray-50 dark:bg-[#1a1a1a]"
+                    : "border-gray-200 dark:border-[#333] hover:border-gray-300 dark:hover:border-[#444] hover:bg-gray-50/50 dark:hover:bg-[#1a1a1a]/80"
                 }`}
               >
-                <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mb-6 group-hover:bg-gray-200 transition-colors">
-                  <Upload size={24} className="text-gray-500" />
+                <div className="w-12 h-12 bg-gray-100 dark:bg-[#252525] rounded-xl flex items-center justify-center mb-6 group-hover:bg-gray-200 dark:group-hover:bg-[#333] transition-colors">
+                  <Upload size={24} className="text-gray-500 dark:text-gray-400" />
                 </div>
 
-                <h3 className="text-base font-medium text-gray-900 mb-2">
+                <h3 className="text-base font-medium text-gray-900 dark:text-white mb-2">
                   Click to upload, or drag and drop
                 </h3>
-                <p className="text-sm text-gray-500 mb-6">
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
                   Audio files up to {VOICE_CHANGER_CONFIG.maxFileSizeMB}MB ({VOICE_CHANGER_CONFIG.allowedFormats.join(", ")})
                 </p>
 
                 <div className="flex items-center gap-4 mb-6">
-                  <div className="h-px w-12 bg-gray-200"></div>
-                  <span className="text-sm text-gray-400">or</span>
-                  <div className="h-px w-12 bg-gray-200"></div>
+                  <div className="h-px w-12 bg-gray-200 dark:bg-[#444]"></div>
+                  <span className="text-sm text-gray-400 dark:text-gray-500">or</span>
+                  <div className="h-px w-12 bg-gray-200 dark:bg-[#444]"></div>
                 </div>
 
                 {recordingError && (
-                  <p className="text-sm text-red-600 mb-4">{recordingError}</p>
+                  <p className="text-sm text-red-600 dark:text-red-400 mb-4">{recordingError}</p>
                 )}
                 <button
                   type="button"
@@ -434,7 +434,7 @@ export function VoiceChangerClient({ userPlan = "free", currentUsage }: VoiceCha
                   className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                     isRecording
                       ? "bg-red-500 text-white hover:bg-red-600"
-                      : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300"
+                      : "bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-[#252525] hover:border-gray-300 dark:hover:border-[#444]"
                   }`}
                 >
                   {isRecording ? (
@@ -455,22 +455,22 @@ export function VoiceChangerClient({ userPlan = "free", currentUsage }: VoiceCha
             /* File Uploaded - Show Preview and Result */
             <div className="w-full max-w-2xl space-y-6">
               {/* Uploaded File Card */}
-              <div className="bg-white border border-gray-200 rounded-xl p-6">
+              <div className="bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-xl p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                      <Volume2 size={20} className="text-gray-500" />
+                    <div className="w-10 h-10 bg-gray-100 dark:bg-[#252525] rounded-lg flex items-center justify-center">
+                      <Volume2 size={20} className="text-gray-500 dark:text-gray-400" />
                     </div>
                     <div>
-                      <h4 className="text-sm font-medium text-gray-900 truncate max-w-[300px]">
+                      <h4 className="text-sm font-medium text-gray-900 dark:text-white truncate max-w-[300px]">
                         {uploadedFile.name}
                       </h4>
-                      <p className="text-xs text-gray-500">{fileSizeMB} MB</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{fileSizeMB} MB</p>
                     </div>
                   </div>
                   <button
                     onClick={clearFile}
-                    className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                    className="p-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#252525] rounded-lg transition-colors"
                   >
                     <Trash2 size={18} />
                   </button>
@@ -478,18 +478,18 @@ export function VoiceChangerClient({ userPlan = "free", currentUsage }: VoiceCha
 
                 {/* Error Message */}
                 {error && (
-                  <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
+                  <div className="mb-4 p-3 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-900 rounded-lg text-sm text-red-600 dark:text-red-300">
                     {error}
                   </div>
                 )}
 
                 {/* Result Audio Player */}
                 {audioUrl && (
-                  <div className="bg-gray-50 rounded-xl p-4">
+                  <div className="bg-gray-50 dark:bg-[#0a0a0a] rounded-xl p-4">
                     <div className="flex items-center gap-4">
                       <button
                         onClick={togglePlayPause}
-                        className="w-10 h-10 bg-black rounded-full flex items-center justify-center text-white hover:bg-gray-800 transition-colors"
+                        className="w-10 h-10 bg-black dark:bg-white rounded-full flex items-center justify-center text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors"
                       >
                         {isPlaying ? <Pause size={18} /> : <Play size={18} className="ml-0.5" />}
                       </button>
@@ -497,7 +497,7 @@ export function VoiceChangerClient({ userPlan = "free", currentUsage }: VoiceCha
                       {/* Progress Bar */}
                       <div className="flex-1">
                         <div
-                          className="h-1.5 bg-gray-200 rounded-full cursor-pointer"
+                          className="h-1.5 bg-gray-200 dark:bg-[#333] rounded-full cursor-pointer"
                           onClick={(e) => {
                             if (!audioRef.current || !duration) return;
                             const rect = e.currentTarget.getBoundingClientRect();
@@ -506,11 +506,11 @@ export function VoiceChangerClient({ userPlan = "free", currentUsage }: VoiceCha
                           }}
                         >
                           <div
-                            className="h-full bg-black rounded-full"
+                            className="h-full bg-black dark:bg-white rounded-full"
                             style={{ width: `${duration ? (currentTime / duration) * 100 : 0}%` }}
                           />
                         </div>
-                        <div className="flex justify-between text-xs text-gray-500 mt-1">
+                        <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
                           <span>{formatTime(currentTime)}</span>
                           <span>{formatTime(duration)}</span>
                         </div>
@@ -518,7 +518,7 @@ export function VoiceChangerClient({ userPlan = "free", currentUsage }: VoiceCha
 
                       <button
                         onClick={handleDownload}
-                        className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                        className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#252525] rounded-lg transition-colors"
                       >
                         <Download size={18} />
                       </button>
@@ -530,7 +530,7 @@ export function VoiceChangerClient({ userPlan = "free", currentUsage }: VoiceCha
               {/* Upload Another Button */}
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full py-3 border border-dashed border-gray-300 rounded-xl text-sm text-gray-500 hover:border-gray-400 hover:text-gray-700 transition-colors"
+                className="w-full py-3 border border-dashed border-gray-300 dark:border-[#444] rounded-xl text-sm text-gray-500 dark:text-gray-400 hover:border-gray-400 dark:hover:border-[#555] hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
               >
                 + Upload another file
               </button>
@@ -539,17 +539,17 @@ export function VoiceChangerClient({ userPlan = "free", currentUsage }: VoiceCha
         </div>
 
         {/* Bottom Bar */}
-        <div className="h-16 border-t border-gray-100 flex items-center justify-between px-6 flex-shrink-0">
-          <div className="flex items-center gap-2 text-sm text-gray-500">
-            <div className="w-5 h-5 rounded-full border-2 border-gray-300 flex items-center justify-center">
-              <div className="w-2 h-2 rounded-full bg-gray-300"></div>
+        <div className="h-16 border-t border-gray-100 dark:border-[#1a1a1a] flex items-center justify-between px-6 flex-shrink-0">
+          <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+            <div className="w-5 h-5 rounded-full border-2 border-gray-300 dark:border-[#444] flex items-center justify-center">
+              <div className="w-2 h-2 rounded-full bg-gray-300 dark:bg-[#444]"></div>
             </div>
             <span>{remainingConversions} conversions remaining</span>
           </div>
 
           <div className="flex items-center gap-4">
             {uploadedFile && (
-              <span className="text-sm text-gray-500">
+              <span className="text-sm text-gray-500 dark:text-gray-400">
                 {fileSizeMB} MB
               </span>
             )}
@@ -559,13 +559,13 @@ export function VoiceChangerClient({ userPlan = "free", currentUsage }: VoiceCha
                 <>
                   <button
                     onClick={handleDownload}
-                    className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                    className="p-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#1a1a1a] rounded-lg transition-colors"
                   >
                     <Download size={18} />
                   </button>
                   <button
                     onClick={clearFile}
-                    className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                    className="p-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#1a1a1a] rounded-lg transition-colors"
                   >
                     <Trash2 size={18} />
                   </button>
@@ -578,8 +578,8 @@ export function VoiceChangerClient({ userPlan = "free", currentUsage }: VoiceCha
               disabled={!uploadedFile || loading || remainingConversions <= 0}
               className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                 uploadedFile && !loading && remainingConversions > 0
-                  ? "bg-black text-white hover:bg-gray-800"
-                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  ? "bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200"
+                  : "bg-gray-300 dark:bg-[#333] text-gray-500 dark:text-gray-400 cursor-not-allowed"
               }`}
             >
               {loading ? (
@@ -596,13 +596,13 @@ export function VoiceChangerClient({ userPlan = "free", currentUsage }: VoiceCha
       </main>
 
       {/* Settings Panel */}
-      <aside className="w-[380px] bg-white border-l border-gray-200 flex-col h-full overflow-y-auto flex-shrink-0 hidden lg:flex">
+      <aside className="w-[380px] bg-white dark:bg-black border-l border-gray-200 dark:border-[#1a1a1a] flex-col h-full overflow-y-auto flex-shrink-0 hidden lg:flex transition-colors">
         {/* Tabs */}
-        <div className="flex border-b border-gray-200 px-6">
-          <button className="py-4 mr-6 text-sm font-medium text-black border-b-2 border-black">
+        <div className="flex border-b border-gray-200 dark:border-[#1a1a1a] px-6">
+          <button className="py-4 mr-6 text-sm font-medium text-black dark:text-white border-b-2 border-black dark:border-white">
             Settings
           </button>
-          <button className="py-4 text-sm font-medium text-gray-500 hover:text-gray-800">
+          <button className="py-4 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">
             History
           </button>
         </div>
@@ -610,11 +610,11 @@ export function VoiceChangerClient({ userPlan = "free", currentUsage }: VoiceCha
         <div className="p-6 space-y-8">
           {/* Voice Selector */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-black">Voice</label>
+            <label className="text-sm font-medium text-black dark:text-white">Voice</label>
             <div className="relative">
               <button
                 onClick={() => setIsVoiceDropdownOpen(!isVoiceDropdownOpen)}
-                className="w-full flex items-center justify-between p-3 bg-white border border-gray-200 rounded-xl hover:border-gray-300 transition-colors group"
+                className="w-full flex items-center justify-between p-3 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-xl hover:border-gray-300 dark:hover:border-[#444] transition-colors group"
               >
                 <div className="flex items-center gap-3">
                   <div
@@ -622,11 +622,11 @@ export function VoiceChangerClient({ userPlan = "free", currentUsage }: VoiceCha
                   >
                     {selectedVoice.name.charAt(0)}
                   </div>
-                  <span className="text-sm font-medium text-gray-900">{selectedVoice.name}</span>
+                  <span className="text-sm font-medium text-gray-900 dark:text-white">{selectedVoice.name}</span>
                 </div>
                 <ChevronRight
                   size={16}
-                  className={`text-gray-400 group-hover:text-gray-600 transition-transform ${
+                  className={`text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-transform ${
                     isVoiceDropdownOpen ? "rotate-90" : ""
                   }`}
                 />
@@ -634,16 +634,16 @@ export function VoiceChangerClient({ userPlan = "free", currentUsage }: VoiceCha
 
               {/* Voice Dropdown */}
               {isVoiceDropdownOpen && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-lg z-50 max-h-80 overflow-hidden">
-                  <div className="p-2 border-b border-gray-100">
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-xl shadow-lg dark:shadow-none z-50 max-h-80 overflow-hidden">
+                  <div className="p-2 border-b border-gray-100 dark:border-[#333]">
                     <div className="relative">
-                      <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                      <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
                       <input
                         type="text"
                         placeholder="Search voices..."
                         value={voiceSearchQuery}
                         onChange={(e) => setVoiceSearchQuery(e.target.value)}
-                        className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black/10"
+                        className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 dark:border-[#333] rounded-lg bg-white dark:bg-[#0a0a0a] text-black dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-black/10 dark:focus:ring-white/10"
                       />
                     </div>
                   </div>
@@ -656,7 +656,7 @@ export function VoiceChangerClient({ userPlan = "free", currentUsage }: VoiceCha
                           setIsVoiceDropdownOpen(false);
                           setVoiceSearchQuery("");
                         }}
-                        className="w-full flex items-center justify-between p-3 hover:bg-gray-50 transition-colors"
+                        className="w-full flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-[#252525] transition-colors"
                       >
                         <div className="flex items-center gap-3">
                           <div
@@ -665,11 +665,11 @@ export function VoiceChangerClient({ userPlan = "free", currentUsage }: VoiceCha
                             {voice.name.charAt(0)}
                           </div>
                           <div className="text-left">
-                            <span className="text-sm font-medium text-gray-900 block">{voice.name}</span>
-                            <span className="text-xs text-gray-500">{voice.category}</span>
+                            <span className="text-sm font-medium text-gray-900 dark:text-white block">{voice.name}</span>
+                            <span className="text-xs text-gray-500 dark:text-gray-400">{voice.category}</span>
                           </div>
                         </div>
-                        {selectedVoice.id === voice.id && <Check size={16} className="text-black" />}
+                        {selectedVoice.id === voice.id && <Check size={16} className="text-black dark:text-white" />}
                       </button>
                     ))}
                   </div>
@@ -680,28 +680,28 @@ export function VoiceChangerClient({ userPlan = "free", currentUsage }: VoiceCha
 
           {/* Model Selector */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-black">Model</label>
+            <label className="text-sm font-medium text-black dark:text-white">Model</label>
             <div className="relative">
               <button
                 onClick={() => setIsModelDropdownOpen(!isModelDropdownOpen)}
-                className="w-full flex items-center justify-between p-3 bg-white border border-gray-200 rounded-xl hover:border-gray-300 transition-colors group"
+                className="w-full flex items-center justify-between p-3 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-xl hover:border-gray-300 dark:hover:border-[#444] transition-colors group"
               >
                 <div className="flex items-center gap-3">
-                  <span className="px-1.5 py-0.5 rounded-full border border-black text-[10px] font-bold text-black">
+                  <span className="px-1.5 py-0.5 rounded-full border border-black dark:border-white text-[10px] font-bold text-black dark:text-white">
                     V2
                   </span>
-                  <span className="text-sm font-medium text-gray-900">{selectedModel.name}</span>
+                  <span className="text-sm font-medium text-gray-900 dark:text-white">{selectedModel.name}</span>
                 </div>
                 <ChevronRight
                   size={16}
-                  className={`text-gray-400 group-hover:text-gray-600 transition-transform ${
+                  className={`text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-transform ${
                     isModelDropdownOpen ? "rotate-90" : ""
                   }`}
                 />
               </button>
 
               {isModelDropdownOpen && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-lg z-50">
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-xl shadow-lg dark:shadow-none z-50">
                   {modelsList.map((model) => (
                     <button
                       key={model.id}
@@ -709,15 +709,15 @@ export function VoiceChangerClient({ userPlan = "free", currentUsage }: VoiceCha
                         setSelectedModel(model);
                         setIsModelDropdownOpen(false);
                       }}
-                      className="w-full flex items-center justify-between p-3 hover:bg-gray-50 transition-colors first:rounded-t-xl last:rounded-b-xl"
+                      className="w-full flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-[#252525] transition-colors first:rounded-t-xl last:rounded-b-xl"
                     >
                       <div className="flex items-center gap-3">
-                        <span className="px-1.5 py-0.5 rounded-full border border-black text-[10px] font-bold text-black">
+                        <span className="px-1.5 py-0.5 rounded-full border border-black dark:border-white text-[10px] font-bold text-black dark:text-white">
                           V2
                         </span>
-                        <span className="text-sm font-medium text-gray-900">{model.name}</span>
+                        <span className="text-sm font-medium text-gray-900 dark:text-white">{model.name}</span>
                       </div>
-                      {selectedModel.id === model.id && <Check size={16} className="text-black" />}
+                      {selectedModel.id === model.id && <Check size={16} className="text-black dark:text-white" />}
                     </button>
                   ))}
                 </div>
@@ -753,17 +753,17 @@ export function VoiceChangerClient({ userPlan = "free", currentUsage }: VoiceCha
           {/* Toggles */}
           <div className="space-y-4 pt-2">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-black underline decoration-dotted underline-offset-4 decoration-gray-300 cursor-help">
+              <span className="text-sm font-medium text-black dark:text-white underline decoration-dotted underline-offset-4 decoration-gray-300 dark:decoration-gray-600 cursor-help">
                 Remove Background Noise
               </span>
               <button
                 onClick={() => setRemoveNoise(!removeNoise)}
                 className={`w-11 h-6 rounded-full transition-colors relative ${
-                  removeNoise ? "bg-black" : "bg-gray-200"
+                  removeNoise ? "bg-black dark:bg-white" : "bg-gray-200 dark:bg-[#333]"
                 }`}
               >
                 <div
-                  className={`w-5 h-5 bg-white rounded-full absolute top-0.5 transition-transform shadow-sm ${
+                  className={`w-5 h-5 bg-white dark:bg-[#1a1a1a] rounded-full absolute top-0.5 transition-transform shadow-sm ${
                     removeNoise ? "left-[22px]" : "left-0.5"
                   }`}
                 />
@@ -771,15 +771,15 @@ export function VoiceChangerClient({ userPlan = "free", currentUsage }: VoiceCha
             </div>
 
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-black">Speaker boost</span>
+              <span className="text-sm font-medium text-black dark:text-white">Speaker boost</span>
               <button
                 onClick={() => setSpeakerBoost(!speakerBoost)}
                 className={`w-11 h-6 rounded-full transition-colors relative ${
-                  speakerBoost ? "bg-black" : "bg-gray-200"
+                  speakerBoost ? "bg-black dark:bg-white" : "bg-gray-200 dark:bg-[#333]"
                 }`}
               >
                 <div
-                  className={`w-5 h-5 bg-white rounded-full absolute top-0.5 transition-transform shadow-sm ${
+                  className={`w-5 h-5 bg-white dark:bg-[#1a1a1a] rounded-full absolute top-0.5 transition-transform shadow-sm ${
                     speakerBoost ? "left-[22px]" : "left-0.5"
                   }`}
                 />
@@ -791,7 +791,7 @@ export function VoiceChangerClient({ userPlan = "free", currentUsage }: VoiceCha
           <div className="pt-4 flex justify-end">
             <button
               onClick={resetSettings}
-              className="flex items-center gap-2 text-xs font-medium text-gray-500 hover:text-black transition-colors"
+              className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors"
             >
               <RotateCcw size={14} />
               Reset values
@@ -821,26 +821,26 @@ function SliderControl({
   return (
     <div className="space-y-3">
       <div className="flex justify-between items-baseline">
-        <label className="text-sm font-medium text-black underline decoration-dotted underline-offset-4 decoration-gray-300 cursor-help">
+        <label className="text-sm font-medium text-black dark:text-white underline decoration-dotted underline-offset-4 decoration-gray-300 dark:decoration-gray-600 cursor-help">
           {label}
         </label>
-        <span className="text-xs text-gray-400">{Math.round(percentage)}%</span>
+        <span className="text-xs text-gray-400 dark:text-gray-500">{Math.round(percentage)}%</span>
       </div>
-      <div className="flex justify-between text-[10px] text-gray-400 font-medium uppercase tracking-wide">
+      <div className="flex justify-between text-[10px] text-gray-400 dark:text-gray-500 font-medium uppercase tracking-wide">
         <span>{leftLabel}</span>
         <span>{rightLabel}</span>
       </div>
       <div
-        className="relative h-1.5 bg-gray-100 rounded-full group cursor-pointer"
+        className="relative h-1.5 bg-gray-100 dark:bg-[#333] rounded-full group cursor-pointer"
         onClick={(e) => {
           const rect = e.currentTarget.getBoundingClientRect();
           const percent = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
           onChange(percent);
         }}
       >
-        <div className="absolute h-full bg-black rounded-full" style={{ width: `${percentage}%` }} />
+        <div className="absolute h-full bg-black dark:bg-white rounded-full" style={{ width: `${percentage}%` }} />
         <div
-          className="absolute top-1/2 -translate-y-1/2 w-3.5 h-3.5 bg-black rounded-full shadow-sm cursor-grab active:cursor-grabbing hover:scale-110 transition-transform"
+          className="absolute top-1/2 -translate-y-1/2 w-3.5 h-3.5 bg-black dark:bg-white rounded-full shadow-sm cursor-grab active:cursor-grabbing hover:scale-110 transition-transform"
           style={{
             left: `${percentage}%`,
             transform: "translate(-50%, -50%)",

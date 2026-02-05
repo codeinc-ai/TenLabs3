@@ -324,8 +324,8 @@ export function TextToDialogueClient({
         <div className="p-8 max-w-4xl mx-auto">
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-2xl font-bold text-black mb-2">Text to Dialogue</h1>
-            <p className="text-sm text-gray-500">
+            <h1 className="text-2xl font-bold text-black dark:text-white mb-2">Text to Dialogue</h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
               Create immersive, natural-sounding dialogue with multiple speakers.
             </p>
           </div>
@@ -336,8 +336,8 @@ export function TextToDialogueClient({
               onClick={() => setActiveTab("create")}
               className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                 activeTab === "create"
-                  ? "bg-gray-100 text-black"
-                  : "text-gray-500 hover:text-black hover:bg-gray-50"
+                  ? "bg-gray-100 dark:bg-[#1a1a1a] text-black dark:text-white"
+                  : "text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white hover:bg-gray-50 dark:hover:bg-[#1a1a1a]"
               }`}
             >
               Create
@@ -346,13 +346,13 @@ export function TextToDialogueClient({
               onClick={() => setActiveTab("history")}
               className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                 activeTab === "history"
-                  ? "bg-gray-100 text-black"
-                  : "text-gray-500 hover:text-black hover:bg-gray-50"
+                  ? "bg-gray-100 dark:bg-[#1a1a1a] text-black dark:text-white"
+                  : "text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white hover:bg-gray-50 dark:hover:bg-[#1a1a1a]"
               }`}
             >
               History
               {history.length > 0 && (
-                <span className="ml-1.5 px-1.5 py-0.5 text-xs bg-gray-200 rounded-full">
+                <span className="ml-1.5 px-1.5 py-0.5 text-xs bg-gray-200 dark:bg-[#333] text-gray-800 dark:text-gray-100 rounded-full">
                   {history.length}
                 </span>
               )}
@@ -363,14 +363,14 @@ export function TextToDialogueClient({
             <>
               {/* Title Input */}
               <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Dialogue Title
                 </label>
                 <input
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-black/10"
+                  className="w-full px-4 py-2 border border-gray-200 dark:border-[#333] rounded-lg text-sm bg-white dark:bg-[#1a1a1a] text-black dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-black/10 dark:focus:ring-white/10"
                   placeholder="Enter a title for your dialogue..."
                 />
               </div>
@@ -380,16 +380,16 @@ export function TextToDialogueClient({
                 {lines.map((line, index) => (
                   <div
                     key={line.id}
-                    className="bg-white border border-gray-200 rounded-xl p-4 space-y-3"
+                    className="bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-xl p-4 space-y-3"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-medium text-gray-400">
+                      <span className="text-xs font-medium text-gray-400 dark:text-gray-500">
                         Line {index + 1}
                       </span>
                       {lines.length > 2 && (
                         <button
                           onClick={() => removeLine(line.id)}
-                          className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+                          className="p-1.5 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950 rounded transition-colors"
                         >
                           <Trash2 size={14} />
                         </button>
@@ -402,7 +402,7 @@ export function TextToDialogueClient({
                         onClick={() =>
                           setOpenDropdownId(openDropdownId === line.id ? null : line.id)
                         }
-                        className="w-full flex items-center justify-between px-3 py-2 border border-gray-200 rounded-lg hover:border-gray-300 transition-colors"
+                        className="w-full flex items-center justify-between px-3 py-2 border border-gray-200 dark:border-[#333] rounded-lg hover:border-gray-300 dark:hover:border-[#444] transition-colors bg-white dark:bg-[#0a0a0a]"
                       >
                         <div className="flex items-center gap-2">
                           <div
@@ -411,27 +411,27 @@ export function TextToDialogueClient({
                               "from-gray-400 to-gray-500"
                             }`}
                           />
-                          <span className="text-sm font-medium text-gray-900">
+                          <span className="text-sm font-medium text-gray-900 dark:text-white">
                             {line.voiceName || "Select voice"}
                           </span>
                         </div>
-                        <ChevronDown size={16} className="text-gray-400" />
+                        <ChevronDown size={16} className="text-gray-400 dark:text-gray-500" />
                       </button>
 
                       {openDropdownId === line.id && (
-                        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-20 max-h-64 overflow-hidden">
-                          <div className="p-2 border-b border-gray-100">
+                        <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-lg shadow-lg dark:shadow-none z-20 max-h-64 overflow-hidden">
+                          <div className="p-2 border-b border-gray-100 dark:border-[#333]">
                             <div className="relative">
                               <Search
                                 size={16}
-                                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500"
                               />
                               <input
                                 type="text"
                                 placeholder="Search voices..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black/10"
+                                className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 dark:border-[#333] rounded-lg bg-white dark:bg-[#0a0a0a] text-black dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-black/10 dark:focus:ring-white/10"
                               />
                             </div>
                           </div>
@@ -444,19 +444,19 @@ export function TextToDialogueClient({
                                   setOpenDropdownId(null);
                                   setSearchQuery("");
                                 }}
-                                className="w-full flex items-center gap-3 px-3 py-2 hover:bg-gray-50 rounded-lg transition-colors"
+                                className="w-full flex items-center gap-3 px-3 py-2 hover:bg-gray-50 dark:hover:bg-[#252525] rounded-lg transition-colors"
                               >
                                 <div
                                   className={`w-8 h-8 rounded-full bg-gradient-to-br ${voice.color}`}
                                 />
                                 <div className="flex-1 text-left">
-                                  <p className="text-sm font-medium text-gray-900">
+                                  <p className="text-sm font-medium text-gray-900 dark:text-white">
                                     {voice.name}
                                   </p>
-                                  <p className="text-xs text-gray-500">{voice.category}</p>
+                                  <p className="text-xs text-gray-500 dark:text-gray-400">{voice.category}</p>
                                 </div>
                                 {line.voiceId === voice.id && (
-                                  <Check size={16} className="text-black" />
+                                  <Check size={16} className="text-black dark:text-white" />
                                 )}
                               </button>
                             ))}
@@ -470,7 +470,7 @@ export function TextToDialogueClient({
                       value={line.text}
                       onChange={(e) => updateLine(line.id, "text", e.target.value)}
                       placeholder={`[cheerfully] Hello, how are you?`}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm resize-none focus:outline-none focus:ring-2 focus:ring-black/10"
+                      className="w-full px-4 py-3 border border-gray-200 dark:border-[#333] rounded-lg text-sm resize-none bg-white dark:bg-[#0a0a0a] text-black dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-black/10 dark:focus:ring-white/10"
                       rows={2}
                     />
 
@@ -482,7 +482,7 @@ export function TextToDialogueClient({
                           onClick={() =>
                             updateLine(line.id, "text", `[${tag}] ${line.text}`)
                           }
-                          className="px-2 py-0.5 text-xs bg-gray-100 text-gray-600 rounded hover:bg-gray-200 transition-colors"
+                          className="px-2 py-0.5 text-xs bg-gray-100 dark:bg-[#252525] text-gray-600 dark:text-gray-300 rounded hover:bg-gray-200 dark:hover:bg-[#333] transition-colors"
                         >
                           [{tag}]
                         </button>
@@ -495,7 +495,7 @@ export function TextToDialogueClient({
                 {lines.length < TEXT_TO_DIALOGUE_CONFIG.maxLines && (
                   <button
                     onClick={addLine}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-gray-200 rounded-xl text-sm text-gray-500 hover:border-gray-300 hover:text-gray-700 transition-colors"
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-gray-200 dark:border-[#333] rounded-xl text-sm text-gray-500 dark:text-gray-400 hover:border-gray-300 dark:hover:border-[#444] hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
                   >
                     <Plus size={18} />
                     Add another line
@@ -505,14 +505,14 @@ export function TextToDialogueClient({
 
               {/* Error Display */}
               {error && (
-                <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl">
-                  <p className="text-sm text-red-600">{error}</p>
+                <div className="mb-6 p-4 bg-red-50 dark:bg-red-950 border border-red-100 dark:border-red-900 rounded-xl">
+                  <p className="text-sm text-red-600 dark:text-red-300">{error}</p>
                 </div>
               )}
 
               {/* Generate Button and Stats */}
               <div className="flex items-center justify-between mb-6">
-                <div className="text-xs text-gray-500">
+                <div className="text-xs text-gray-500 dark:text-gray-400">
                   {totalChars.toLocaleString()} / {remainingChars.toLocaleString()} characters remaining
                   <span className="mx-2">•</span>
                   {remainingGenerations} generations remaining
@@ -528,8 +528,8 @@ export function TextToDialogueClient({
                     loading ||
                     lines.filter((l) => l.text.trim()).length < 2 ||
                     isOverLimit
-                      ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                      : "bg-gray-900 text-white hover:bg-gray-800"
+                      ? "bg-gray-200 dark:bg-[#333] text-gray-500 dark:text-gray-400 cursor-not-allowed"
+                      : "bg-gray-900 dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200"
                   }`}
                 >
                   {loading ? (
@@ -545,16 +545,16 @@ export function TextToDialogueClient({
 
               {/* Audio Player */}
               {audioUrl && (
-                <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
+                <div className="bg-gray-50 dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-xl p-4">
                   <div className="flex items-center gap-4">
                     <button
                       onClick={togglePlayPause}
-                      className="w-12 h-12 bg-gray-900 rounded-full flex items-center justify-center hover:bg-gray-800 transition-colors"
+                      className="w-12 h-12 bg-gray-900 dark:bg-white rounded-full flex items-center justify-center hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors"
                     >
                       {isPlaying ? (
-                        <Pause size={20} className="text-white" />
+                        <Pause size={20} className="text-white dark:text-black" />
                       ) : (
-                        <Play size={20} className="text-white ml-1" fill="white" />
+                        <Play size={20} className="text-white dark:text-black ml-1" fill="currentColor" />
                       )}
                     </button>
 
@@ -565,9 +565,9 @@ export function TextToDialogueClient({
                         max={duration || 0}
                         value={currentTime}
                         onChange={handleSeek}
-                        className="w-full h-1.5 bg-gray-200 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-gray-900 [&::-webkit-slider-thumb]:rounded-full"
+                        className="w-full h-1.5 bg-gray-200 dark:bg-[#333] rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-gray-900 dark:[&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:rounded-full"
                       />
-                      <div className="flex justify-between text-xs text-gray-500 mt-1">
+                      <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
                         <span>{formatTime(currentTime)}</span>
                         <span>{formatTime(duration)}</span>
                       </div>
@@ -576,9 +576,9 @@ export function TextToDialogueClient({
                     <a
                       href={`/api/text-to-dialogue/${dialogueId}/audio`}
                       download={`${title}.mp3`}
-                      className="p-2.5 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                      className="p-2.5 bg-white dark:bg-[#252525] border border-gray-200 dark:border-[#333] rounded-lg hover:bg-gray-50 dark:hover:bg-[#333] transition-colors"
                     >
-                      <Download size={18} className="text-gray-700" />
+                      <Download size={18} className="text-gray-700 dark:text-white" />
                     </a>
                   </div>
                 </div>
@@ -589,30 +589,30 @@ export function TextToDialogueClient({
             <div>
               {historyLoading ? (
                 <div className="py-12 text-center">
-                  <Loader2 size={24} className="animate-spin mx-auto mb-2 text-gray-400" />
-                  <p className="text-sm text-gray-500">Loading history...</p>
+                  <Loader2 size={24} className="animate-spin mx-auto mb-2 text-gray-400 dark:text-gray-500" />
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Loading history...</p>
                 </div>
               ) : history.length === 0 ? (
                 <div className="py-12 text-center">
-                  <MessageSquare size={32} className="mx-auto mb-3 text-gray-300" />
-                  <p className="text-sm text-gray-500">No dialogue generations yet.</p>
+                  <MessageSquare size={32} className="mx-auto mb-3 text-gray-300 dark:text-gray-600" />
+                  <p className="text-sm text-gray-500 dark:text-gray-400">No dialogue generations yet.</p>
                 </div>
               ) : (
                 <div className="space-y-3">
                   {history.map((item) => (
                     <div
                       key={item._id}
-                      className="bg-white border border-gray-200 rounded-xl p-4 hover:border-gray-300 transition-colors group"
+                      className="bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-xl p-4 hover:border-gray-300 dark:hover:border-[#444] transition-colors group"
                     >
                       <div className="flex items-center justify-between mb-2">
-                        <h3 className="font-medium text-gray-900">{item.title}</h3>
+                        <h3 className="font-medium text-gray-900 dark:text-white">{item.title}</h3>
                         <div className="flex items-center gap-1">
                           <button
                             onClick={() => handlePlayHistory(item)}
                             className={`p-2 rounded-lg transition-colors ${
                               playingHistoryId === item._id
-                                ? "bg-gray-900 text-white"
-                                : "text-gray-500 hover:bg-gray-100"
+                                ? "bg-gray-900 dark:bg-white text-white dark:text-black"
+                                : "text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#252525]"
                             }`}
                           >
                             {playingHistoryId === item._id ? (
@@ -624,31 +624,31 @@ export function TextToDialogueClient({
                           <a
                             href={`/api/text-to-dialogue/${item._id}/audio`}
                             download={`${item.title}.mp3`}
-                            className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors"
+                            className="p-2 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#252525] rounded-lg transition-colors"
                           >
                             <Download size={16} />
                           </a>
                           <button
                             onClick={() => handleDeleteHistory(item._id)}
-                            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+                            className="p-2 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
                           >
                             <Trash2 size={16} />
                           </button>
                         </div>
                       </div>
-                      <p className="text-xs text-gray-500 mb-2">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
                         {item.inputs.length} lines • {item.totalCharacters} characters •{" "}
                         {formatDate(item.createdAt)}
                       </p>
                       <div className="space-y-1">
                         {item.inputs.slice(0, 3).map((input, i) => (
-                          <p key={i} className="text-sm text-gray-600 truncate">
+                          <p key={i} className="text-sm text-gray-600 dark:text-gray-300 truncate">
                             <span className="font-medium">{input.voiceName || "Voice"}:</span>{" "}
                             {input.text}
                           </p>
                         ))}
                         {item.inputs.length > 3 && (
-                          <p className="text-xs text-gray-400">
+                          <p className="text-xs text-gray-400 dark:text-gray-500">
                             +{item.inputs.length - 3} more lines
                           </p>
                         )}

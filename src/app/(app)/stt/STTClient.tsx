@@ -271,20 +271,20 @@ export function STTClient({ userPlan = "free", currentUsage }: STTClientProps) {
       <div className="p-8 max-w-5xl mx-auto">
         {/* Title */}
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-black mb-2">Speech to text</h1>
-          <p className="text-gray-600">
+          <h1 className="text-2xl font-bold text-black dark:text-white mb-2">Speech to text</h1>
+          <p className="text-gray-600 dark:text-gray-400">
             Transcribe audio with our industry-leading ASR model.
           </p>
         </div>
 
         {/* Tabs */}
-        <div className="flex items-center gap-1 mb-8 p-1 bg-gray-100 rounded-xl w-fit">
+        <div className="flex items-center gap-1 mb-8 p-1 bg-gray-100 dark:bg-[#1a1a1a] rounded-xl w-fit">
           <button
             onClick={() => setActiveTab("upload")}
             className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg transition-colors ${
               activeTab === "upload"
-                ? "bg-white text-black shadow-sm"
-                : "text-gray-500 hover:text-black"
+                ? "bg-white dark:bg-[#252525] text-black dark:text-white shadow-sm dark:shadow-none"
+                : "text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white"
             }`}
           >
             <Upload size={16} />
@@ -294,13 +294,13 @@ export function STTClient({ userPlan = "free", currentUsage }: STTClientProps) {
             onClick={() => setActiveTab("realtime")}
             className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg transition-colors ${
               activeTab === "realtime"
-                ? "bg-white text-black shadow-sm"
-                : "text-gray-500 hover:text-black"
+                ? "bg-white dark:bg-[#252525] text-black dark:text-white shadow-sm dark:shadow-none"
+                : "text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white"
             }`}
           >
             <Mic size={16} />
             Realtime
-            <span className="px-1.5 py-0.5 text-xs bg-emerald-100 text-emerald-700 rounded-full">
+            <span className="px-1.5 py-0.5 text-xs bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 rounded-full">
               New
             </span>
           </button>
@@ -318,7 +318,7 @@ export function STTClient({ userPlan = "free", currentUsage }: STTClientProps) {
             <div className="mb-6">
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 rounded-lg transition-colors"
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white dark:text-black bg-gray-900 dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-200 rounded-lg transition-colors"
               >
                 <FileText size={16} />
                 Select file to transcribe
@@ -339,28 +339,28 @@ export function STTClient({ userPlan = "free", currentUsage }: STTClientProps) {
 
         {/* File Selected */}
         {file && (
-          <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-xl">
+          <div className="mb-6 p-4 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-xl">
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-medium text-gray-900">{file.name}</p>
-                <p className="text-sm text-gray-500">
+                <p className="font-medium text-gray-900 dark:text-white">{file.name}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
                   {(file.size / (1024 * 1024)).toFixed(2)} MB
                 </p>
               </div>
               <div className="flex items-center gap-3">
                 {fileTooLarge && (
-                  <span className="text-sm text-red-500">File too large (max {STT_CONFIG.maxFileSizeMB}MB)</span>
+                  <span className="text-sm text-red-500 dark:text-red-400">File too large (max {STT_CONFIG.maxFileSizeMB}MB)</span>
                 )}
                 {invalidExtension && (
-                  <span className="text-sm text-red-500">Invalid format</span>
+                  <span className="text-sm text-red-500 dark:text-red-400">Invalid format</span>
                 )}
                 <button
                   onClick={handleTranscribe}
                   disabled={!canSubmit}
                   className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                     canSubmit
-                      ? "bg-gray-900 text-white hover:bg-gray-800"
-                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      ? "bg-gray-900 dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200"
+                      : "bg-gray-300 dark:bg-[#333] text-gray-500 dark:text-gray-400 cursor-not-allowed"
                   }`}
                 >
                   {loading ? (
@@ -374,30 +374,30 @@ export function STTClient({ userPlan = "free", currentUsage }: STTClientProps) {
                 </button>
               </div>
             </div>
-            {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
+            {error && <p className="mt-2 text-sm text-red-500 dark:text-red-400">{error}</p>}
           </div>
         )}
 
         {/* Transcription Result */}
         {result && (
-          <div className="mb-8 p-6 bg-white border border-gray-200 rounded-xl">
+          <div className="mb-8 p-6 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-xl">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="font-semibold text-gray-900">Transcription Result</h3>
-                <p className="text-sm text-gray-500">
+                <h3 className="font-semibold text-gray-900 dark:text-white">Transcription Result</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
                   Duration: {formatSeconds(result.duration)} • Language: {result.language}
                 </p>
               </div>
               <div className="flex items-center gap-2">
                 <button
                   onClick={handleCopy}
-                  className="p-2 text-gray-500 hover:text-black hover:bg-gray-100 rounded-lg transition-colors"
+                  className="p-2 text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#252525] rounded-lg transition-colors"
                 >
                   <Copy size={18} />
                 </button>
                 <button
                   onClick={handleDownloadTxt}
-                  className="p-2 text-gray-500 hover:text-black hover:bg-gray-100 rounded-lg transition-colors"
+                  className="p-2 text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#252525] rounded-lg transition-colors"
                 >
                   <Download size={18} />
                 </button>
@@ -405,7 +405,7 @@ export function STTClient({ userPlan = "free", currentUsage }: STTClientProps) {
             </div>
 
             {/* Audio Player */}
-            <div className="mb-4 p-4 bg-gray-50 rounded-lg">
+            <div className="mb-4 p-4 bg-gray-50 dark:bg-[#0a0a0a] rounded-lg">
               <audio
                 ref={audioRef}
                 src={result.audioUrl}
@@ -422,29 +422,29 @@ export function STTClient({ userPlan = "free", currentUsage }: STTClientProps) {
                       audioRef.current?.play();
                     }
                   }}
-                  className="w-10 h-10 bg-black rounded-full flex items-center justify-center hover:bg-gray-800 transition-colors"
+                  className="w-10 h-10 bg-black dark:bg-white rounded-full flex items-center justify-center hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors"
                 >
                   {isPlaying ? (
-                    <Pause size={16} className="text-white" />
+                    <Pause size={16} className="text-white dark:text-black" />
                   ) : (
-                    <Play size={16} className="text-white ml-0.5" />
+                    <Play size={16} className="text-white dark:text-black ml-0.5" />
                   )}
                 </button>
-                <div className="flex-1 h-1 bg-gray-200 rounded-full">
-                  <div className="w-0 h-full bg-black rounded-full" />
+                <div className="flex-1 h-1 bg-gray-200 dark:bg-[#333] rounded-full">
+                  <div className="w-0 h-full bg-black dark:bg-white rounded-full" />
                 </div>
               </div>
             </div>
 
             {/* Text */}
-            <div className="p-4 bg-gray-50 rounded-lg max-h-[300px] overflow-y-auto">
-              <p className="text-sm text-gray-800 whitespace-pre-wrap">{result.text}</p>
+            <div className="p-4 bg-gray-50 dark:bg-[#0a0a0a] rounded-lg max-h-[300px] overflow-y-auto">
+              <p className="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap">{result.text}</p>
             </div>
           </div>
         )}
 
         {/* Promo Banner */}
-        <div className="flex items-center gap-6 p-4 bg-white border border-gray-200 rounded-xl mb-8 hover:border-gray-300 transition-colors">
+        <div className="flex items-center gap-6 p-4 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-xl mb-8 hover:border-gray-300 dark:hover:border-[#444] transition-colors">
           <div className="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 bg-gradient-to-br from-teal-600 via-emerald-700 to-amber-600 flex items-center justify-center">
             <div className="text-[8px] text-white font-medium text-center leading-tight px-1">
               <span className="opacity-80">Scribe v2</span>
@@ -453,30 +453,30 @@ export function STTClient({ userPlan = "free", currentUsage }: STTClientProps) {
             </div>
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-gray-900 mb-1">Try Scribe Realtime v2</h3>
-            <p className="text-sm text-gray-500">
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-1">Try Scribe Realtime v2</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
               Experience lightning fast transcription with unmatched accuracy, across 92 languages.
             </p>
           </div>
-          <button className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-gray-300 transition-colors flex-shrink-0">
+          <button className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-[#252525] border border-gray-200 dark:border-[#333] rounded-lg hover:bg-gray-50 dark:hover:bg-[#333] hover:border-gray-300 dark:hover:border-[#444] transition-colors flex-shrink-0">
             Try the demo
           </button>
         </div>
 
         {/* Usage Info */}
-        <div className="mb-6 p-4 bg-gray-50 border border-gray-100 rounded-xl">
-          <p className="text-sm text-gray-600">
+        <div className="mb-6 p-4 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-100 dark:border-[#333] rounded-xl">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
             <span className="font-medium">{remainingTranscriptions}</span> transcriptions remaining this period
           </p>
         </div>
 
         {/* History Section Header */}
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">Recent Transcriptions</h2>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Recent Transcriptions</h2>
           {history && history.total > 0 && (
             <Link
               href="/stt/history"
-              className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-900 transition-colors"
+              className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
             >
               View all
               <ChevronRight size={16} />
@@ -489,36 +489,36 @@ export function STTClient({ userPlan = "free", currentUsage }: STTClientProps) {
 
         {/* Search */}
         <div className="relative mb-6">
-          <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+          <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
           <input
             type="text"
             placeholder="Search transcripts..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-11 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-sm placeholder:text-gray-400 focus:outline-none focus:border-gray-300 focus:ring-1 focus:ring-gray-200"
+            className="w-full pl-11 pr-4 py-3 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-xl text-sm text-black dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-300 dark:focus:border-[#444] focus:ring-1 focus:ring-gray-200 dark:focus:ring-0"
           />
         </div>
 
         {/* History Error */}
         {historyError && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-100 rounded-lg">
-            <p className="text-sm text-red-600">{historyError}</p>
+          <div className="mb-4 p-3 bg-red-50 dark:bg-red-950 border border-red-100 dark:border-red-900 rounded-lg">
+            <p className="text-sm text-red-600 dark:text-red-300">{historyError}</p>
           </div>
         )}
 
         {/* Loading State */}
         {historyLoading && !history && (
           <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+            <Loader2 className="h-8 w-8 animate-spin text-gray-400 dark:text-gray-500" />
           </div>
         )}
 
         {/* Empty State */}
         {!historyLoading && history && history.transcriptions.length === 0 && (
           <div className="py-12 text-center">
-            <FileText size={48} className="mx-auto text-gray-300 mb-4" />
-            <p className="text-gray-500 mb-2">No transcriptions yet</p>
-            <p className="text-sm text-gray-400">
+            <FileText size={48} className="mx-auto text-gray-300 dark:text-gray-600 mb-4" />
+            <p className="text-gray-500 dark:text-gray-400 mb-2">No transcriptions yet</p>
+            <p className="text-sm text-gray-400 dark:text-gray-500">
               Upload an audio or video file to get started
             </p>
           </div>
@@ -527,7 +527,7 @@ export function STTClient({ userPlan = "free", currentUsage }: STTClientProps) {
         {/* Table Header */}
         {filteredTranscriptions.length > 0 && (
           <>
-            <div className="grid grid-cols-[1fr_120px_100px_80px] gap-4 px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <div className="grid grid-cols-[1fr_120px_100px_80px] gap-4 px-4 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
               <div>File</div>
               <div>Duration</div>
               <div>Created</div>
@@ -535,31 +535,31 @@ export function STTClient({ userPlan = "free", currentUsage }: STTClientProps) {
             </div>
 
             {/* Table Rows */}
-            <div className="divide-y divide-gray-100 border border-gray-100 rounded-xl overflow-hidden">
+            <div className="divide-y divide-gray-100 dark:divide-[#333] border border-gray-100 dark:border-[#333] rounded-xl overflow-hidden">
               {filteredTranscriptions.map((transcript) => (
                 <div
                   key={transcript.id}
-                  className="grid grid-cols-[1fr_120px_100px_80px] gap-4 px-4 py-4 items-center hover:bg-gray-50 transition-colors group bg-white"
+                  className="grid grid-cols-[1fr_120px_100px_80px] gap-4 px-4 py-4 items-center hover:bg-gray-50 dark:hover:bg-[#1a1a1a] transition-colors group bg-white dark:bg-[#0a0a0a]"
                 >
                   <div className="min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">
+                    <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
                       {transcript.originalFileName}
                     </p>
-                    <p className="text-xs text-gray-500 truncate mt-0.5">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">
                       {transcript.textPreview || "(no text)"}
                     </p>
                   </div>
-                  <div className="flex items-center gap-1.5 text-sm text-gray-500">
+                  <div className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400">
                     <Clock size={14} />
                     {formatSeconds(transcript.duration)}
                   </div>
-                  <div className="text-sm text-gray-500">
+                  <div className="text-sm text-gray-500 dark:text-gray-400">
                     {formatRelativeTime(transcript.createdAt)}
                   </div>
                   <div className="flex items-center justify-end gap-1">
                     <button
                       onClick={() => toggleHistoryPlay(transcript)}
-                      className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                      className="p-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#252525] rounded-lg transition-colors"
                       title={playingHistoryId === transcript.id ? "Pause" : "Play"}
                     >
                       {playingHistoryId === transcript.id ? (
@@ -571,7 +571,7 @@ export function STTClient({ userPlan = "free", currentUsage }: STTClientProps) {
                     <button
                       onClick={() => handleDelete(transcript.id)}
                       disabled={deletingId === transcript.id}
-                      className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+                      className="p-2 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950 rounded-lg transition-colors disabled:opacity-50"
                       title="Delete"
                     >
                       {deletingId === transcript.id ? (
@@ -587,22 +587,22 @@ export function STTClient({ userPlan = "free", currentUsage }: STTClientProps) {
 
             {/* Pagination */}
             {history && history.totalPages > 1 && (
-              <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
-                <p className="text-sm text-gray-500">
+              <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100 dark:border-[#333]">
+                <p className="text-sm text-gray-500 dark:text-gray-400">
                   Page {history.page} of {history.totalPages} ({history.total} total)
                 </p>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => fetchHistory(history.page - 1)}
                     disabled={history.page <= 1 || historyLoading}
-                    className="px-3 py-1.5 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="px-3 py-1.5 text-sm font-medium text-gray-600 dark:text-gray-300 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-lg hover:bg-gray-50 dark:hover:bg-[#252525] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     Previous
                   </button>
                   <button
                     onClick={() => fetchHistory(history.page + 1)}
                     disabled={history.page >= history.totalPages || historyLoading}
-                    className="px-3 py-1.5 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="px-3 py-1.5 text-sm font-medium text-gray-600 dark:text-gray-300 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-lg hover:bg-gray-50 dark:hover:bg-[#252525] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     Next
                   </button>
@@ -615,7 +615,7 @@ export function STTClient({ userPlan = "free", currentUsage }: STTClientProps) {
         {/* No search results */}
         {searchQuery && filteredTranscriptions.length === 0 && history && history.transcriptions.length > 0 && (
           <div className="py-8 text-center">
-            <p className="text-gray-500">No transcriptions match &quot;{searchQuery}&quot;</p>
+            <p className="text-gray-500 dark:text-gray-400">No transcriptions match &quot;{searchQuery}&quot;</p>
           </div>
         )}
           </>
