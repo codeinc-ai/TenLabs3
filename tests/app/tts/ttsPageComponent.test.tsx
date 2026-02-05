@@ -65,17 +65,38 @@ describe("TTSClient Component", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // Default successful API response
-    (global.fetch as Mock).mockResolvedValue({
-      ok: true,
-      json: () =>
-        Promise.resolve({
-          success: true,
-          data: {
-            audioUrl: "https://example.com/audio.mp3",
-            generationId: "gen_123",
-          },
-        }),
+    // Default successful responses for both voices + TTS
+    (global.fetch as Mock).mockImplementation((input: RequestInfo | URL) => {
+      const url = typeof input === "string" ? input : input.toString();
+
+      if (url.startsWith("/api/voices")) {
+        return Promise.resolve({
+          ok: true,
+          json: () =>
+            Promise.resolve({
+              voices: [
+                { voiceId: "bella", name: "Bella", category: "Conversational" },
+                { voiceId: "alloy", name: "Alloy", category: "Narration" },
+              ],
+            }),
+        });
+      }
+
+      if (url === "/api/tts") {
+        return Promise.resolve({
+          ok: true,
+          json: () =>
+            Promise.resolve({
+              success: true,
+              data: {
+                audioUrl: "https://example.com/audio.mp3",
+                generationId: "gen_123",
+              },
+            }),
+        });
+      }
+
+      return Promise.reject(new Error(`Unhandled fetch: ${url}`));
     });
   });
 
@@ -86,7 +107,7 @@ describe("TTSClient Component", () => {
 
       // Assert
       const textarea = screen.getByPlaceholderText(
-        "Enter the text you want to convert to speech..."
+        "Start typing here or paste any text you want to turn into lifelike speech..."
       );
       expect(textarea).toBeInTheDocument();
     });
@@ -124,12 +145,10 @@ describe("TTSClient Component", () => {
       render(<TTSClient />);
 
       // Act
-      // Radix Select options render in a portal when opened.
       const voiceTrigger = screen.getByRole("combobox");
       await user.click(voiceTrigger);
 
       // Assert
-      // Radix Select renders the selected value AND the menu item text, so "findByText" can be ambiguous.
       expect((await screen.findAllByText("Bella")).length).toBeGreaterThan(0);
       expect((await screen.findAllByText("Alloy")).length).toBeGreaterThan(0);
     });
@@ -143,7 +162,7 @@ describe("TTSClient Component", () => {
 
       // Act
       const textarea = screen.getByPlaceholderText(
-        "Enter the text you want to convert to speech..."
+        "Start typing here or paste any text you want to turn into lifelike speech..."
       );
       await user.type(textarea, "Hello, world!");
 
@@ -159,7 +178,7 @@ describe("TTSClient Component", () => {
 
       // Act
       const textarea = screen.getByPlaceholderText(
-        "Enter the text you want to convert to speech..."
+        "Start typing here or paste any text you want to turn into lifelike speech..."
       );
       await user.type(textarea, "   ");
 
@@ -209,7 +228,7 @@ describe("TTSClient Component", () => {
       render(<TTSClient />);
 
       const textarea = screen.getByPlaceholderText(
-        "Enter the text you want to convert to speech..."
+        "Start typing here or paste any text you want to turn into lifelike speech..."
       );
       await user.type(textarea, "Hello, world!");
 
@@ -230,9 +249,22 @@ describe("TTSClient Component", () => {
 
     it("should show loading state while generating", async () => {
       // Arrange
-      (global.fetch as Mock).mockImplementation(
-        () =>
-          new Promise((resolve) =>
+      (global.fetch as Mock).mockImplementation((input: RequestInfo | URL) => {
+        const url = typeof input === "string" ? input : input.toString();
+        if (url.startsWith("/api/voices")) {
+          return Promise.resolve({
+            ok: true,
+            json: () =>
+              Promise.resolve({
+                voices: [
+                  { voiceId: "bella", name: "Bella", category: "Conversational" },
+                  { voiceId: "alloy", name: "Alloy", category: "Narration" },
+                ],
+              }),
+          });
+        }
+        if (url === "/api/tts") {
+          return new Promise((resolve) =>
             setTimeout(
               () =>
                 resolve({
@@ -245,14 +277,16 @@ describe("TTSClient Component", () => {
                 }),
               100
             )
-          )
-      );
+          );
+        }
+        return Promise.reject(new Error(`Unhandled fetch: ${url}`));
+      });
 
       const user = userEvent.setup();
       render(<TTSClient />);
 
       const textarea = screen.getByPlaceholderText(
-        "Enter the text you want to convert to speech..."
+        "Start typing here or paste any text you want to turn into lifelike speech..."
       );
       await user.type(textarea, "Hello");
 
@@ -267,18 +301,33 @@ describe("TTSClient Component", () => {
     it("should disable button during loading", async () => {
       // Arrange
       let resolvePromise: (value: unknown) => void;
-      (global.fetch as Mock).mockImplementation(
-        () =>
-          new Promise((resolve) => {
+      (global.fetch as Mock).mockImplementation((input: RequestInfo | URL) => {
+        const url = typeof input === "string" ? input : input.toString();
+        if (url.startsWith("/api/voices")) {
+          return Promise.resolve({
+            ok: true,
+            json: () =>
+              Promise.resolve({
+                voices: [
+                  { voiceId: "bella", name: "Bella", category: "Conversational" },
+                  { voiceId: "alloy", name: "Alloy", category: "Narration" },
+                ],
+              }),
+          });
+        }
+        if (url === "/api/tts") {
+          return new Promise((resolve) => {
             resolvePromise = resolve;
-          })
-      );
+          });
+        }
+        return Promise.reject(new Error(`Unhandled fetch: ${url}`));
+      });
 
       const user = userEvent.setup();
       render(<TTSClient />);
 
       const textarea = screen.getByPlaceholderText(
-        "Enter the text you want to convert to speech..."
+        "Start typing here or paste any text you want to turn into lifelike speech..."
       );
       await user.type(textarea, "Hello");
 
@@ -306,7 +355,7 @@ describe("TTSClient Component", () => {
       render(<TTSClient />);
 
       const textarea = screen.getByPlaceholderText(
-        "Enter the text you want to convert to speech..."
+        "Start typing here or paste any text you want to turn into lifelike speech..."
       );
       await user.type(textarea, "Hello");
 
@@ -335,7 +384,7 @@ describe("TTSClient Component", () => {
       render(<TTSClient />);
 
       const textarea = screen.getByPlaceholderText(
-        "Enter the text you want to convert to speech..."
+        "Start typing here or paste any text you want to turn into lifelike speech..."
       );
       await user.type(textarea, "Hello");
 
@@ -356,8 +405,8 @@ describe("TTSClient Component", () => {
       render(<TTSClient />);
 
       // Assert
-      const audio = document.querySelector("audio");
-      expect(audio).not.toBeInTheDocument();
+      const generatedAudio = document.querySelector("audio[src]");
+      expect(generatedAudio).not.toBeInTheDocument();
     });
 
     it("should track audio play event in PostHog", async () => {
@@ -366,7 +415,7 @@ describe("TTSClient Component", () => {
       render(<TTSClient />);
 
       const textarea = screen.getByPlaceholderText(
-        "Enter the text you want to convert to speech..."
+        "Start typing here or paste any text you want to turn into lifelike speech..."
       );
       await user.type(textarea, "Hello");
 
@@ -395,18 +444,36 @@ describe("TTSClient Component", () => {
   describe("Error Handling", () => {
     it("should display error message when API fails", async () => {
       // Arrange
-      (global.fetch as Mock).mockResolvedValue({
-        ok: false,
-        status: 500,
-        // Response.json() exists on real fetch Responses; in this case we simulate non-JSON failure.
-        json: () => Promise.reject(new Error("not-json")),
+      (global.fetch as Mock).mockImplementation((input: RequestInfo | URL) => {
+        const url = typeof input === "string" ? input : input.toString();
+        if (url.startsWith("/api/voices")) {
+          return Promise.resolve({
+            ok: true,
+            json: () =>
+              Promise.resolve({
+                voices: [
+                  { voiceId: "bella", name: "Bella", category: "Conversational" },
+                  { voiceId: "alloy", name: "Alloy", category: "Narration" },
+                ],
+              }),
+          });
+        }
+        if (url === "/api/tts") {
+          return Promise.resolve({
+            ok: false,
+            status: 500,
+            // Response.json() exists on real fetch Responses; in this case we simulate non-JSON failure.
+            json: () => Promise.reject(new Error("not-json")),
+          });
+        }
+        return Promise.reject(new Error(`Unhandled fetch: ${url}`));
       });
 
       const user = userEvent.setup();
       render(<TTSClient />);
 
       const textarea = screen.getByPlaceholderText(
-        "Enter the text you want to convert to speech..."
+        "Start typing here or paste any text you want to turn into lifelike speech..."
       );
       await user.type(textarea, "Hello");
 
@@ -422,16 +489,34 @@ describe("TTSClient Component", () => {
 
     it("should display error when response payload is invalid", async () => {
       // Arrange
-      (global.fetch as Mock).mockResolvedValue({
-        ok: true,
-        json: () => Promise.resolve({ success: false }),
+      (global.fetch as Mock).mockImplementation((input: RequestInfo | URL) => {
+        const url = typeof input === "string" ? input : input.toString();
+        if (url.startsWith("/api/voices")) {
+          return Promise.resolve({
+            ok: true,
+            json: () =>
+              Promise.resolve({
+                voices: [
+                  { voiceId: "bella", name: "Bella", category: "Conversational" },
+                  { voiceId: "alloy", name: "Alloy", category: "Narration" },
+                ],
+              }),
+          });
+        }
+        if (url === "/api/tts") {
+          return Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve({ success: false }),
+          });
+        }
+        return Promise.reject(new Error(`Unhandled fetch: ${url}`));
       });
 
       const user = userEvent.setup();
       render(<TTSClient />);
 
       const textarea = screen.getByPlaceholderText(
-        "Enter the text you want to convert to speech..."
+        "Start typing here or paste any text you want to turn into lifelike speech..."
       );
       await user.type(textarea, "Hello");
 
@@ -451,7 +536,7 @@ describe("TTSClient Component", () => {
       render(<TTSClient />);
 
       const textarea = screen.getByPlaceholderText(
-        "Enter the text you want to convert to speech..."
+        "Start typing here or paste any text you want to turn into lifelike speech..."
       );
       await user.type(textarea, "Hello");
 
@@ -464,10 +549,29 @@ describe("TTSClient Component", () => {
       });
 
       // Set up failure for next request
-      (global.fetch as Mock).mockResolvedValue({
-        ok: false,
-        status: 500,
-        text: () => Promise.resolve("Error"),
+      (global.fetch as Mock).mockImplementation((input: RequestInfo | URL) => {
+        const url = typeof input === "string" ? input : input.toString();
+        if (url.startsWith("/api/voices")) {
+          return Promise.resolve({
+            ok: true,
+            json: () =>
+              Promise.resolve({
+                voices: [
+                  { voiceId: "bella", name: "Bella", category: "Conversational" },
+                  { voiceId: "alloy", name: "Alloy", category: "Narration" },
+                ],
+              }),
+          });
+        }
+        if (url === "/api/tts") {
+          return Promise.resolve({
+            ok: false,
+            status: 500,
+            text: () => Promise.resolve("Error"),
+            json: () => Promise.reject(new Error("not-json")),
+          });
+        }
+        return Promise.reject(new Error(`Unhandled fetch: ${url}`));
       });
 
       // Act - second generation that fails
@@ -475,23 +579,42 @@ describe("TTSClient Component", () => {
 
       // Assert
       await waitFor(() => {
-        expect(document.querySelector("audio")).not.toBeInTheDocument();
+        expect(document.querySelector("audio[src]")).not.toBeInTheDocument();
       });
     });
 
     it("should re-enable button after error", async () => {
       // Arrange
-      (global.fetch as Mock).mockResolvedValue({
-        ok: false,
-        status: 500,
-        text: () => Promise.resolve("Error"),
+      (global.fetch as Mock).mockImplementation((input: RequestInfo | URL) => {
+        const url = typeof input === "string" ? input : input.toString();
+        if (url.startsWith("/api/voices")) {
+          return Promise.resolve({
+            ok: true,
+            json: () =>
+              Promise.resolve({
+                voices: [
+                  { voiceId: "bella", name: "Bella", category: "Conversational" },
+                  { voiceId: "alloy", name: "Alloy", category: "Narration" },
+                ],
+              }),
+          });
+        }
+        if (url === "/api/tts") {
+          return Promise.resolve({
+            ok: false,
+            status: 500,
+            text: () => Promise.resolve("Error"),
+            json: () => Promise.reject(new Error("not-json")),
+          });
+        }
+        return Promise.reject(new Error(`Unhandled fetch: ${url}`));
       });
 
       const user = userEvent.setup();
       render(<TTSClient />);
 
       const textarea = screen.getByPlaceholderText(
-        "Enter the text you want to convert to speech..."
+        "Start typing here or paste any text you want to turn into lifelike speech..."
       );
       await user.type(textarea, "Hello");
 
@@ -513,7 +636,7 @@ describe("TTSClient Component", () => {
       render(<TTSClient />);
 
       const textarea = screen.getByPlaceholderText(
-        "Enter the text you want to convert to speech..."
+        "Start typing here or paste any text you want to turn into lifelike speech..."
       );
       await user.type(textarea, "Hello");
 

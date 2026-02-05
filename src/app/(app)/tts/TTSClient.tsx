@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import * as Sentry from "@sentry/nextjs";
 import { useUser } from "@clerk/nextjs";
@@ -16,17 +16,15 @@ import {
   X,
   ChevronRight,
   RotateCcw,
-  Search,
   Play,
   Pause,
   Download,
-  SlidersHorizontal,
-  MoreHorizontal,
   Loader2,
 } from "lucide-react";
 
 import { DEFAULT_VOICES, TTS_DEFAULTS, PLANS } from "@/constants";
 import { capturePosthogBrowserEvent } from "@/lib/posthogBrowser";
+import { VoicePicker } from "@/components/ui/voice-picker";
 
 interface TTSClientProps {
   userPlan?: "free" | "pro";
@@ -36,23 +34,26 @@ interface TTSClientProps {
   };
 }
 
-const voicesList = DEFAULT_VOICES.map((voice, index) => ({
-  id: voice.id,
+type VoicePickerVoice = {
+  voiceId: string;
+  name: string;
+  previewUrl?: string;
+  labels?: {
+    accent?: string;
+    gender?: string;
+    age?: string;
+    description?: string;
+    "use case"?: string;
+  };
+};
+
+const fallbackVoices: VoicePickerVoice[] = DEFAULT_VOICES.map((voice) => ({
+  voiceId: voice.id,
   name: voice.name,
-  description: `${voice.category} voice`,
-  color: [
-    "from-blue-400 to-cyan-400",
-    "from-emerald-400 to-teal-400",
-    "from-orange-400 to-amber-400",
-    "from-pink-400 to-rose-400",
-    "from-purple-400 to-violet-400",
-    "from-green-400 to-emerald-400",
-    "from-amber-400 to-yellow-400",
-    "from-red-400 to-orange-400",
-    "from-teal-400 to-cyan-400",
-    "from-indigo-400 to-blue-400",
-  ][index % 10],
-  category: voice.category,
+  labels: {
+    description: voice.category,
+    "use case": voice.category,
+  },
 }));
 
 const suggestionChips = [
@@ -82,22 +83,22 @@ export function TTSClient({ userPlan = "free", currentUsage }: TTSClientProps) {
   const hasTrackedInitialVoiceSelection = useRef(false);
 
   const voiceFromUrl = searchParams?.get("voice");
-  const getInitialVoice = () => {
-    if (voiceFromUrl) {
-      const validVoice = voicesList.find((v) => v.id === voiceFromUrl);
-      if (validVoice) return validVoice;
-    }
-    return voicesList[0];
-  };
 
   // Form state
   const [text, setText] = useState("");
-  const [selectedVoice, setSelectedVoice] = useState(getInitialVoice);
+  const [voices, setVoices] = useState<VoicePickerVoice[]>(fallbackVoices);
+  const getInitialVoiceId = () => {
+    if (voiceFromUrl) {
+      const validVoice = voices.find((v) => v.voiceId === voiceFromUrl);
+      if (validVoice) return validVoice.voiceId;
+    }
+    return voices[0]?.voiceId ?? DEFAULT_VOICES[0]?.id;
+  };
+  const [selectedVoiceId, setSelectedVoiceId] = useState<string>(getInitialVoiceId);
   const [stability, setStability] = useState(TTS_DEFAULTS.stability);
   const [similarity, setSimilarity] = useState(TTS_DEFAULTS.similarityBoost);
   const [speakerBoost, setSpeakerBoost] = useState(true);
   const [languageOverride, setLanguageOverride] = useState(false);
-  const [isVoiceDropdownOpen, setIsVoiceDropdownOpen] = useState(false);
 
   // Generation state
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
@@ -117,15 +118,64 @@ export function TTSClient({ userPlan = "free", currentUsage }: TTSClientProps) {
   const remainingChars = maxChars - usedChars;
   const isOverLimit = text.length > remainingChars;
 
-  useEffect(() => {
-    if (voiceFromUrl) {
-      const validVoice = voicesList.find((v) => v.id === voiceFromUrl);
-      if (validVoice) setSelectedVoice(validVoice);
-    }
-  }, [voiceFromUrl]);
+  const selectedVoice = useMemo(() => {
+    return voices.find((v) => v.voiceId === selectedVoiceId) ?? voices[0];
+  }, [selectedVoiceId, voices]);
 
   useEffect(() => {
-    if (!userId || !selectedVoice.id) return;
+    // Keep selectedVoiceId valid when voice list changes
+    if (!voices.length) return;
+    if (!voices.some((v) => v.voiceId === selectedVoiceId)) {
+      setSelectedVoiceId(voices[0].voiceId);
+    }
+  }, [selectedVoiceId, voices]);
+
+  useEffect(() => {
+    // Fetch richer voice metadata (including previewUrl) when available.
+    let cancelled = false;
+    const run = async () => {
+      try {
+        const res = await fetch("/api/voices?defaultOnly=true&limit=100&sortBy=name");
+        if (!res.ok) return;
+        const json = (await res.json()) as { voices?: Array<Record<string, unknown>> };
+        const apiVoices = (json.voices ?? [])
+          .map((v) => {
+            const voiceId = typeof v.voiceId === "string" ? v.voiceId : null;
+            const name = typeof v.name === "string" ? v.name : null;
+            if (!voiceId || !name) return null;
+            const previewUrl = typeof v.previewUrl === "string" ? v.previewUrl : undefined;
+            const labels = {
+              accent: typeof v.accent === "string" ? v.accent : undefined,
+              gender: typeof v.gender === "string" ? v.gender : undefined,
+              age: typeof v.age === "string" ? v.age : undefined,
+              description: typeof v.description === "string" ? v.description : undefined,
+              "use case": typeof v.category === "string" ? v.category : undefined,
+            } satisfies VoicePickerVoice["labels"];
+            return { voiceId, name, previewUrl, labels } satisfies VoicePickerVoice;
+          })
+          .filter((v): v is VoicePickerVoice => Boolean(v));
+
+        if (!cancelled && apiVoices.length) setVoices(apiVoices);
+      } catch {
+        // Keep fallback voices on failure
+      }
+    };
+
+    run();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (voiceFromUrl) {
+      const validVoice = voices.find((v) => v.voiceId === voiceFromUrl);
+      if (validVoice) setSelectedVoiceId(validVoice.voiceId);
+    }
+  }, [voiceFromUrl, voices]);
+
+  useEffect(() => {
+    if (!userId || !selectedVoiceId) return;
     if (!hasTrackedInitialVoiceSelection.current) {
       hasTrackedInitialVoiceSelection.current = true;
       return;
@@ -133,9 +183,9 @@ export function TTSClient({ userPlan = "free", currentUsage }: TTSClientProps) {
     capturePosthogBrowserEvent("voice_selected", {
       feature: "tts",
       userId,
-      voiceId: selectedVoice.id,
+      voiceId: selectedVoiceId,
     });
-  }, [selectedVoice.id, userId]);
+  }, [selectedVoiceId, userId]);
 
   const generate = async () => {
     if (!text.trim() || isOverLimit) return;
@@ -154,7 +204,7 @@ export function TTSClient({ userPlan = "free", currentUsage }: TTSClientProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           text,
-          voiceId: selectedVoice.id,
+          voiceId: selectedVoiceId,
           stability,
           similarityBoost: similarity,
           format: "mp3",
@@ -180,7 +230,7 @@ export function TTSClient({ userPlan = "free", currentUsage }: TTSClientProps) {
           userId,
           generationId: json.data.generationId,
           textLength: text.length,
-          voiceId: selectedVoice.id,
+          voiceId: selectedVoiceId,
         });
       }
     } catch (err) {
@@ -280,7 +330,16 @@ export function TTSClient({ userPlan = "free", currentUsage }: TTSClientProps) {
               <audio
                 ref={audioRef}
                 src={audioUrl}
-                onPlay={() => setIsPlaying(true)}
+                onPlay={() => {
+                  setIsPlaying(true);
+                  if (userId && generationId) {
+                    capturePosthogBrowserEvent("audio_played", {
+                      feature: "tts",
+                      userId,
+                      generationId,
+                    });
+                  }
+                }}
                 onPause={() => setIsPlaying(false)}
                 onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
                 onLoadedMetadata={(e) => setDuration(e.currentTarget.duration)}
@@ -348,74 +407,8 @@ export function TTSClient({ userPlan = "free", currentUsage }: TTSClientProps) {
 
       {/* Settings Panel */}
       <aside className="w-[380px] bg-white border-l border-gray-200 flex-col h-full overflow-hidden flex-shrink-0 relative hidden lg:flex">
-        {/* Voice Selector Dropdown */}
-        {isVoiceDropdownOpen && (
-          <div className="absolute inset-0 bg-white z-50 flex flex-col">
-            <div className="flex items-center gap-3 p-4 border-b border-gray-100">
-              <button
-                onClick={() => setIsVoiceDropdownOpen(false)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <ChevronRight size={18} className="text-gray-600 rotate-180" />
-              </button>
-              <span className="text-sm font-medium text-gray-900">Select a voice</span>
-            </div>
-
-            <div className="p-4 border-b border-gray-100">
-              <div className="flex items-center gap-2">
-                <div className="flex-1 relative">
-                  <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <input
-                    type="text"
-                    placeholder="Search voices..."
-                    className="w-full pl-9 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm placeholder:text-gray-400 focus:outline-none focus:border-gray-300 focus:bg-white"
-                  />
-                </div>
-                <button className="p-2.5 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                  <SlidersHorizontal size={16} className="text-gray-500" />
-                </button>
-              </div>
-            </div>
-
-            <div className="flex-1 overflow-y-auto">
-              {voicesList.map((voice) => (
-                <button
-                  key={voice.id}
-                  onClick={() => {
-                    setSelectedVoice(voice);
-                    setIsVoiceDropdownOpen(false);
-                  }}
-                  className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-left ${
-                    selectedVoice.id === voice.id ? "bg-gray-50" : ""
-                  }`}
-                >
-                  <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${voice.color} flex-shrink-0`} />
-                  <div className="flex-1 min-w-0">
-                    <h4 className="text-sm font-medium text-gray-900 truncate">{voice.name}</h4>
-                    <p className="text-xs text-gray-500 truncate">{voice.category}</p>
-                  </div>
-                  <div className="flex items-center gap-1 flex-shrink-0">
-                    <button
-                      onClick={(e) => e.stopPropagation()}
-                      className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
-                    >
-                      <Play size={14} className="text-gray-500" />
-                    </button>
-                    <button
-                      onClick={(e) => e.stopPropagation()}
-                      className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
-                    >
-                      <MoreHorizontal size={14} className="text-gray-500" />
-                    </button>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* Main Panel Content */}
-        <div className={`flex flex-col h-full ${isVoiceDropdownOpen ? "invisible" : ""}`}>
+        <div className="flex flex-col h-full">
           <div className="flex border-b border-gray-200 px-6">
             <button className="py-4 mr-6 text-sm font-medium text-black border-b-2 border-black">
               Settings
@@ -447,16 +440,13 @@ export function TTSClient({ userPlan = "free", currentUsage }: TTSClientProps) {
             {/* Voice Selector */}
             <div className="space-y-2">
               <label className="text-sm font-medium text-black">Voice</label>
-              <button
-                onClick={() => setIsVoiceDropdownOpen(true)}
-                className="w-full flex items-center justify-between p-3 bg-white border border-gray-200 rounded-xl hover:border-gray-300 transition-colors group"
-              >
-                <div className="flex items-center gap-3">
-                  <div className={`w-6 h-6 rounded-full bg-gradient-to-br ${selectedVoice.color}`} />
-                  <span className="text-sm font-medium text-gray-900">{selectedVoice.name}</span>
-                </div>
-                <ChevronRight size={16} className="text-gray-400 group-hover:text-gray-600" />
-              </button>
+              <VoicePicker
+                voices={voices}
+                value={selectedVoiceId}
+                onValueChange={(voiceId) => setSelectedVoiceId(voiceId)}
+                placeholder={selectedVoice?.name ? selectedVoice.name : "Select a voice..."}
+                className="rounded-xl border-gray-200 h-12"
+              />
             </div>
 
             {/* Model Selector */}
