@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 import {
   Home,
   Mic,
@@ -17,6 +18,7 @@ import {
   Menu,
   Zap,
   MessageSquare,
+  PenSquare,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -28,6 +30,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { ADMIN_EMAILS } from "@/constants/admin";
 
 /**
  * Navigation item configuration
@@ -59,6 +62,10 @@ const PRODUCTS_ITEMS: NavItem[] = [
   { href: "/productions", label: "Productions", icon: Video },
 ];
 
+const ADMIN_ITEMS: NavItem[] = [
+  { href: "/admin/blog", label: "Blog Management", icon: PenSquare },
+];
+
 interface MobileSidebarProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -72,6 +79,13 @@ interface MobileSidebarProps {
  */
 export function MobileSidebar({ open, onOpenChange }: MobileSidebarProps) {
   const pathname = usePathname();
+  const { user } = useUser();
+
+  // Check if current user is an admin
+  const email = user?.emailAddresses?.[0]?.emailAddress;
+  const isAdmin = email && ADMIN_EMAILS.some(
+    (e) => e.toLowerCase() === email.toLowerCase()
+  );
 
   const isActive = (href: string): boolean => {
     if (href === "/dashboard") {
@@ -136,6 +150,25 @@ export function MobileSidebar({ open, onOpenChange }: MobileSidebarProps) {
                 ))}
               </div>
             </div>
+
+            {/* Admin Section (only visible to admins) */}
+            {isAdmin && (
+              <div>
+                <div className="px-3 py-2 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+                  Admin
+                </div>
+                <div className="space-y-0.5">
+                  {ADMIN_ITEMS.map((item) => (
+                    <MobileNavItem
+                      key={item.href}
+                      item={item}
+                      active={isActive(item.href)}
+                      onNavigate={() => onOpenChange(false)}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </ScrollArea>
 

@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { SignedIn, SignedOut } from "@clerk/nextjs";
+import { BlogImage } from "@/components/blog/BlogImage";
 import { AudioLines, ArrowRight, Search, ArrowUpRight } from "lucide-react";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { BlogPost, BlogCategory } from "@/types/BlogTypes";
 
 function cn(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");
@@ -49,7 +51,7 @@ function TopBar({ label }: { label: string }) {
   );
 }
 
-const chips = [
+const chips: BlogCategory[] = [
   "Featured",
   "API Platform Stories",
   "Affiliates",
@@ -61,103 +63,175 @@ const chips = [
   "Impact",
   "Product",
   "Research",
-] as const;
+];
 
-type Chip = (typeof chips)[number];
-
-type Post = {
-  id: string;
-  chip: Chip;
-  title: string;
-  desc: string;
-  author: string;
-  date: string;
-  featured?: boolean;
+// Mapping of slug to cover image
+const coverImages: Record<string, string> = {
+  "series-d": "/images/landing/company-blog-hero.png",
+  "v3-ga": "/images/landing/company-blog-research.png",
 };
 
-const posts: Post[] = [
+// Fallback posts if DB is empty
+const fallbackPosts: BlogPost[] = [
   {
-    id: "series-d",
-    chip: "Company",
+    _id: "series-d",
+    slug: "series-d",
+    category: "Company",
     title: "TenLabs raises $500M Series D at $11B valuation",
-    desc: "Transforming how we interact with technology",
+    description: "Transforming how we interact with technology",
+    content: "",
     author: "Team TenLabs",
-    date: "Feb 2, 2026",
+    coverImage: "/images/landing/company-blog-hero.png",
+    createdAt: "2026-02-02T00:00:00.000Z",
+    updatedAt: "2026-02-02T00:00:00.000Z",
     featured: true,
+    published: true,
   },
   {
-    id: "v3-ga",
-    chip: "Research",
+    _id: "v3-ga",
+    slug: "v3-ga",
+    category: "Research",
     title: "Ten v3 is Now Generally Available",
-    desc: "Ten v3 is now out of Alpha.",
+    description: "Eleven v3 is now out of Alpha.",
+    content: "",
     author: "Joe Reeve",
-    date: "Feb 2, 2026",
+    coverImage: "/images/landing/company-blog-research.png",
+    createdAt: "2026-02-02T00:00:00.000Z",
+    updatedAt: "2026-02-02T00:00:00.000Z",
+    featured: false,
+    published: true,
   },
   {
-    id: "revolut",
-    chip: "Agents Platform Stories",
+    _id: "revolut",
+    slug: "revolut",
+    category: "Agents Platform Stories",
     title: "Revolut selects TenAgents to bolster customer support",
-    desc: "Voice agents at scale with privacy-first workflows",
+    description: "Voice agents at scale with privacy-first workflows",
+    content: "",
     author: "Stan Messuares",
-    date: "Jan 29, 2026",
+    createdAt: "2026-01-29T00:00:00.000Z",
+    updatedAt: "2026-01-29T00:00:00.000Z",
+    featured: false,
+    published: true,
   },
   {
-    id: "grid",
-    chip: "Company",
+    _id: "grid",
+    slug: "grid",
+    category: "Company",
     title: "We are on the grid",
-    desc: "TenLabs is an official partner of a global team",
+    description: "TenLabs is an official partner of a global team",
+    content: "",
     author: "Carles Reina",
-    date: "Jan 29, 2026",
+    createdAt: "2026-01-29T00:00:00.000Z",
+    updatedAt: "2026-01-29T00:00:00.000Z",
+    featured: false,
+    published: true,
   },
   {
-    id: "masterclass",
-    chip: "API Platform Stories",
+    _id: "masterclass",
+    slug: "masterclass",
+    category: "API Platform Stories",
     title: "MasterClass brings AI instructors to life",
-    desc: "75% of users prefer voice interactions",
+    description: "75% of users prefer voice interactions",
+    content: "",
     author: "Fergal Burnett",
-    date: "Jan 5, 2026",
+    createdAt: "2026-01-05T00:00:00.000Z",
+    updatedAt: "2026-01-05T00:00:00.000Z",
+    featured: false,
+    published: true,
   },
   {
-    id: "liberty",
-    chip: "Agents Platform Stories",
+    _id: "liberty",
+    slug: "liberty",
+    category: "Agents Platform Stories",
     title: "We're partnering with Liberty Global to accelerate voice AI",
-    desc: "Expansion across regions",
+    description: "Expansion across regions",
+    content: "",
     author: "Carles Reina",
-    date: "Nov 21, 2025",
+    createdAt: "2025-11-21T00:00:00.000Z",
+    updatedAt: "2025-11-21T00:00:00.000Z",
+    featured: false,
+    published: true,
   },
   {
-    id: "image-video",
-    chip: "Product",
+    _id: "image-video",
+    slug: "image-video",
+    category: "Product",
     title: "Introducing TenLabs Image & Video",
-    desc: "Bring ideas to life in one creative suite",
+    description: "Bring ideas to life in one creative suite",
+    content: "",
     author: "Team TenLabs",
-    date: "Dec 1, 2025",
+    createdAt: "2025-12-01T00:00:00.000Z",
+    updatedAt: "2025-12-01T00:00:00.000Z",
+    featured: false,
+    published: true,
   },
   {
-    id: "toyota",
-    chip: "Agents Platform Stories",
+    _id: "toyota",
+    slug: "toyota",
+    category: "Agents Platform Stories",
     title: "Toyota engages fans with AI-powered experience",
-    desc: "Driving deeper engagement",
+    description: "Driving deeper engagement",
+    content: "",
     author: "Team TenLabs",
-    date: "Dec 1, 2025",
+    createdAt: "2025-12-01T00:00:00.000Z",
+    updatedAt: "2025-12-01T00:00:00.000Z",
+    featured: false,
+    published: true,
   },
 ];
 
+function formatDate(dateStr: string): string {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+function getCoverImage(post: BlogPost): string | null {
+  if (post.coverImage) return post.coverImage;
+  return coverImages[post.slug] || null;
+}
+
 export default function BlogPage() {
-  const [active, setActive] = useState<Chip>("Featured");
+  const [active, setActive] = useState<BlogCategory>("Featured");
   const [q, setQ] = useState("");
+  const [posts, setPosts] = useState<BlogPost[]>(fallbackPosts);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchPosts() {
+      try {
+        const res = await fetch("/api/blog");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.posts && data.posts.length > 0) {
+            setPosts(data.posts);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch blog posts:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchPosts();
+  }, []);
 
   const filtered = useMemo(() => {
     let list = [...posts];
-    if (active !== "Featured") list = list.filter((p) => p.chip === active);
+    if (active !== "Featured") list = list.filter((p) => p.category === active);
     if (q.trim()) {
       const qq = q.toLowerCase();
-      list = list.filter((p) => (p.title + " " + p.desc).toLowerCase().includes(qq));
+      list = list.filter((p) => (p.title + " " + p.description).toLowerCase().includes(qq));
     }
     return list;
-  }, [active, q]);
+  }, [active, q, posts]);
 
   const hero = posts.find((p) => p.featured) ?? posts[0];
+  const heroCover = hero ? getCoverImage(hero) : null;
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -180,26 +254,40 @@ export default function BlogPage() {
                   className="text-2xl md:text-3xl font-semibold tracking-tight"
                   style={{ fontFamily: "Plus Jakarta Sans, var(--font-sans)" }}
                 >
-                  {hero.title}
+                  {hero?.title || "Welcome to our Blog"}
                 </h1>
-                <p className="mt-3 text-sm text-white/60">{hero.desc}</p>
-                <Link
-                  href={`/company/blog/${hero.id}`}
-                  className="mt-6 inline-flex h-10 items-center rounded-full bg-white px-4 text-sm font-medium text-black hover:bg-white/90 transition"
-                >
-                  Read article
-                  <ArrowRight className="ml-2 size-4" />
-                </Link>
+                <p className="mt-3 text-sm text-white/60">{hero?.description || "Discover the latest news and stories"}</p>
+                {hero && (
+                  <Link
+                    href={`/company/blog/${hero.slug}`}
+                    className="mt-6 inline-flex h-10 items-center rounded-full bg-white px-4 text-sm font-medium text-black hover:bg-white/90 transition"
+                  >
+                    Read article
+                    <ArrowRight className="ml-2 size-4" />
+                  </Link>
+                )}
               </div>
 
               <div className="rounded-[26px] border border-white/10 bg-white/[0.03] overflow-hidden shadow-[0_30px_120px_rgba(0,0,0,0.65)]">
-                <div className="relative h-[240px] md:h-[320px] bg-gradient-to-br from-white/10 to-white/0 grid place-items-center">
-                  <div className="text-2xl font-semibold text-white/30" style={{ fontFamily: "Plus Jakarta Sans, var(--font-sans)" }}>
-                    {hero.chip}
-                  </div>
+                <div className="relative">
+                  {heroCover ? (
+                    <BlogImage
+                      src={heroCover}
+                      alt={hero?.title || "Blog"}
+                      width={600}
+                      height={320}
+                      className="h-[240px] md:h-[320px] w-full object-cover"
+                    />
+                  ) : (
+                    <div className="h-[240px] md:h-[320px] bg-gradient-to-br from-white/10 to-white/0 grid place-items-center">
+                      <div className="text-2xl font-semibold text-white/30" style={{ fontFamily: "Plus Jakarta Sans, var(--font-sans)" }}>
+                        {hero?.category || "Blog"}
+                      </div>
+                    </div>
+                  )}
                   <div className="absolute top-4 left-4">
                     <span className="inline-flex items-center rounded-full border border-white/15 bg-black/50 px-2.5 py-1 text-[11px] uppercase tracking-[0.22em] text-white/80">
-                      {hero.chip}
+                      {hero?.category || "Featured"}
                     </span>
                   </div>
                 </div>
@@ -244,79 +332,124 @@ export default function BlogPage() {
 
         {/* Blog Grid */}
         <section className="relative py-10">
-          <div className="absolute inset-0 bg-white" />
+          <div className="absolute inset-0 bg-black" />
           <div className="relative mx-auto max-w-6xl px-4">
-            <div className="grid gap-5 md:grid-cols-2">
-              {filtered.slice(0, 2).map((p) => (
-                <Link key={p.id} href={`/company/blog/${p.id}`}>
-                  <div className="group rounded-[26px] border border-black/10 bg-[#f5f3ef] overflow-hidden shadow-[0_14px_70px_rgba(0,0,0,0.10)]">
-                    <div className="relative h-[220px] bg-gradient-to-br from-black/5 to-black/0 grid place-items-center">
-                      <div className="text-2xl font-semibold text-black/30" style={{ fontFamily: "Plus Jakarta Sans, var(--font-sans)" }}>
-                        {p.chip}
-                      </div>
-                      <div className="absolute top-4 left-4">
-                        <span className="inline-flex items-center rounded-full border border-black/10 bg-white/80 px-2.5 py-1 text-[11px] uppercase tracking-[0.22em] text-black/70">
-                          {p.chip}
-                        </span>
-                      </div>
-                      <div className="absolute top-4 right-4 size-9 rounded-full bg-white/85 border border-black/10 grid place-items-center opacity-0 group-hover:opacity-100 transition">
-                        <ArrowUpRight className="size-4 text-black/70" />
-                      </div>
-                    </div>
-                    <div className="p-5">
-                      <div
-                        className="text-base font-medium tracking-tight text-black"
-                        style={{ fontFamily: "Plus Jakarta Sans, var(--font-sans)" }}
-                      >
-                        {p.title}
-                      </div>
-                      <div className="mt-2 text-sm text-black/60">{p.desc}</div>
-                      <div className="mt-4 flex items-center gap-3 text-xs text-black/45">
-                        <span>{p.date}</span>
-                        <span className="size-1 rounded-full bg-black/20" />
-                        <span>{p.author}</span>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
+            {loading ? (
+              <div className="flex items-center justify-center py-20">
+                <div className="text-white/50">Loading posts...</div>
+              </div>
+            ) : filtered.length === 0 ? (
+              <div className="flex items-center justify-center py-20">
+                <div className="text-white/50">No posts found</div>
+              </div>
+            ) : (
+              <>
+                {/* Top 2 Featured Cards */}
+                <div className="grid gap-5 md:grid-cols-2">
+                  {filtered.slice(0, 2).map((p) => {
+                    const cover = getCoverImage(p);
+                    return (
+                      <Link key={p._id} href={`/company/blog/${p.slug}`}>
+                        <div className="group rounded-[26px] border border-white/10 bg-white/[0.03] overflow-hidden shadow-[0_14px_70px_rgba(0,0,0,0.5)] hover:bg-white/[0.05] transition">
+                          <div className="relative h-[220px]">
+                            {cover ? (
+                              <BlogImage
+                                src={cover}
+                                alt={p.title}
+                                fill
+                                className="object-cover"
+                              />
+                            ) : (
+                              <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-white/0 grid place-items-center">
+                                <div className="text-2xl font-semibold text-white/30" style={{ fontFamily: "Plus Jakarta Sans, var(--font-sans)" }}>
+                                  {p.category}
+                                </div>
+                              </div>
+                            )}
+                            <div className="absolute top-4 left-4">
+                              <span className="inline-flex items-center rounded-full border border-white/15 bg-black/50 px-2.5 py-1 text-[11px] uppercase tracking-[0.22em] text-white/80">
+                                {p.category}
+                              </span>
+                            </div>
+                            <div className="absolute top-4 right-4 size-9 rounded-full bg-white/10 border border-white/10 grid place-items-center opacity-0 group-hover:opacity-100 transition">
+                              <ArrowUpRight className="size-4 text-white/70" />
+                            </div>
+                          </div>
+                          <div className="p-5">
+                            <div
+                              className="text-base font-medium tracking-tight text-white"
+                              style={{ fontFamily: "Plus Jakarta Sans, var(--font-sans)" }}
+                            >
+                              {p.title}
+                            </div>
+                            <div className="mt-2 text-sm text-white/60">{p.description}</div>
+                            <div className="mt-4 flex items-center gap-3 text-xs text-white/45">
+                              <span>{formatDate(p.createdAt)}</span>
+                              <span className="size-1 rounded-full bg-white/20" />
+                              <span>{p.author}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </div>
 
-            <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {filtered.slice(2).map((p) => (
-                <Link key={p.id} href={`/company/blog/${p.id}`}>
-                  <div className="group rounded-[26px] border border-black/10 bg-[#f5f3ef] overflow-hidden shadow-[0_14px_70px_rgba(0,0,0,0.10)]">
-                    <div className="relative h-[180px] bg-gradient-to-br from-black/5 to-black/0 grid place-items-center">
-                      <div className="text-xl font-semibold text-black/30" style={{ fontFamily: "Plus Jakarta Sans, var(--font-sans)" }}>
-                        {p.title.split(" ")[0]}
-                      </div>
-                      <div className="absolute top-4 left-4">
-                        <span className="inline-flex items-center rounded-full border border-black/10 bg-white/80 px-2.5 py-1 text-[11px] uppercase tracking-[0.22em] text-black/70">
-                          {p.chip}
-                        </span>
-                      </div>
-                      <div className="absolute top-4 right-4 size-9 rounded-full bg-white/85 border border-black/10 grid place-items-center opacity-0 group-hover:opacity-100 transition">
-                        <ArrowUpRight className="size-4 text-black/70" />
-                      </div>
-                    </div>
-                    <div className="p-5">
-                      <div
-                        className="text-base font-medium tracking-tight text-black"
-                        style={{ fontFamily: "Plus Jakarta Sans, var(--font-sans)" }}
-                      >
-                        {p.title}
-                      </div>
-                      <div className="mt-2 text-sm text-black/60">{p.desc}</div>
-                      <div className="mt-4 flex items-center gap-3 text-xs text-black/45">
-                        <span>{p.date}</span>
-                        <span className="size-1 rounded-full bg-black/20" />
-                        <span>{p.author}</span>
-                      </div>
-                    </div>
+                {/* Remaining Cards */}
+                {filtered.length > 2 && (
+                  <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                    {filtered.slice(2).map((p) => {
+                      const cover = getCoverImage(p);
+                      return (
+                        <Link key={p._id} href={`/company/blog/${p.slug}`}>
+                          <div className="group rounded-[26px] border border-white/10 bg-white/[0.03] overflow-hidden shadow-[0_14px_70px_rgba(0,0,0,0.5)] hover:bg-white/[0.05] transition">
+                            <div className="relative h-[180px]">
+                              {cover ? (
+                                <BlogImage
+                                  src={cover}
+                                  alt={p.title}
+                                  fill
+                                  className="object-cover"
+                                />
+                              ) : (
+                                <>
+                                  <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-white/0" />
+                                  <div className="h-full w-full grid place-items-center text-2xl font-semibold text-white/30" style={{ fontFamily: "Plus Jakarta Sans, var(--font-sans)" }}>
+                                    {p.title.split(" ")[0]}
+                                  </div>
+                                </>
+                              )}
+                              <div className="absolute top-4 left-4">
+                                <span className="inline-flex items-center rounded-full border border-white/15 bg-black/50 px-2.5 py-1 text-[11px] uppercase tracking-[0.22em] text-white/80">
+                                  {p.category}
+                                </span>
+                              </div>
+                              <div className="absolute top-4 right-4 size-9 rounded-full bg-white/10 border border-white/10 grid place-items-center opacity-0 group-hover:opacity-100 transition">
+                                <ArrowUpRight className="size-4 text-white/70" />
+                              </div>
+                            </div>
+                            <div className="p-5">
+                              <div
+                                className="text-base font-medium tracking-tight text-white"
+                                style={{ fontFamily: "Plus Jakarta Sans, var(--font-sans)" }}
+                              >
+                                {p.title}
+                              </div>
+                              <div className="mt-2 text-sm text-white/60">{p.description}</div>
+                              <div className="mt-4 flex items-center gap-3 text-xs text-white/45">
+                                <span>{formatDate(p.createdAt)}</span>
+                                <span className="size-1 rounded-full bg-white/20" />
+                                <span>{p.author}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </Link>
+                      );
+                    })}
                   </div>
-                </Link>
-              ))}
-            </div>
+                )}
+              </>
+            )}
           </div>
         </section>
       </main>

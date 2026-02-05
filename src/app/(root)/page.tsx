@@ -14,6 +14,7 @@ import {
   Globe,
   Cpu,
   ArrowRight,
+  ArrowUpRight,
   Play,
   Pause,
   Check,
@@ -23,6 +24,8 @@ import {
   CopyPlus,
   UserRound,
 } from "lucide-react";
+import { BlogPost } from "@/types/BlogTypes";
+import { BlogImage } from "@/components/blog/BlogImage";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -582,74 +585,113 @@ function VoiceCloningDemo() {
   );
 }
 
-// Use Case Card Component
+// Use Case Card Component with alternating full-width layout
 function UseCaseCard({
   icon,
   title,
   desc,
   points,
-  right,
+  demo,
+  demoPosition = "left",
 }: {
   icon: React.ReactNode;
   title: string;
   desc: string;
   points: string[];
-  right: React.ReactNode;
+  demo: React.ReactNode;
+  demoPosition?: "left" | "right";
 }) {
-  return (
-    <div className="grid gap-3">
-      <div className="max-w-3xl">
-        <div className="text-xl md:text-2xl font-semibold text-white" style={{ fontFamily: "Plus Jakarta Sans, var(--font-sans)" }}>
-          {title}
+  const DemoSection = (
+    <div className="relative">
+      <div className="absolute -inset-8 rounded-3xl" style={{ background: "var(--gradient-glow)", opacity: 0.7 }} />
+      <div className="relative rounded-3xl border border-white/10 bg-black/40 p-5 tenlabs-noise backdrop-blur-sm">
+        {demo}
+      </div>
+    </div>
+  );
+
+  const ContentSection = (
+    <div className={cn(
+      "flex flex-col justify-center",
+      demoPosition === "left" ? "md:pl-8 lg:pl-16" : "md:pr-8 lg:pr-16"
+    )}>
+      {/* Icon and title */}
+      <div className="flex items-start gap-4 mb-6">
+        <div className="size-14 rounded-2xl border border-white/15 bg-gradient-to-br from-white/10 to-white/5 grid place-items-center text-white shadow-lg shadow-white/5 shrink-0">
+          {icon}
         </div>
-        <div className="mt-2 text-sm md:text-[15px] text-white/65 leading-7">{desc}</div>
+        <div>
+          <div className="text-[10px] uppercase tracking-[0.2em] text-white/40 mb-2">Feature</div>
+          <h3
+            className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight"
+            style={{ 
+              fontFamily: "Plus Jakarta Sans, var(--font-sans)",
+              background: "linear-gradient(135deg, #ffffff 0%, #ffffff 60%, rgba(255,255,255,0.5) 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+            }}
+          >
+            {title}
+          </h3>
+        </div>
       </div>
 
-      <Card className="border-white/10 bg-white/[0.03] tenlabs-ring tenlabs-glass">
-        <div className="p-5 sm:p-6 grid gap-6 md:grid-cols-[1.05fr_0.95fr] md:items-center">
-          <div>
-            <div className="flex items-center gap-3">
-              <div className="size-11 rounded-xl border border-white/10 bg-white/5 grid place-items-center text-white">
-                {icon}
-              </div>
-              <div>
-                <div className="text-xs text-white/55">Highlights</div>
-                <div className="mt-1 text-sm text-white/75">Built for product-ready demos</div>
-              </div>
-            </div>
+      {/* Description with texture */}
+      <p 
+        className="text-lg md:text-xl leading-relaxed mb-8 max-w-lg"
+        style={{
+          background: "linear-gradient(180deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.55) 100%)",
+          WebkitBackgroundClip: "text",
+          WebkitTextFillColor: "transparent",
+          backgroundClip: "text",
+        }}
+      >
+        {desc}
+      </p>
 
-            <div className="mt-5 grid gap-2">
-              {points.map((p) => (
-                <div key={p} className="flex items-start gap-2 rounded-xl border border-white/10 bg-black/25 px-4 py-3 text-sm text-white/70">
-                  <Check className="mt-0.5 size-4 text-white/80" strokeWidth={2.4} />
-                  <span>{p}</span>
-                </div>
-              ))}
+      {/* Feature points */}
+      <div className="grid gap-3 mb-8 max-w-md">
+        {points.map((p) => (
+          <div key={p} className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3.5 text-sm text-white/75 hover:bg-white/[0.07] hover:border-white/15 transition-all duration-200">
+            <div className="size-5 rounded-full bg-gradient-to-br from-emerald-400/20 to-emerald-400/10 grid place-items-center shrink-0 mt-0.5">
+              <Check className="size-3 text-emerald-400" strokeWidth={3} />
             </div>
-
-            <div className="mt-5 flex flex-col sm:flex-row sm:items-center gap-2">
-              <Link href={`/products/${title.toLowerCase().replace(/\s+/g, "-")}`}>
-                <Button className="bg-white text-black hover:bg-white/90">
-                  Explore {title}
-                  <ArrowRight className="ml-2 size-4" />
-                </Button>
-              </Link>
-              <Link href="/pricing">
-                <Button variant="secondary" className="bg-white/5 hover:bg-white/10 border border-white/10">
-                  Read docs
-                </Button>
-              </Link>
-            </div>
+            <span>{p}</span>
           </div>
+        ))}
+      </div>
 
-          <div className="relative">
-            <div className="absolute -inset-6 rounded-3xl" style={{ background: "var(--gradient-glow)", opacity: 0.9 }} />
-            <div className="relative rounded-3xl border border-white/10 bg-black/25 p-4 tenlabs-noise">
-              {right}
-            </div>
-          </div>
-        </div>
-      </Card>
+      {/* CTA buttons */}
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+        <Link href={`/products/${title.toLowerCase().replace(/\s+/g, "-")}`}>
+          <Button className="bg-white text-black hover:bg-white/90 font-semibold px-6">
+            Explore {title}
+            <ArrowRight className="ml-2 size-4" />
+          </Button>
+        </Link>
+        <Link href="/docs">
+          <Button variant="secondary" className="bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 hover:text-white/90">
+            Read docs
+          </Button>
+        </Link>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="grid gap-8 md:gap-0 md:grid-cols-2 md:items-center">
+      {demoPosition === "left" ? (
+        <>
+          {DemoSection}
+          {ContentSection}
+        </>
+      ) : (
+        <>
+          {ContentSection}
+          {DemoSection}
+        </>
+      )}
     </div>
   );
 }
@@ -773,6 +815,165 @@ function SectionHeading({ eyebrow, title, desc }: { eyebrow: string; title: stri
       </h2>
       <p className="mt-3 text-base text-white/65">{desc}</p>
     </div>
+  );
+}
+
+// Fallback blog posts for homepage
+const fallbackBlogPosts: BlogPost[] = [
+  {
+    _id: "series-d",
+    slug: "series-d",
+    category: "Company",
+    title: "TenLabs raises $500M Series D at $11B valuation",
+    description: "Transforming how we interact with technology",
+    content: "",
+    author: "Team TenLabs",
+    createdAt: "2026-02-02T00:00:00.000Z",
+    updatedAt: "2026-02-02T00:00:00.000Z",
+    featured: true,
+    published: true,
+  },
+  {
+    _id: "v3-ga",
+    slug: "v3-ga",
+    category: "Research",
+    title: "Ten v3 is Now Generally Available",
+    description: "Ten v3 is now out of Alpha.",
+    content: "",
+    author: "Joe Reeve",
+    createdAt: "2026-02-02T00:00:00.000Z",
+    updatedAt: "2026-02-02T00:00:00.000Z",
+    featured: false,
+    published: true,
+  },
+  {
+    _id: "revolut",
+    slug: "revolut",
+    category: "Agents Platform Stories",
+    title: "Revolut selects TenAgents to bolster customer support",
+    description: "Voice agents at scale with privacy-first workflows",
+    content: "",
+    author: "Stan Messuares",
+    createdAt: "2026-01-29T00:00:00.000Z",
+    updatedAt: "2026-01-29T00:00:00.000Z",
+    featured: false,
+    published: true,
+  },
+];
+
+function formatBlogDate(dateStr: string): string {
+  return new Date(dateStr).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+// Blog Post Card for Homepage
+function BlogPostCard({ post }: { post: BlogPost }) {
+  return (
+    <Link href={`/company/blog/${post.slug}`}>
+      <Card className="group h-full border-white/10 bg-white/[0.03] hover:bg-white/[0.05] transition tenlabs-ring overflow-hidden">
+        <div className="relative h-[160px] bg-gradient-to-br from-white/5 to-white/0 grid place-items-center">
+          {post.coverImage ? (
+            <BlogImage
+              src={post.coverImage}
+              alt={post.title}
+              fill
+              className="object-cover"
+            />
+          ) : (
+            <div
+              className="text-lg font-semibold text-white/20"
+              style={{ fontFamily: "Plus Jakarta Sans, var(--font-sans)" }}
+            >
+              {post.category}
+            </div>
+          )}
+          <div className="absolute top-3 left-3">
+            <span className="inline-flex items-center rounded-full border border-white/15 bg-black/50 px-2 py-0.5 text-[10px] uppercase tracking-[0.2em] text-white/70">
+              {post.category}
+            </span>
+          </div>
+          <div className="absolute top-3 right-3 size-7 rounded-full bg-white/10 border border-white/10 grid place-items-center opacity-0 group-hover:opacity-100 transition">
+            <ArrowUpRight className="size-3.5 text-white/70" />
+          </div>
+        </div>
+        <div className="p-5">
+          <div
+            className="text-base font-medium tracking-tight text-white line-clamp-2"
+            style={{ fontFamily: "Plus Jakarta Sans, var(--font-sans)" }}
+          >
+            {post.title}
+          </div>
+          <div className="mt-2 text-sm text-white/50 line-clamp-2">{post.description}</div>
+          <div className="mt-4 flex items-center gap-3 text-xs text-white/40">
+            <span>{formatBlogDate(post.createdAt)}</span>
+            <span className="size-1 rounded-full bg-white/20" />
+            <span>{post.author}</span>
+          </div>
+        </div>
+      </Card>
+    </Link>
+  );
+}
+
+// Latest Posts Section Component
+function LatestPostsSection() {
+  const [posts, setPosts] = useState<BlogPost[]>(fallbackBlogPosts);
+
+  useEffect(() => {
+    async function fetchLatestPosts() {
+      try {
+        const res = await fetch("/api/blog");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.posts && data.posts.length > 0) {
+            setPosts(data.posts.slice(0, 3));
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch blog posts:", error);
+      }
+    }
+    fetchLatestPosts();
+  }, []);
+
+  return (
+    <section id="latest-posts" className="relative py-16 md:py-22">
+      <div className="absolute inset-0" style={{ background: "#0a0a0a" }} />
+      <div className="relative mx-auto max-w-6xl px-4">
+        <Reveal>
+          <SectionHeading
+            eyebrow="Blog"
+            title="Latest Posts"
+            desc="Stay up to date with the latest news, product updates, and stories from the TenLabs team."
+          />
+        </Reveal>
+
+        <div className="mt-10 grid gap-4 md:grid-cols-3">
+          {posts.map((post, i) => (
+            <Reveal key={post._id} delay={i * 0.06}>
+              <BlogPostCard post={post} />
+            </Reveal>
+          ))}
+        </div>
+
+        <Reveal delay={0.18}>
+          <div className="mt-10 text-center">
+            <Link href="/company/blog">
+              <Button
+                variant="secondary"
+                className="h-11 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 px-6"
+              >
+                View all posts
+                <ArrowRight className="ml-2 size-4" />
+              </Button>
+            </Link>
+          </div>
+        </Reveal>
+      </div>
+    </section>
   );
 }
 
@@ -948,16 +1149,16 @@ export default function TenLabsLanding() {
         </section>
 
         {/* Use Cases Section */}
-        <section id="use-cases" className="relative py-16 md:py-22">
+        <section id="use-cases" className="relative py-20 md:py-28">
           <div className="absolute inset-0" style={{ background: "#0a0a0a" }} />
           <div
             className="absolute inset-0"
             style={{ background: "radial-gradient(circle at 50% -10%, rgba(255,255,255,0.12), transparent 55%)" }}
           />
-          <div className="relative mx-auto max-w-6xl px-4">
+          <div className="relative mx-auto max-w-6xl px-4 mb-16">
             <Reveal>
-              <div className="max-w-3xl">
-                <div className="text-xs text-white/45">Use cases</div>
+              <div className="text-center max-w-3xl mx-auto">
+                <div className="text-xs text-white/45 uppercase tracking-widest">Use cases</div>
                 <h2
                   className="mt-4 text-3xl md:text-5xl font-medium tracking-tight"
                   style={{ fontFamily: "Plus Jakarta Sans, var(--font-sans)" }}
@@ -969,61 +1170,71 @@ export default function TenLabsLanding() {
                 </p>
               </div>
             </Reveal>
+          </div>
 
-            <div className="mt-10 grid gap-8">
+          <div className="relative mx-auto max-w-[1400px] px-6 md:px-12 lg:px-16">
+            <div className="grid gap-24 md:gap-32">
+              {/* TTS: Demo LEFT, Content RIGHT */}
               <Reveal>
                 <UseCaseCard
-                  icon={<Wand2 className="size-5" />}
+                  icon={<Wand2 className="size-6" />}
                   title="Text to Speech"
-                  desc="Generate expressive speech with fast iteration on voice, style, and pacing."
+                  desc="Transform any script into natural, expressive speech. Our advanced AI captures nuance, emotion, and pacing — delivering audio that feels genuinely human."
                   points={[
                     "Multiple voice presets with consistent timbre",
                     "Style controls for emotion and cadence",
                     "Preview waveform + export settings",
                   ]}
-                  right={<TextToSpeechDemo />}
+                  demo={<TextToSpeechDemo />}
+                  demoPosition="left"
                 />
               </Reveal>
 
+              {/* Dubbing: Demo RIGHT, Content LEFT */}
               <Reveal delay={0.06}>
                 <UseCaseCard
-                  icon={<Languages className="size-5" />}
+                  icon={<Languages className="size-6" />}
                   title="Dubbing"
-                  desc="Translate speech while preserving tone, pacing, and speaker identity."
+                  desc="Break language barriers while keeping the soul of your content. Our dubbing preserves speaker identity, tone, and emotional delivery across 30+ languages."
                   points={[
                     "Language mapping with studio-ready outputs",
                     "Tone preservation toggle for alignment",
                     "Preview energy to confirm delivery",
                   ]}
-                  right={<DubbingDemo />}
+                  demo={<DubbingDemo />}
+                  demoPosition="right"
                 />
               </Reveal>
 
+              {/* Voice Changer: Demo LEFT, Content RIGHT */}
               <Reveal delay={0.12}>
                 <UseCaseCard
-                  icon={<Waves className="size-5" />}
+                  icon={<Waves className="size-6" />}
                   title="Voice Changer"
-                  desc="Non-destructive voice transformations for creators and product teams."
+                  desc="Reshape voices without losing character. From subtle tweaks to dramatic transformations, maintain clarity while exploring unlimited vocal possibilities."
                   points={[
                     "Knob-based remixing for fast A/B",
                     "Keep intelligibility while shifting character",
                     "Preview-ready blocks for product UX",
                   ]}
-                  right={<VoiceRemixDemo />}
+                  demo={<VoiceRemixDemo />}
+                  demoPosition="left"
                 />
               </Reveal>
 
+              {/* Voice Cloning: Demo RIGHT, Content LEFT */}
               <Reveal delay={0.18}>
                 <UseCaseCard
-                  icon={<CopyPlus className="size-5" />}
+                  icon={<CopyPlus className="size-6" />}
                   title="Voice Cloning"
-                  desc="Consent-first cloning workflows with transparent quality checks."
+                  desc="Create authentic digital twins of any voice with consent-first workflows. Our ethical approach ensures quality, trust, and full creator control."
                   points={[
                     "Simple upload → train → ready steps",
                     "Verified consent + usage controls",
                     "Similarity preview to build trust",
                   ]}
-                  right={<VoiceCloningDemo />}
+                  demo={<VoiceCloningDemo />}
+                  demoPosition="right"
                 />
               </Reveal>
             </div>
@@ -1151,6 +1362,9 @@ export default function TenLabsLanding() {
             </Reveal>
           </div>
         </section>
+
+        {/* Latest Posts Section */}
+        <LatestPostsSection />
 
         {/* FAQ Section */}
         <section id="faq" className="relative py-16 md:py-22">

@@ -230,6 +230,21 @@ export function buildDialogueFileName(input: {
   return `dialogues/${input.userId}/${year}/${month}/${input.dialogueId}.${input.extension}`;
 }
 
+/**
+ * Builds the canonical B2 file name for a blog image.
+ */
+export function buildBlogImageFileName(input: {
+  imageId: string;
+  extension: string;
+  date?: Date;
+}): string {
+  const d = input.date ?? new Date();
+  const year = d.getUTCFullYear();
+  const month = pad2(d.getUTCMonth() + 1);
+
+  return `blog-images/${year}/${month}/${input.imageId}.${input.extension}`;
+}
+
 function encodeFileNameForHeader(fileName: string): string {
   // B2 requires URL-encoding for X-Bz-File-Name.
   return encodeURIComponent(fileName);
@@ -455,6 +470,19 @@ export interface UploadDialogueInput {
   audioBuffer: Buffer;
   extension: string;
   contentType: string;
+  date?: Date;
+}
+
+export interface UploadBlogImageInput {
+  /** Unique image ID (can be slug + timestamp) */
+  imageId: string;
+  /** Image bytes */
+  imageBuffer: Buffer;
+  /** File extension (jpg, png, webp, etc.) */
+  extension: string;
+  /** MIME type of the image */
+  contentType: string;
+  /** Optional date. Defaults to now. */
   date?: Date;
 }
 
@@ -866,6 +894,85 @@ export async function uploadDialogueToBackblaze(input: UploadDialogueInput): Pro
       scope.setContext("backblaze", {
         dialogueId: input.dialogueId,
         contentLength: input.audioBuffer?.byteLength ?? 0,
+      });
+
+      Sentry.captureException(error);
+    });
+
+    throw error;
+  }
+}
+
+export async function uploadBlogImageToBackblaze(input: UploadBlogImageInput): Promise<UploadAudioResult> {
+  try {
+    const config = getConfig();
+
+    if (!input.imageBuffer?.byteLength) {
+      throw new BackblazeServiceError("Cannot upload empty image buffer", {
+        context: { op: "uploadBlogImageToBackblaze" },
+      });
+    }
+
+    const fileName = buildBlogImageFileName({
+      imageId: input.imageId,
+      extension: input.extension,
+      date: input.date,
+    });
+
+    const sha1 = createHash("sha1").update(input.imageBuffer).digest("hex");
+
+    const auth = await authorizeAccount(config);
+    const uploadUrl = await getUploadUrl({
+      apiUrl: auth.apiUrl,
+      authorizationToken: auth.authorizationToken,
+      bucketId: config.bucketId,
+    });
+
+    const res = await fetch(uploadUrl.uploadUrl, {
+      method: "POST",
+      headers: {
+        Authorization: uploadUrl.uploadAuthorizationToken,
+        "X-Bz-File-Name": encodeFileNameForHeader(fileName),
+        "Content-Type": input.contentType,
+        "Content-Length": String(input.imageBuffer.byteLength),
+        "X-Bz-Content-Sha1": sha1,
+      },
+      body: input.imageBuffer as unknown as BodyInit,
+    });
+
+    await assertOk(res, { op: "b2_upload_file", fileName });
+
+    const json = (await res.json()) as {
+      fileId: string;
+      fileName: string;
+      contentLength: number;
+      contentSha1: string;
+    };
+
+    if (!json.fileId || !json.fileName) {
+      throw new BackblazeServiceError("Unexpected Backblaze upload response", {
+        context: { op: "b2_upload_file", json },
+      });
+    }
+
+    const url = `${auth.downloadUrl}/file/${config.bucketName}/${encodeFileNameForUrlPath(fileName)}`;
+
+    return {
+      fileId: json.fileId,
+      fileName: json.fileName,
+      url,
+      sha1: json.contentSha1 ?? sha1,
+      contentLength: json.contentLength ?? input.imageBuffer.byteLength,
+    };
+  } catch (error) {
+    Sentry.withScope((scope) => {
+      scope.setTag("feature", "blog");
+      scope.setTag("service", "backblaze");
+      scope.setTag("operation", "upload");
+
+      scope.setContext("backblaze", {
+        imageId: input.imageId,
+        contentLength: input.imageBuffer?.byteLength ?? 0,
       });
 
       Sentry.captureException(error);

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 import {
   Home,
   Mic,
@@ -17,10 +18,12 @@ import {
   ChevronDown,
   Zap,
   MessageSquare,
+  PenSquare,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { ADMIN_EMAILS } from "@/constants/admin";
 
 /**
  * Navigation item configuration for the dashboard sidebar.
@@ -62,6 +65,13 @@ const PRODUCTS_ITEMS: NavItem[] = [
 ];
 
 /**
+ * Admin section items (only visible to admins)
+ */
+const ADMIN_ITEMS: NavItem[] = [
+  { href: "/admin/blog", label: "Blog Management", icon: PenSquare },
+];
+
+/**
  * Dashboard Sidebar Component
  *
  * Renders the main navigation sidebar for the authenticated dashboard.
@@ -69,6 +79,13 @@ const PRODUCTS_ITEMS: NavItem[] = [
  */
 export function Sidebar() {
   const pathname = usePathname();
+  const { user } = useUser();
+
+  // Check if current user is an admin
+  const email = user?.emailAddresses?.[0]?.emailAddress;
+  const isAdmin = email && ADMIN_EMAILS.some(
+    (e) => e.toLowerCase() === email.toLowerCase()
+  );
 
   /**
    * Checks if a nav item is currently active.
@@ -144,6 +161,24 @@ export function Sidebar() {
               ))}
             </div>
           </div>
+
+          {/* Admin Section (only visible to admins) */}
+          {isAdmin && (
+            <div>
+              <div className="px-3 py-2 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+                Admin
+              </div>
+              <div className="space-y-0.5">
+                {ADMIN_ITEMS.map((item) => (
+                  <NavItem
+                    key={item.href}
+                    item={item}
+                    active={isActive(item.href)}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </ScrollArea>
 
