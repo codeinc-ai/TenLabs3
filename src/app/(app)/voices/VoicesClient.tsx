@@ -193,7 +193,7 @@ export function VoicesClient({ initialData, canUsePVC = false }: VoicesClientPro
             <button
               onClick={() => setActiveTab("explore")}
               className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                activeTab === "explore" ? "bg-gray-100 text-black" : "text-gray-600 hover:bg-gray-50"
+                activeTab === "explore" ? "bg-gray-100 dark:bg-[#1a1a1a] text-black dark:text-white" : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#1a1a1a]"
               }`}
             >
               <Mic size={16} />
@@ -201,21 +201,21 @@ export function VoicesClient({ initialData, canUsePVC = false }: VoicesClientPro
             </button>
             <Link
               href="/voices/my-voices"
-              className="px-4 py-2 text-sm font-medium rounded-lg transition-colors text-gray-600 hover:bg-gray-50"
+              className="px-4 py-2 text-sm font-medium rounded-lg transition-colors text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#1a1a1a]"
             >
               My Voices
             </Link>
             <button
               onClick={() => setActiveTab("default")}
               className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                activeTab === "default" ? "bg-gray-100 text-black" : "text-gray-600 hover:bg-gray-50"
+                activeTab === "default" ? "bg-gray-100 dark:bg-[#1a1a1a] text-black dark:text-white" : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#1a1a1a]"
               }`}
             >
               Default Voices
             </button>
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-sm text-gray-500">○ 0 / 3 slots used</span>
+            <span className="text-sm text-gray-500 dark:text-gray-400">○ 0 / 3 slots used</span>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-colors">
@@ -265,33 +265,33 @@ export function VoicesClient({ initialData, canUsePVC = false }: VoicesClientPro
         {/* Search */}
         <form onSubmit={handleSearch} className="flex items-center gap-3 mb-4">
           <div className="flex-1 relative">
-            <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+            <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search library voices..."
-              className="w-full pl-11 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-sm placeholder:text-gray-400 focus:outline-none focus:border-gray-300"
+              className="w-full pl-11 pr-4 py-3 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-xl text-sm text-black dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-300 dark:focus:border-[#444]"
             />
           </div>
           <button
             type="button"
-            className="p-3 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
+            className="p-3 border border-gray-200 dark:border-[#333] rounded-xl hover:bg-gray-50 dark:hover:bg-[#252525] transition-colors"
           >
-            <Folder size={18} className="text-gray-400" />
+            <Folder size={18} className="text-gray-400 dark:text-gray-500" />
           </button>
           <button
             type="button"
-            className="flex items-center gap-2 px-4 py-3 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
+            className="flex items-center gap-2 px-4 py-3 border border-gray-200 dark:border-[#333] rounded-xl hover:bg-gray-50 dark:hover:bg-[#252525] transition-colors"
           >
-            <SlidersHorizontal size={18} className="text-gray-500" />
-            <span className="text-sm text-gray-600">Filters</span>
+            <SlidersHorizontal size={18} className="text-gray-500 dark:text-gray-400" />
+            <span className="text-sm text-gray-600 dark:text-gray-300">Filters</span>
           </button>
         </form>
 
         {/* Banner */}
-        <div className="relative mb-8 p-6 bg-gray-900 rounded-2xl overflow-hidden">
-          <button className="absolute top-3 right-3 text-gray-500 hover:text-white">
+        <div className="relative mb-8 p-6 bg-gray-900 dark:bg-[#1a1a1a] rounded-2xl overflow-hidden">
+          <button className="absolute top-3 right-3 text-gray-500 dark:text-gray-400 hover:text-white">
             <X size={16} />
           </button>
           <h3 className="text-white font-semibold text-lg mb-2">
@@ -302,13 +302,13 @@ export function VoicesClient({ initialData, canUsePVC = false }: VoicesClientPro
               {[1, 2, 3, 4].map((i) => (
                 <div
                   key={i}
-                  className="w-14 h-14 rounded-full bg-gray-700 border-2 border-gray-900 overflow-hidden"
+                  className="w-14 h-14 rounded-full bg-gray-700 dark:bg-[#333] border-2 border-gray-900 dark:border-[#1a1a1a] overflow-hidden"
                 >
-                  <div className="w-full h-full bg-gradient-to-b from-gray-600 to-gray-800"></div>
+                  <div className="w-full h-full bg-gradient-to-b from-gray-600 to-gray-800 dark:from-[#444] dark:to-[#333]"></div>
                 </div>
               ))}
             </div>
-            <button className="px-4 py-2 bg-white text-black text-sm font-medium rounded-lg hover:bg-gray-100 transition-colors">
+            <button className="px-4 py-2 bg-white dark:bg-[#252525] text-black dark:text-white text-sm font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-[#333] transition-colors">
               Learn more
             </button>
           </div>
@@ -321,9 +321,9 @@ export function VoicesClient({ initialData, canUsePVC = false }: VoicesClientPro
             return (
               <button
                 key={cat.label}
-                className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-full text-sm text-gray-700 hover:border-gray-300 hover:bg-gray-50 transition-colors whitespace-nowrap"
+                className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-full text-sm text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-[#444] hover:bg-gray-50 dark:hover:bg-[#252525] transition-colors whitespace-nowrap"
               >
-                <Icon size={16} className="text-gray-500" />
+                <Icon size={16} className="text-gray-500 dark:text-gray-400" />
                 {cat.label}
               </button>
             );
@@ -333,12 +333,12 @@ export function VoicesClient({ initialData, canUsePVC = false }: VoicesClientPro
         {/* Trending Voices */}
         <div className="mb-10">
           <div className="flex items-center gap-2 mb-4">
-            <h2 className="text-lg font-semibold text-black">Trending voices</h2>
-            <ChevronRight size={18} className="text-gray-400" />
+            <h2 className="text-lg font-semibold text-black dark:text-white">Trending voices</h2>
+            <ChevronRight size={18} className="text-gray-400 dark:text-gray-500" />
           </div>
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+              <Loader2 className="h-8 w-8 animate-spin text-gray-400 dark:text-gray-500" />
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -346,7 +346,7 @@ export function VoicesClient({ initialData, canUsePVC = false }: VoicesClientPro
                 <button
                   key={voice.voiceId}
                   onClick={() => handleUseVoice(voice)}
-                  className="flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-xl hover:border-gray-300 hover:shadow-sm transition-all text-left"
+                  className="flex items-center gap-3 p-3 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-xl hover:border-gray-300 dark:hover:border-[#444] hover:shadow-sm dark:hover:shadow-none transition-all text-left"
                 >
                   <div
                     className={`w-10 h-10 ${getVoiceColor(i)} rounded-full flex items-center justify-center flex-shrink-0`}
@@ -354,8 +354,8 @@ export function VoicesClient({ initialData, canUsePVC = false }: VoicesClientPro
                     <span className="text-white text-lg">🎭</span>
                   </div>
                   <div className="min-w-0 flex-1">
-                    <h4 className="font-medium text-gray-900 text-sm truncate">{voice.name}</h4>
-                    <p className="text-xs text-gray-500">{voice.category}</p>
+                    <h4 className="font-medium text-gray-900 dark:text-white text-sm truncate">{voice.name}</h4>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{voice.category}</p>
                   </div>
                 </button>
               ))}
@@ -366,13 +366,13 @@ export function VoicesClient({ initialData, canUsePVC = false }: VoicesClientPro
         {/* Handpicked for your use case */}
         <div className="mb-10">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-black">Handpicked for your use case</h2>
+            <h2 className="text-lg font-semibold text-black dark:text-white">Handpicked for your use case</h2>
             <div className="flex items-center gap-2">
-              <button className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                <ChevronLeft size={16} className="text-gray-400" />
+              <button className="p-2 border border-gray-200 dark:border-[#333] rounded-lg hover:bg-gray-50 dark:hover:bg-[#252525] transition-colors">
+                <ChevronLeft size={16} className="text-gray-400 dark:text-gray-500" />
               </button>
-              <button className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                <ChevronRight size={16} className="text-gray-400" />
+              <button className="p-2 border border-gray-200 dark:border-[#333] rounded-lg hover:bg-gray-50 dark:hover:bg-[#252525] transition-colors">
+                <ChevronRight size={16} className="text-gray-400 dark:text-gray-500" />
               </button>
             </div>
           </div>
@@ -396,50 +396,50 @@ export function VoicesClient({ initialData, canUsePVC = false }: VoicesClientPro
         {/* Voice List */}
         <div className="mb-10">
           <div className="flex items-center gap-2 mb-4">
-            <h2 className="text-lg font-semibold text-black">
+            <h2 className="text-lg font-semibold text-black dark:text-white">
               {activeTab === "default" ? "Default Voices" : "All Voices"}
             </h2>
-            <span className="text-sm text-gray-500">({data.total})</span>
+            <span className="text-sm text-gray-500 dark:text-gray-400">({data.total})</span>
           </div>
-          <div className="divide-y divide-gray-100">
+          <div className="divide-y divide-gray-100 dark:divide-[#333]">
             {data.voices.map((voice, i) => (
               <div
                 key={voice.voiceId}
-                className="flex items-center gap-4 py-3 hover:bg-gray-50 transition-colors group"
+                className="flex items-center gap-4 py-3 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] transition-colors group"
               >
                 <div
                   className={`w-10 h-10 rounded-full ${getVoiceColor(i)} flex-shrink-0`}
                 ></div>
                 <div className="flex-1 min-w-0 grid grid-cols-[1fr_120px_100px_80px] gap-4 items-center">
                   <div className="min-w-0">
-                    <h4 className="font-medium text-gray-900 text-sm truncate">{voice.name}</h4>
-                    <p className="text-xs text-gray-500 truncate">{voice.description}</p>
+                    <h4 className="font-medium text-gray-900 dark:text-white text-sm truncate">{voice.name}</h4>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{voice.description}</p>
                   </div>
-                  <div className="text-xs text-gray-500">{voice.category}</div>
-                  <div className="text-xs text-gray-400">{voice.usageCount?.toLocaleString() || 0} uses</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">{voice.category}</div>
+                  <div className="text-xs text-gray-400 dark:text-gray-500">{voice.usageCount?.toLocaleString() || 0} uses</div>
                   <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button
                       onClick={() => handlePlay(voice)}
-                      className="p-1.5 hover:bg-gray-200 rounded-lg transition-colors"
+                      className="p-1.5 hover:bg-gray-200 dark:hover:bg-[#252525] rounded-lg transition-colors"
                     >
                       {playingId === voice.voiceId ? (
-                        <Loader2 size={14} className="text-gray-500 animate-spin" />
+                        <Loader2 size={14} className="text-gray-500 dark:text-gray-400 animate-spin" />
                       ) : (
-                        <Play size={14} className="text-gray-500" />
+                        <Play size={14} className="text-gray-500 dark:text-gray-400" />
                       )}
                     </button>
                     <button
                       onClick={() => handleSave(voice)}
-                      className="p-1.5 hover:bg-gray-200 rounded-lg transition-colors"
+                      className="p-1.5 hover:bg-gray-200 dark:hover:bg-[#252525] rounded-lg transition-colors"
                     >
                       {savingId === voice.voiceId ? (
-                        <Loader2 size={14} className="text-gray-500 animate-spin" />
+                        <Loader2 size={14} className="text-gray-500 dark:text-gray-400 animate-spin" />
                       ) : (
-                        <Plus size={14} className="text-gray-500" />
+                        <Plus size={14} className="text-gray-500 dark:text-gray-400" />
                       )}
                     </button>
-                    <button className="p-1.5 hover:bg-gray-200 rounded-lg transition-colors">
-                      <MoreHorizontal size={14} className="text-gray-500" />
+                    <button className="p-1.5 hover:bg-gray-200 dark:hover:bg-[#252525] rounded-lg transition-colors">
+                      <MoreHorizontal size={14} className="text-gray-500 dark:text-gray-400" />
                     </button>
                   </div>
                 </div>
@@ -451,14 +451,14 @@ export function VoicesClient({ initialData, canUsePVC = false }: VoicesClientPro
         {/* Pagination */}
         {data.totalPages > 1 && (
           <div className="flex items-center justify-between">
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
               Page {data.page} of {data.totalPages}
             </p>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => fetchVoices(data.page - 1)}
                 disabled={data.page <= 1 || loading}
-                className="flex items-center gap-1 px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-1 px-3 py-2 border border-gray-200 dark:border-[#333] rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#252525] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <ChevronLeft size={16} />
                 Previous
@@ -466,7 +466,7 @@ export function VoicesClient({ initialData, canUsePVC = false }: VoicesClientPro
               <button
                 onClick={() => fetchVoices(data.page + 1)}
                 disabled={data.page >= data.totalPages || loading}
-                className="flex items-center gap-1 px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-1 px-3 py-2 border border-gray-200 dark:border-[#333] rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#252525] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Next
                 <ChevronRight size={16} />

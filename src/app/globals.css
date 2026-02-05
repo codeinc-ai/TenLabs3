@@ -79,6 +79,41 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  /* TenLabs Landing Page Variables */
+  --background-primary: #ffffff;
+  --background-secondary: #f9fafb;
+  --background-tertiary: #f3f4f6;
+  --background-elevated: #ffffff;
+  --background-interactive: #f3f4f6;
+  --card-background: rgba(255, 255, 255, 0.8);
+  --card-background-solid: #ffffff;
+  --card-border-hex: rgba(0, 0, 0, 0.08);
+  --card-border-hover-hex: rgba(0, 0, 0, 0.15);
+  --card-border-active-hex: rgba(0, 0, 0, 0.25);
+  --text-primary: #111827;
+  --text-secondary: #6b7280;
+  --text-muted: #9ca3af;
+  --text-disabled: #d1d5db;
+  --accent-primary: #111827;
+  --accent-secondary: #f3f4f6;
+  --interactive-default: #e5e7eb;
+  --interactive-hover: #d1d5db;
+  --interactive-active: #9ca3af;
+  --gradient-hero: linear-gradient(180deg, #ffffff 0%, #f9fafb 100%);
+  --gradient-card: linear-gradient(135deg, rgba(0, 0, 0, 0.02) 0%, rgba(0, 0, 0, 0.01) 100%);
+  --gradient-glow: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.05) 0%, transparent 70%);
+  --gradient-text-shimmer: linear-gradient(90deg, #9ca3af 0%, #111827 50%, #9ca3af 100%);
+  --orb-color-1: #cadcfc;
+  --orb-color-2: #a0b9d1;
+  --orb-alt-1: #f6e7d8;
+  --orb-alt-2: #e0cfc2;
+  --orb-neutral-1: #e5e7eb;
+  --orb-neutral-2: #9ca3af;
+  --status-success: #22c55e;
+  --status-warning: #eab308;
+  --status-error: #ef4444;
+  --status-info: #3b82f6;
 }
 
 .dark {
@@ -113,6 +148,31 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+
+  /* TenLabs Landing Page Variables - Dark */
+  --background-primary: #000000;
+  --background-secondary: #0a0a0a;
+  --background-tertiary: #111111;
+  --background-elevated: #171717;
+  --background-interactive: #1a1a1a;
+  --card-background: rgba(17, 17, 17, 0.6);
+  --card-background-solid: #111111;
+  --card-border-hex: rgba(255, 255, 255, 0.08);
+  --card-border-hover-hex: rgba(255, 255, 255, 0.15);
+  --card-border-active-hex: rgba(255, 255, 255, 0.25);
+  --text-primary: #ffffff;
+  --text-secondary: #a1a1aa;
+  --text-muted: #71717a;
+  --text-disabled: #52525b;
+  --accent-primary: #ffffff;
+  --accent-secondary: #18181b;
+  --interactive-default: #27272a;
+  --interactive-hover: #3f3f46;
+  --interactive-active: #52525b;
+  --gradient-hero: linear-gradient(180deg, #000000 0%, #0a0a0a 100%);
+  --gradient-card: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
+  --gradient-glow: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+  --gradient-text-shimmer: linear-gradient(90deg, #71717a 0%, #ffffff 50%, #71717a 100%);
 }
 
 @layer base {
@@ -131,5 +191,77 @@
   }
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
+  }
+
+  /* TenLabs Landing Page Utilities */
+  .tenlabs-noise {
+    position: relative;
+  }
+
+  .tenlabs-noise::before {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.22'/%3E%3C/svg%3E");
+    mix-blend-mode: overlay;
+    opacity: 0.18;
+  }
+
+  .tenlabs-shimmer {
+    background: var(--gradient-text-shimmer);
+    background-size: 220% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: tenlabs-shimmer 2.8s ease-in-out infinite;
+  }
+
+  @keyframes tenlabs-shimmer {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  .tenlabs-ring {
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.06) inset,
+      0 0 0 1px rgba(255, 255, 255, 0.03),
+      0 24px 80px rgba(0, 0, 0, 0.65);
+  }
+
+  .tenlabs-glass {
+    background: var(--gradient-card);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+
+  .tenlabs-grid {
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(circle at 50% 30%, black 0%, transparent 68%);
+  }
+
+  .tenlabs-mega {
+    position: relative;
+  }
+
+  .tenlabs-mega::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(1200px 180px at 20% 0%, rgba(255, 255, 255, 0.06), transparent 60%),
+      radial-gradient(900px 200px at 90% 0%, rgba(255, 255, 255, 0.045), transparent 60%);
+    opacity: 1;
   }
 }
