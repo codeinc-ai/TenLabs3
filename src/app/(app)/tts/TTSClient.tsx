@@ -37,7 +37,7 @@ interface TTSClientProps {
 type VoicePickerVoice = {
   voiceId: string;
   name: string;
-  previewUrl?: string;
+  previewUrl: string | undefined;
   labels?: {
     accent?: string;
     gender?: string;
@@ -50,6 +50,7 @@ type VoicePickerVoice = {
 const fallbackVoices: VoicePickerVoice[] = DEFAULT_VOICES.map((voice) => ({
   voiceId: voice.id,
   name: voice.name,
+  previewUrl: undefined,
   labels: {
     description: voice.category,
     "use case": voice.category,
@@ -138,22 +139,25 @@ export function TTSClient({ userPlan = "free", currentUsage }: TTSClientProps) {
         const res = await fetch("/api/voices?defaultOnly=true&limit=100&sortBy=name");
         if (!res.ok) return;
         const json = (await res.json()) as { voices?: Array<Record<string, unknown>> };
-        const apiVoices = (json.voices ?? [])
-          .map((v) => {
+        const apiVoices: VoicePickerVoice[] = (json.voices ?? [])
+          .map((v): VoicePickerVoice | null => {
             const voiceId = typeof v.voiceId === "string" ? v.voiceId : null;
             const name = typeof v.name === "string" ? v.name : null;
             if (!voiceId || !name) return null;
-            const previewUrl = typeof v.previewUrl === "string" ? v.previewUrl : undefined;
-            const labels = {
-              accent: typeof v.accent === "string" ? v.accent : undefined,
-              gender: typeof v.gender === "string" ? v.gender : undefined,
-              age: typeof v.age === "string" ? v.age : undefined,
-              description: typeof v.description === "string" ? v.description : undefined,
-              "use case": typeof v.category === "string" ? v.category : undefined,
-            } satisfies VoicePickerVoice["labels"];
-            return { voiceId, name, previewUrl, labels } satisfies VoicePickerVoice;
+            return {
+              voiceId,
+              name,
+              previewUrl: typeof v.previewUrl === "string" ? v.previewUrl : undefined,
+              labels: {
+                accent: typeof v.accent === "string" ? v.accent : undefined,
+                gender: typeof v.gender === "string" ? v.gender : undefined,
+                age: typeof v.age === "string" ? v.age : undefined,
+                description: typeof v.description === "string" ? v.description : undefined,
+                "use case": typeof v.category === "string" ? v.category : undefined,
+              },
+            };
           })
-          .filter((v): v is VoicePickerVoice => Boolean(v));
+          .filter((v): v is VoicePickerVoice => v !== null);
 
         if (!cancelled && apiVoices.length) setVoices(apiVoices);
       } catch {
