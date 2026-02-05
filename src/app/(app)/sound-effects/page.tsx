@@ -232,7 +232,9 @@ export default function SoundEffectsPage() {
         <div className="p-8 max-w-7xl mx-auto">
           {/* Title and Tabs */}
           <div className="mb-8">
-            <h1 className="text-2xl font-bold text-black mb-6">Sound Effects</h1>
+            <h1 className="text-2xl font-bold text-black dark:text-white mb-6">
+              Sound Effects
+            </h1>
 
             <div className="flex items-center justify-between">
               <div className="flex gap-1">
@@ -240,8 +242,8 @@ export default function SoundEffectsPage() {
                   onClick={() => setActiveTab("explore")}
                   className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                     activeTab === "explore"
-                      ? "bg-gray-100 text-black"
-                      : "text-gray-500 hover:text-black hover:bg-gray-50"
+                      ? "bg-gray-100 text-black dark:bg-[#1a1a1a] dark:text-white"
+                      : "text-gray-500 dark:text-gray-400 hover:text-black hover:bg-gray-50 dark:hover:text-white dark:hover:bg-[#1a1a1a]"
                   }`}
                 >
                   Explore
@@ -253,13 +255,13 @@ export default function SoundEffectsPage() {
                   }}
                   className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                     activeTab === "history"
-                      ? "bg-gray-100 text-black"
-                      : "text-gray-500 hover:text-black hover:bg-gray-50"
+                      ? "bg-gray-100 text-black dark:bg-[#1a1a1a] dark:text-white"
+                      : "text-gray-500 dark:text-gray-400 hover:text-black hover:bg-gray-50 dark:hover:text-white dark:hover:bg-[#1a1a1a]"
                   }`}
                 >
                   History
                   {history && history.total > 0 && (
-                    <span className="ml-1.5 px-1.5 py-0.5 text-xs bg-gray-200 rounded-full">
+                    <span className="ml-1.5 px-1.5 py-0.5 text-xs bg-gray-200 dark:bg-[#333] text-gray-800 dark:text-gray-100 rounded-full">
                       {history.total}
                     </span>
                   )}
@@ -270,11 +272,11 @@ export default function SoundEffectsPage() {
 
           {/* Error display */}
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl">
-              <p className="text-sm text-red-600">{error}</p>
+            <div className="mb-6 p-4 bg-red-50 dark:bg-red-950 border border-red-100 dark:border-red-900 rounded-xl">
+              <p className="text-sm text-red-600 dark:text-red-300">{error}</p>
               <button
                 onClick={() => setError(null)}
-                className="mt-2 text-xs text-red-500 underline"
+                className="mt-2 text-xs text-red-500 dark:text-red-400 underline"
               >
                 Dismiss
               </button>
@@ -307,14 +309,16 @@ export default function SoundEffectsPage() {
                     );
                   })}
                 </div>
-                <button className="absolute right-0 top-1/2 -translate-y-1/2 w-10 h-10 bg-white border border-gray-200 rounded-full flex items-center justify-center shadow-lg hover:bg-gray-50 transition-colors">
-                  <ChevronRight size={20} className="text-gray-600" />
+                <button className="absolute right-0 top-1/2 -translate-y-1/2 w-10 h-10 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-full flex items-center justify-center shadow-lg dark:shadow-none hover:bg-gray-50 dark:hover:bg-[#252525] transition-colors">
+                  <ChevronRight size={20} className="text-gray-600 dark:text-gray-300" />
                 </button>
               </div>
 
               {/* Sample prompts */}
               <div className="mb-8">
-                <h3 className="text-sm font-medium text-gray-700 mb-3">Try these prompts</h3>
+                <h3 className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-3">
+                  Try these prompts
+                </h3>
                 <div className="flex flex-wrap gap-2">
                   {[
                     "Cinematic braam, horror",
@@ -327,7 +331,7 @@ export default function SoundEffectsPage() {
                     <button
                       key={sample}
                       onClick={() => setPrompt(sample)}
-                      className="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-100 hover:border-gray-300 transition-colors"
+                      className="px-3 py-1.5 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-lg text-sm text-gray-600 dark:text-gray-200 hover:bg-gray-100 hover:border-gray-300 dark:hover:bg-[#252525] dark:hover:border-[#444] transition-colors"
                     >
                       {sample}
                     </button>
@@ -363,14 +367,14 @@ export default function SoundEffectsPage() {
                 <div className="flex-1 relative">
                   <Search
                     size={18}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500"
                   />
                   <input
                     type="text"
                     placeholder="Search your sound effects..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-11 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-sm placeholder:text-gray-400 focus:outline-none focus:border-gray-300 focus:ring-1 focus:ring-gray-200"
+                    className="w-full pl-11 pr-4 py-3 bg-white dark:bg-[#050505] border border-gray-200 dark:border-[#333] rounded-xl text-sm text-black dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-300 focus:ring-1 focus:ring-gray-200 dark:focus:border-[#555] dark:focus:ring-0"
                   />
                 </div>
               </div>
@@ -378,7 +382,7 @@ export default function SoundEffectsPage() {
               {/* Loading */}
               {historyLoading && !history && (
                 <div className="flex items-center justify-center py-12">
-                  <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+                  <Loader2 className="h-8 w-8 animate-spin text-gray-400 dark:text-gray-500" />
                 </div>
               )}
 
@@ -386,8 +390,8 @@ export default function SoundEffectsPage() {
               {!historyLoading && history && history.soundEffects.length === 0 && (
                 <div className="py-12 text-center">
                   <Volume2 size={48} className="mx-auto text-gray-300 mb-4" />
-                  <p className="text-gray-500 mb-2">No sound effects yet</p>
-                  <p className="text-sm text-gray-400">
+                  <p className="text-gray-500 dark:text-gray-300 mb-2">No sound effects yet</p>
+                  <p className="text-sm text-gray-400 dark:text-gray-500">
                     Describe a sound below to generate your first effect
                   </p>
                 </div>
@@ -396,18 +400,18 @@ export default function SoundEffectsPage() {
               {/* Sound effects list */}
               {filteredSoundEffects.length > 0 && (
                 <>
-                  <div className="grid grid-cols-[1fr_100px_100px_100px] gap-4 px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                  <div className="grid grid-cols-[1fr_100px_100px_100px] gap-4 px-4 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider border-b border-gray-100 dark:border-[#1a1a1a]">
                     <div>Description</div>
                     <div className="text-right">Duration</div>
                     <div className="text-right">Created</div>
                     <div></div>
                   </div>
 
-                  <div className="divide-y divide-gray-100">
+                  <div className="divide-y divide-gray-100 dark:divide-[#1a1a1a]">
                     {filteredSoundEffects.map((sound) => (
                       <div
                         key={sound.id}
-                        className="grid grid-cols-[1fr_100px_100px_100px] gap-4 px-4 py-4 items-center hover:bg-gray-50 transition-colors group"
+                        className="grid grid-cols-[1fr_100px_100px_100px] gap-4 px-4 py-4 items-center hover:bg-gray-50 dark:hover:bg-[#050505] transition-colors group"
                       >
                         <div className="flex items-center gap-4 min-w-0">
                           <button
@@ -415,7 +419,7 @@ export default function SoundEffectsPage() {
                             className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 transition-colors ${
                               playingId === sound.id
                                 ? "bg-black text-white"
-                                : "bg-gray-100 text-gray-600 group-hover:bg-gray-200"
+                                : "bg-gray-100 text-gray-600 group-hover:bg-gray-200 dark:bg-[#1a1a1a] dark:text-gray-200 dark:group-hover:bg-[#252525]"
                             }`}
                           >
                             {playingId === sound.id ? (
@@ -424,24 +428,26 @@ export default function SoundEffectsPage() {
                               <Play size={16} className="ml-0.5" />
                             )}
                           </button>
-                          <p className="text-sm text-gray-900 truncate">{sound.text}</p>
+                          <p className="text-sm text-gray-900 dark:text-white truncate">
+                            {sound.text}
+                          </p>
                         </div>
 
                         <div className="flex items-center justify-end gap-2">
-                          <Clock size={14} className="text-gray-400" />
-                          <span className="text-sm text-gray-600">
+                          <Clock size={14} className="text-gray-400 dark:text-gray-500" />
+                          <span className="text-sm text-gray-600 dark:text-gray-300">
                             {formatDuration(sound.durationSeconds)}
                           </span>
                         </div>
 
-                        <div className="text-right text-sm text-gray-500">
+                        <div className="text-right text-sm text-gray-500 dark:text-gray-400">
                           {formatRelativeTime(sound.createdAt)}
                         </div>
 
                         <div className="flex items-center justify-end gap-1">
                           <button
                             onClick={() => handleDownload(sound)}
-                            className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                            className="p-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] rounded-lg transition-colors"
                             title="Download"
                           >
                             <Download size={16} />
@@ -449,7 +455,7 @@ export default function SoundEffectsPage() {
                           <button
                             onClick={() => handleDelete(sound.id)}
                             disabled={deletingId === sound.id}
-                            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+                            className="p-2 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950 rounded-lg transition-colors disabled:opacity-50"
                             title="Delete"
                           >
                             {deletingId === sound.id ? (
@@ -465,22 +471,22 @@ export default function SoundEffectsPage() {
 
                   {/* Pagination */}
                   {history && history.totalPages > 1 && (
-                    <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
-                      <p className="text-sm text-gray-500">
+                    <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100 dark:border-[#1a1a1a]">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
                         Page {history.page} of {history.totalPages}
                       </p>
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => fetchHistory(history.page - 1)}
                           disabled={history.page <= 1 || historyLoading}
-                          className="px-3 py-1.5 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                          className="px-3 py-1.5 text-sm font-medium text-gray-600 dark:text-gray-300 bg-white dark:bg-[#050505] border border-gray-200 dark:border-[#333] rounded-lg hover:bg-gray-50 dark:hover:bg-[#252525] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                         >
                           Previous
                         </button>
                         <button
                           onClick={() => fetchHistory(history.page + 1)}
                           disabled={history.page >= history.totalPages || historyLoading}
-                          className="px-3 py-1.5 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                          className="px-3 py-1.5 text-sm font-medium text-gray-600 dark:text-gray-300 bg-white dark:bg-[#050505] border border-gray-200 dark:border-[#333] rounded-lg hover:bg-gray-50 dark:hover:bg-[#252525] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                         >
                           Next
                         </button>
@@ -493,7 +499,9 @@ export default function SoundEffectsPage() {
               {/* No search results */}
               {searchQuery && filteredSoundEffects.length === 0 && history && history.soundEffects.length > 0 && (
                 <div className="py-8 text-center">
-                  <p className="text-gray-500">No sound effects match &quot;{searchQuery}&quot;</p>
+                  <p className="text-gray-500 dark:text-gray-400">
+                    No sound effects match &quot;{searchQuery}&quot;
+                  </p>
                 </div>
               )}
             </>
@@ -502,7 +510,7 @@ export default function SoundEffectsPage() {
       </div>
 
       {/* Bottom Input Bar */}
-      <div className="border-t border-gray-100 p-4 bg-white">
+      <div className="border-t border-gray-100 dark:border-[#1a1a1a] p-4 bg-white dark:bg-black">
         <div className="max-w-3xl mx-auto">
           <div className="relative">
             <input
@@ -518,7 +526,7 @@ export default function SoundEffectsPage() {
               }}
               disabled={generating}
               maxLength={SFX_CONFIG.maxPromptLength}
-              className="w-full pl-4 pr-32 py-4 bg-gray-50 border border-gray-200 rounded-2xl text-sm placeholder:text-gray-400 focus:outline-none focus:border-gray-300 focus:bg-white transition-colors disabled:opacity-50"
+              className="w-full pl-4 pr-32 py-4 bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-[#333] rounded-2xl text-sm text-black dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-300 focus:bg-white dark:focus:border-[#555] dark:focus:bg-[#050505] transition-colors disabled:opacity-50"
             />
             <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2">
               <button
@@ -536,11 +544,11 @@ export default function SoundEffectsPage() {
           </div>
           <div className="flex items-center justify-between mt-3 px-1">
             <div className="flex items-center gap-4">
-              <span className="text-xs text-gray-500">
+              <span className="text-xs text-gray-500 dark:text-gray-400">
                 {prompt.length}/{SFX_CONFIG.maxPromptLength}
               </span>
             </div>
-            <span className="text-xs text-gray-400">
+            <span className="text-xs text-gray-400 dark:text-gray-500">
               Press Enter to generate
             </span>
           </div>
