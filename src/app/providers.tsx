@@ -6,6 +6,7 @@ import { PostHogProvider } from "posthog-js/react";
 import { useUser } from "@clerk/nextjs";
 
 import { capturePosthogBrowserEvent, initPosthogBrowser, posthog } from "@/lib/posthogBrowser";
+import { ThemeProvider } from "@/components/theme-provider";
 
 function pageNameFromPath(pathname: string | null): string {
   if (!pathname || pathname === "/") return "home";
@@ -47,5 +48,14 @@ export function Providers({ children }: { children: React.ReactNode }) {
     });
   }, [pathname, user?.id]);
 
-  return <PostHogProvider client={posthog}>{children}</PostHogProvider>;
+  return (
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
+    >
+      <PostHogProvider client={posthog}>{children}</PostHogProvider>
+    </ThemeProvider>
+  );
 }

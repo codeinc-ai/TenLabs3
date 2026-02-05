@@ -293,14 +293,14 @@ export function TTSClient({ userPlan = "free", currentUsage }: TTSClientProps) {
           <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
-            className="w-full flex-1 min-h-[200px] resize-none outline-none text-lg text-gray-800 placeholder:text-gray-400 font-light leading-relaxed bg-transparent"
+            className="w-full flex-1 min-h-[200px] resize-none outline-none text-lg text-gray-800 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 font-light leading-relaxed bg-transparent"
             placeholder="Start typing here or paste any text you want to turn into lifelike speech..."
             disabled={loading}
           />
 
           {/* Character count */}
           <div className="mt-4 flex items-center justify-between text-sm">
-            <span className={isOverLimit ? "text-red-500" : "text-gray-400"}>
+            <span className={isOverLimit ? "text-red-500" : "text-gray-400 dark:text-gray-500"}>
               {text.length.toLocaleString()} / {remainingChars.toLocaleString()} characters remaining
             </span>
             {error && <span className="text-red-500">{error}</span>}
@@ -309,7 +309,7 @@ export function TTSClient({ userPlan = "free", currentUsage }: TTSClientProps) {
           {/* Suggestions / Quick Starts */}
           {!text && (
             <div className="mt-8">
-              <p className="text-sm text-gray-500 mb-4">Get started with</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Get started with</p>
               <div className="flex flex-wrap gap-3">
                 {suggestionChips.map((chip) => {
                   const Icon = chip.icon;
@@ -317,9 +317,9 @@ export function TTSClient({ userPlan = "free", currentUsage }: TTSClientProps) {
                     <button
                       key={chip.label}
                       onClick={() => setText(chip.label)}
-                      className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-full text-sm text-gray-700 hover:border-gray-400 hover:shadow-sm transition-all"
+                      className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-full text-sm text-gray-700 dark:text-gray-200 hover:border-gray-400 dark:hover:border-[#444] hover:shadow-sm dark:hover:shadow-none transition-all"
                     >
-                      <Icon size={16} className="text-gray-500" />
+                      <Icon size={16} className="text-gray-500 dark:text-gray-400" />
                       <span>{chip.label}</span>
                     </button>
                   );
@@ -330,7 +330,7 @@ export function TTSClient({ userPlan = "free", currentUsage }: TTSClientProps) {
 
           {/* Audio Player */}
           {audioUrl && (
-            <div className="mt-8 p-4 bg-gray-50 rounded-xl">
+            <div className="mt-8 p-4 bg-gray-100 dark:bg-[#1a1a1a] rounded-xl">
               <audio
                 ref={audioRef}
                 src={audioUrl}
@@ -355,29 +355,29 @@ export function TTSClient({ userPlan = "free", currentUsage }: TTSClientProps) {
               <div className="flex items-center gap-4">
                 <button
                   onClick={togglePlayPause}
-                  className="w-12 h-12 bg-black rounded-full flex items-center justify-center hover:bg-gray-800 transition-colors"
+                  className="w-12 h-12 bg-black dark:bg-white rounded-full flex items-center justify-center hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors"
                 >
                   {isPlaying ? (
-                    <Pause size={20} className="text-white" />
+                    <Pause size={20} className="text-white dark:text-black" />
                   ) : (
-                    <Play size={20} className="text-white ml-1" />
+                    <Play size={20} className="text-white dark:text-black ml-1" />
                   )}
                 </button>
                 <div className="flex-1">
                   <div className="flex items-center gap-3">
-                    <span className="text-xs text-gray-500">{formatTime(currentTime)}</span>
-                    <div className="flex-1 h-1 bg-gray-200 rounded-full">
+                    <span className="text-xs text-gray-500 dark:text-gray-400">{formatTime(currentTime)}</span>
+                    <div className="flex-1 h-1 bg-gray-200 dark:bg-gray-700 rounded-full">
                       <div
-                        className="h-full bg-black rounded-full transition-all"
+                        className="h-full bg-black dark:bg-white rounded-full transition-all"
                         style={{ width: `${duration ? (currentTime / duration) * 100 : 0}%` }}
                       />
                     </div>
-                    <span className="text-xs text-gray-500">{formatTime(duration)}</span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">{formatTime(duration)}</span>
                   </div>
                 </div>
                 <button
                   onClick={handleDownload}
-                  className="p-2 text-gray-500 hover:text-black hover:bg-gray-200 rounded-lg transition-colors"
+                  className="p-2 text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors"
                 >
                   <Download size={18} />
                 </button>
@@ -387,14 +387,14 @@ export function TTSClient({ userPlan = "free", currentUsage }: TTSClientProps) {
         </div>
 
         {/* Bottom Bar */}
-        <div className="h-16 border-t border-gray-100 flex items-center justify-end px-6 flex-shrink-0 gap-4">
+        <div className="h-16 border-t border-gray-100 dark:border-[#1a1a1a] flex items-center justify-end px-6 flex-shrink-0 gap-4">
           <button
             onClick={generate}
             disabled={loading || !text.trim() || isOverLimit}
             className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-colors ${
               loading || !text.trim() || isOverLimit
-                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-black text-white hover:bg-gray-800"
+                ? "bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
+                : "bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200"
             }`}
           >
             {loading ? (
@@ -410,14 +410,14 @@ export function TTSClient({ userPlan = "free", currentUsage }: TTSClientProps) {
       </main>
 
       {/* Settings Panel */}
-      <aside className="w-[380px] bg-white border-l border-gray-200 flex-col h-full overflow-hidden flex-shrink-0 relative hidden lg:flex">
+      <aside className="w-[380px] bg-white dark:bg-black border-l border-gray-200 dark:border-[#1a1a1a] flex-col h-full overflow-hidden flex-shrink-0 relative hidden lg:flex transition-colors">
         {/* Main Panel Content */}
         <div className="flex flex-col h-full">
-          <div className="flex border-b border-gray-200 px-6">
-            <button className="py-4 mr-6 text-sm font-medium text-black border-b-2 border-black">
+          <div className="flex border-b border-gray-200 dark:border-[#1a1a1a] px-6">
+            <button className="py-4 mr-6 text-sm font-medium text-black dark:text-white border-b-2 border-black dark:border-white">
               Settings
             </button>
-            <button className="py-4 text-sm font-medium text-gray-500 hover:text-gray-800">
+            <button className="py-4 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">
               History
             </button>
           </div>
@@ -443,28 +443,28 @@ export function TTSClient({ userPlan = "free", currentUsage }: TTSClientProps) {
 
             {/* Voice Selector */}
             <div className="space-y-2">
-              <label className="text-sm font-medium text-black">Voice</label>
+              <label className="text-sm font-medium text-black dark:text-white">Voice</label>
               <VoicePicker
                 voices={voices}
                 value={selectedVoiceId}
                 onValueChange={(voiceId) => setSelectedVoiceId(voiceId)}
                 placeholder={selectedVoice?.name ? selectedVoice.name : "Select a voice..."}
-                className="rounded-xl border-gray-200 h-12"
+                className="rounded-xl border-gray-200 dark:border-[#333] h-12"
               />
             </div>
 
             {/* Model Selector */}
             <div className="space-y-2">
-              <label className="text-sm font-medium text-black">Model</label>
-              <div className="w-full p-1 bg-white border border-gray-200 rounded-xl hover:border-gray-300 transition-colors cursor-pointer">
+              <label className="text-sm font-medium text-black dark:text-white">Model</label>
+              <div className="w-full p-1 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-xl hover:border-gray-300 dark:hover:border-[#444] transition-colors cursor-pointer">
                 <div className="flex items-center justify-between p-2">
                   <div className="flex items-center gap-3">
-                    <span className="px-1.5 py-0.5 rounded border border-black text-[10px] font-bold text-black">
+                    <span className="px-1.5 py-0.5 rounded border border-black dark:border-white text-[10px] font-bold text-black dark:text-white">
                       V2
                     </span>
-                    <span className="text-sm font-medium text-gray-900">Eleven Multilingual v2</span>
+                    <span className="text-sm font-medium text-gray-900 dark:text-gray-100">Eleven Multilingual v2</span>
                   </div>
-                  <ChevronRight size={16} className="text-gray-400" />
+                  <ChevronRight size={16} className="text-gray-400 dark:text-gray-500" />
                 </div>
               </div>
             </div>
@@ -490,15 +490,15 @@ export function TTSClient({ userPlan = "free", currentUsage }: TTSClientProps) {
             {/* Toggles */}
             <div className="space-y-4 pt-2">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-black">Language Override</span>
+                <span className="text-sm font-medium text-black dark:text-white">Language Override</span>
                 <button
                   onClick={() => setLanguageOverride(!languageOverride)}
                   className={`w-11 h-6 rounded-full transition-colors relative ${
-                    languageOverride ? "bg-black" : "bg-gray-200"
+                    languageOverride ? "bg-black dark:bg-white" : "bg-gray-200 dark:bg-gray-700"
                   }`}
                 >
                   <div
-                    className={`w-5 h-5 bg-white rounded-full absolute top-0.5 transition-transform ${
+                    className={`w-5 h-5 bg-white dark:bg-gray-900 rounded-full absolute top-0.5 transition-transform ${
                       languageOverride ? "left-[22px]" : "left-0.5"
                     }`}
                   />
@@ -506,15 +506,15 @@ export function TTSClient({ userPlan = "free", currentUsage }: TTSClientProps) {
               </div>
 
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-black">Speaker boost</span>
+                <span className="text-sm font-medium text-black dark:text-white">Speaker boost</span>
                 <button
                   onClick={() => setSpeakerBoost(!speakerBoost)}
                   className={`w-11 h-6 rounded-full transition-colors relative ${
-                    speakerBoost ? "bg-black" : "bg-gray-200"
+                    speakerBoost ? "bg-black dark:bg-white" : "bg-gray-200 dark:bg-gray-700"
                   }`}
                 >
                   <div
-                    className={`w-5 h-5 bg-white rounded-full absolute top-0.5 transition-transform ${
+                    className={`w-5 h-5 bg-white dark:bg-gray-900 rounded-full absolute top-0.5 transition-transform ${
                       speakerBoost ? "left-[22px]" : "left-0.5"
                     }`}
                   />
@@ -529,7 +529,7 @@ export function TTSClient({ userPlan = "free", currentUsage }: TTSClientProps) {
                   setStability(TTS_DEFAULTS.stability);
                   setSimilarity(TTS_DEFAULTS.similarityBoost);
                 }}
-                className="flex items-center gap-2 text-xs font-medium text-gray-500 hover:text-black transition-colors"
+                className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors"
               >
                 <RotateCcw size={14} />
                 Reset values
@@ -558,16 +558,16 @@ function SliderControl({
   return (
     <div className="space-y-3">
       <div className="flex justify-between items-baseline">
-        <label className="text-sm font-medium text-black underline decoration-dotted underline-offset-4 decoration-gray-300 cursor-help">
+        <label className="text-sm font-medium text-black dark:text-white underline decoration-dotted underline-offset-4 decoration-gray-300 dark:decoration-gray-600 cursor-help">
           {label}
         </label>
       </div>
-      <div className="flex justify-between text-[10px] text-gray-400 font-medium uppercase tracking-wide">
+      <div className="flex justify-between text-[10px] text-gray-400 dark:text-gray-500 font-medium uppercase tracking-wide">
         <span>{leftLabel}</span>
         <span>{rightLabel}</span>
       </div>
-      <div className="relative h-1.5 bg-gray-100 rounded-full group cursor-pointer">
-        <div className="absolute h-full bg-black rounded-full" style={{ width: `${value}%` }} />
+      <div className="relative h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full group cursor-pointer">
+        <div className="absolute h-full bg-black dark:bg-white rounded-full" style={{ width: `${value}%` }} />
         <input
           type="range"
           min={0}
@@ -577,7 +577,7 @@ function SliderControl({
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
         />
         <div
-          className="absolute top-1/2 -translate-y-1/2 w-3.5 h-3.5 bg-black rounded-full shadow-sm pointer-events-none"
+          className="absolute top-1/2 -translate-y-1/2 w-3.5 h-3.5 bg-black dark:bg-white rounded-full shadow-sm pointer-events-none"
           style={{ left: `${value}%`, transform: "translate(-50%, -50%)" }}
         />
       </div>

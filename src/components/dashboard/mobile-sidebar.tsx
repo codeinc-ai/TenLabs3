@@ -82,9 +82,9 @@ export function MobileSidebar({ open, onOpenChange }: MobileSidebarProps) {
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="left" className="w-[280px] p-0 bg-white">
-        <SheetHeader className="border-b border-gray-200 px-4 py-4">
-          <SheetTitle className="flex items-center gap-2 text-left font-bold text-lg">
+      <SheetContent side="left" className="w-[280px] p-0 bg-white dark:bg-black border-r-gray-200 dark:border-r-[#1a1a1a]">
+        <SheetHeader className="border-b border-gray-200 dark:border-[#1a1a1a] px-4 py-4">
+          <SheetTitle className="flex items-center gap-2 text-left font-bold text-lg text-black dark:text-white">
             Ten Labs
           </SheetTitle>
         </SheetHeader>
@@ -105,7 +105,7 @@ export function MobileSidebar({ open, onOpenChange }: MobileSidebarProps) {
 
             {/* Playground Section */}
             <div>
-              <div className="px-3 py-2 text-xs font-medium text-gray-400 uppercase tracking-wider">
+              <div className="px-3 py-2 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider">
                 Playground
               </div>
               <div className="space-y-0.5">
@@ -122,7 +122,7 @@ export function MobileSidebar({ open, onOpenChange }: MobileSidebarProps) {
 
             {/* Products Section */}
             <div>
-              <div className="px-3 py-2 text-xs font-medium text-gray-400 uppercase tracking-wider">
+              <div className="px-3 py-2 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider">
                 Products
               </div>
               <div className="space-y-0.5">
@@ -140,13 +140,13 @@ export function MobileSidebar({ open, onOpenChange }: MobileSidebarProps) {
         </ScrollArea>
 
         {/* Bottom Area */}
-        <div className="p-3 border-t border-gray-100">
+        <div className="p-3 border-t border-gray-100 dark:border-[#1a1a1a]">
           <Link
             href="/billing"
             onClick={() => onOpenChange(false)}
-            className="w-full flex items-center justify-center gap-2 py-2 px-3 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg text-black font-medium transition-colors"
+            className="w-full flex items-center justify-center gap-2 py-2 px-3 bg-gray-100 dark:bg-[#1a1a1a] hover:bg-gray-200 dark:hover:bg-[#252525] border border-gray-200 dark:border-[#333] rounded-lg text-black dark:text-white font-medium transition-colors"
           >
-            <Zap size={16} className="fill-black" />
+            <Zap size={16} className="fill-black dark:fill-white" />
             <span>Upgrade</span>
           </Link>
         </div>
@@ -176,11 +176,11 @@ function MobileNavItem({
       className={cn(
         "w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors",
         active
-          ? "bg-gray-100 text-black font-medium"
-          : "text-gray-600 hover:bg-gray-50 hover:text-black"
+          ? "bg-gray-100 dark:bg-[#1a1a1a] text-black dark:text-white font-medium"
+          : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] hover:text-black dark:hover:text-white"
       )}
     >
-      <span className={active ? "text-black" : "text-gray-500"}>
+      <span className={active ? "text-black dark:text-white" : "text-gray-500 dark:text-gray-400"}>
         <Icon className="h-[18px] w-[18px]" />
       </span>
       <span>{item.label}</span>

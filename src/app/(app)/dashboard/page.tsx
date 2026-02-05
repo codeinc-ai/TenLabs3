@@ -49,12 +49,12 @@ export default async function DashboardPage() {
       <div className="flex items-center justify-between mb-12">
         <Link
           href="/billing"
-          className="flex items-center gap-3 pl-1 pr-4 py-1 rounded-full border border-gray-200 hover:border-gray-300 transition-colors group"
+          className="flex items-center gap-3 pl-1 pr-4 py-1 rounded-full border border-gray-200 dark:border-[#333] hover:border-gray-300 dark:hover:border-[#444] transition-colors group"
         >
-          <span className="bg-black text-white text-xs font-medium px-2 py-0.5 rounded-full">
+          <span className="bg-black dark:bg-emerald-500 text-white text-xs font-medium px-2 py-0.5 rounded-full">
             New
           </span>
-          <span className="text-sm font-medium text-gray-700">
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
             Upgrade to Pro for more features
           </span>
           <ChevronRight
@@ -67,18 +67,18 @@ export default async function DashboardPage() {
       {/* Greeting */}
       <div className="flex items-end justify-between mb-10">
         <div>
-          <div className="text-sm text-gray-500 mb-1">
+          <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">
             {stats?.user.plan === "pro" ? "Pro" : "Free"} Plan
           </div>
-          <h2 className="text-3xl font-bold text-black">
+          <h2 className="text-3xl font-bold text-black dark:text-white">
             {getGreeting()}, {displayName}
           </h2>
         </div>
         <Link
           href="/support"
-          className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50 transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-full shadow-sm dark:shadow-none hover:bg-gray-50 dark:hover:bg-[#252525] transition-colors"
         >
-          <span className="text-sm font-medium text-gray-700">
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
             Talk to Support
           </span>
         </Link>
@@ -126,7 +126,7 @@ export default async function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
         {/* Left: Latest from library */}
         <div>
-          <h3 className="text-lg font-semibold text-black mb-6">
+          <h3 className="text-lg font-semibold text-black dark:text-white mb-6">
             Latest from the library
           </h3>
           <div className="space-y-6">
@@ -165,7 +165,7 @@ export default async function DashboardPage() {
           </div>
           <Link
             href="/library"
-            className="mt-8 inline-flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            className="mt-8 inline-flex items-center gap-2 px-4 py-2 border border-gray-200 dark:border-[#333] rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] transition-colors"
           >
             Explore Library
             <ArrowRight size={16} />
@@ -174,7 +174,7 @@ export default async function DashboardPage() {
 
         {/* Right: Create or clone a voice */}
         <div>
-          <h3 className="text-lg font-semibold text-black mb-6">
+          <h3 className="text-lg font-semibold text-black dark:text-white mb-6">
             Create or clone a voice
           </h3>
           <div className="space-y-4">
@@ -246,15 +246,15 @@ function FeatureCard({
 }) {
   return (
     <Link href={href} className="flex flex-col items-center gap-4 group">
-      <div className="relative w-full aspect-square bg-gray-50 rounded-2xl flex items-center justify-center group-hover:bg-gray-100 transition-colors">
-        <div className="w-16 h-16 bg-white rounded-xl shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+      <div className="relative w-full aspect-square bg-gray-100 dark:bg-[#1a1a1a] rounded-2xl flex items-center justify-center group-hover:bg-gray-200 dark:group-hover:bg-[#252525] transition-colors">
+        <div className="w-16 h-16 bg-white dark:bg-[#2a2a2a] rounded-xl shadow-sm dark:shadow-none flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
           {icon}
         </div>
         {hasNotification && (
           <div className="absolute top-2 right-2 w-2 h-2 bg-blue-400 rounded-full"></div>
         )}
       </div>
-      <span className="text-sm font-medium text-black text-center">{label}</span>
+      <span className="text-sm font-medium text-black dark:text-white text-center">{label}</span>
     </Link>
   );
 }
@@ -271,17 +271,17 @@ function LibraryItem({
   return (
     <div className="flex gap-4 group cursor-pointer">
       <div
-        className={`relative w-10 h-10 rounded-full bg-gradient-to-br ${color} flex-shrink-0 border-2 border-white shadow-sm group-hover:scale-105 transition-transform`}
+        className={`relative w-10 h-10 rounded-full bg-gradient-to-br ${color} flex-shrink-0 border-2 border-white dark:border-gray-800 shadow-sm group-hover:scale-105 transition-transform`}
       >
-        <div className="absolute -top-1 -right-1 bg-yellow-400 rounded-full p-0.5 border border-white">
+        <div className="absolute -top-1 -right-1 bg-yellow-400 rounded-full p-0.5 border border-white dark:border-gray-800">
           <CheckCircle2 size={10} className="text-white fill-current" />
         </div>
       </div>
       <div>
-        <h4 className="text-sm font-bold text-gray-900 group-hover:text-purple-600 transition-colors">
+        <h4 className="text-sm font-bold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
           {name}
         </h4>
-        <p className="text-sm text-gray-500 line-clamp-1">{description}</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-1">{description}</p>
       </div>
     </div>
   );
@@ -301,14 +301,14 @@ function CreateCard({
   return (
     <Link
       href={href}
-      className="w-full p-4 bg-gray-50 rounded-2xl flex items-center gap-4 hover:bg-gray-100 transition-colors text-left group"
+      className="w-full p-4 bg-gray-100 dark:bg-[#1a1a1a] rounded-2xl flex items-center gap-4 hover:bg-gray-200 dark:hover:bg-[#252525] transition-colors text-left group"
     >
       <div className="group-hover:scale-110 transition-transform duration-300">
         {icon}
       </div>
       <div>
-        <h4 className="font-semibold text-gray-900">{title}</h4>
-        <p className="text-sm text-gray-500">{description}</p>
+        <h4 className="font-semibold text-gray-900 dark:text-white">{title}</h4>
+        <p className="text-sm text-gray-500 dark:text-gray-400">{description}</p>
       </div>
     </Link>
   );
@@ -324,11 +324,11 @@ function StatCard({
   limit?: number;
 }) {
   return (
-    <div className="p-4 bg-gray-50 rounded-xl">
-      <div className="text-2xl font-bold text-black">
+    <div className="p-4 bg-gray-100 dark:bg-[#1a1a1a] rounded-xl">
+      <div className="text-2xl font-bold text-black dark:text-white">
         {value.toLocaleString()}
       </div>
-      <div className="text-sm text-gray-500">
+      <div className="text-sm text-gray-500 dark:text-gray-400">
         {label}
         {limit !== undefined && ` / ${limit.toLocaleString()}`}
       </div>

@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MobileSidebarTrigger } from "@/components/dashboard/mobile-sidebar";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 interface DashboardHeaderProps {
   /** Page title to display */
@@ -86,33 +87,36 @@ export function DashboardHeader({ title, icon, onMobileMenuClick }: DashboardHea
   };
 
   return (
-    <header className="h-16 border-b border-gray-100 flex items-center justify-between px-6 flex-shrink-0 bg-white">
+    <header className="h-16 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between px-6 flex-shrink-0 bg-white dark:bg-black transition-colors">
       {/* Left side: Mobile menu trigger and page title */}
-      <div className="flex items-center gap-3 text-black">
+      <div className="flex items-center gap-3 text-black dark:text-white">
         <MobileSidebarTrigger onClick={onMobileMenuClick} />
-        {icon && <span className="text-gray-500">{icon}</span>}
+        {icon && <span className="text-gray-500 dark:text-gray-400">{icon}</span>}
         {title && <h1 className="font-medium">{title}</h1>}
       </div>
 
       {/* Right side: Actions and user menu */}
       <div className="flex items-center gap-3">
-        <button className="px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-50 rounded-lg transition-colors hidden sm:block">
+        <button className="px-3 py-1.5 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors hidden sm:block">
           Feedback
         </button>
         <Link
           href="/docs"
-          className="px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-50 rounded-lg transition-colors hidden sm:block"
+          className="px-3 py-1.5 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors hidden sm:block"
         >
           Docs
         </Link>
-        <button className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors hidden md:flex">
+        <button className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors hidden md:flex">
           <MessageSquare size={16} />
           Talk to AI
         </button>
         
-        <div className="w-px h-6 bg-gray-200 mx-1 hidden sm:block" />
+        <div className="w-px h-6 bg-gray-200 dark:bg-gray-700 mx-1 hidden sm:block" />
         
-        <button className="p-2 text-gray-500 hover:text-black hover:bg-gray-50 rounded-lg transition-colors">
+        {/* Theme Toggle */}
+        <ThemeToggle />
+        
+        <button className="p-2 text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors">
           <Bell size={20} />
         </button>
 

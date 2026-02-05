@@ -81,21 +81,21 @@ export function Sidebar() {
   };
 
   return (
-    <aside className="w-[240px] bg-white border-r border-gray-200 flex flex-col h-screen text-gray-600 text-sm flex-shrink-0">
+    <aside className="w-[240px] bg-white dark:bg-black border-r border-gray-200 dark:border-gray-800 flex flex-col h-screen text-gray-600 dark:text-gray-300 text-sm flex-shrink-0 transition-colors">
       {/* Logo Area */}
       <div className="p-4 pb-2">
-        <div className="font-bold text-lg text-black mb-4 px-2">
+        <div className="font-bold text-lg text-black dark:text-white mb-4 px-2">
           Ten Labs
         </div>
 
-        <button className="w-full flex items-center justify-between px-3 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-black">
+        <button className="w-full flex items-center justify-between px-3 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-lg hover:bg-gray-50 dark:hover:bg-[#252525] transition-colors text-black dark:text-white">
           <div className="flex items-center gap-2">
             <div className="w-5 h-5 bg-orange-500 rounded flex items-center justify-center text-white text-xs">
               <Wand2 size={12} />
             </div>
             <span className="font-medium text-sm">Creative Platform</span>
           </div>
-          <ChevronDown size={14} className="text-gray-400" />
+          <ChevronDown size={14} className="text-gray-400 dark:text-gray-500" />
         </button>
       </div>
 
@@ -115,7 +115,7 @@ export function Sidebar() {
 
           {/* Playground Section */}
           <div>
-            <div className="px-3 py-2 text-xs font-medium text-gray-400 uppercase tracking-wider">
+            <div className="px-3 py-2 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider">
               Playground
             </div>
             <div className="space-y-0.5">
@@ -131,7 +131,7 @@ export function Sidebar() {
 
           {/* Products Section */}
           <div>
-            <div className="px-3 py-2 text-xs font-medium text-gray-400 uppercase tracking-wider">
+            <div className="px-3 py-2 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider">
               Products
             </div>
             <div className="space-y-0.5">
@@ -148,22 +148,22 @@ export function Sidebar() {
       </ScrollArea>
 
       {/* Bottom Area */}
-      <div className="p-3 space-y-2 border-t border-gray-100">
-        <div className="p-3 bg-white border border-gray-200 rounded-xl flex items-center gap-3 cursor-pointer hover:border-gray-300 transition-colors">
+      <div className="p-3 space-y-2 border-t border-gray-100 dark:border-[#1a1a1a]">
+        <div className="p-3 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-xl flex items-center gap-3 cursor-pointer hover:border-gray-300 dark:hover:border-[#444] transition-colors">
           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex-shrink-0"></div>
           <div className="flex-1 min-w-0">
-            <div className="font-medium text-black truncate text-sm">
+            <div className="font-medium text-black dark:text-white truncate text-sm">
               Ten Labs Audio
             </div>
-            <div className="text-xs text-gray-500">Find out more!</div>
+            <div className="text-xs text-gray-500 dark:text-gray-400">Find out more!</div>
           </div>
         </div>
 
         <Link
           href="/billing"
-          className="w-full flex items-center justify-center gap-2 py-2 px-3 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg text-black font-medium transition-colors"
+          className="w-full flex items-center justify-center gap-2 py-2 px-3 bg-gray-100 dark:bg-[#1a1a1a] hover:bg-gray-200 dark:hover:bg-[#252525] border border-gray-200 dark:border-[#333] rounded-lg text-black dark:text-white font-medium transition-colors"
         >
-          <Zap size={16} className="fill-black" />
+          <Zap size={16} className="fill-black dark:fill-white" />
           <span>Upgrade</span>
         </Link>
       </div>
@@ -189,12 +189,12 @@ function NavItem({
       className={cn(
         "w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors",
         active
-          ? "bg-gray-100 text-black font-medium"
-          : "text-gray-600 hover:bg-gray-50 hover:text-black"
+          ? "bg-gray-100 dark:bg-[#1a1a1a] text-black dark:text-white font-medium"
+          : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] hover:text-black dark:hover:text-white"
       )}
     >
       <div className="flex items-center gap-3">
-        <span className={active ? "text-black" : "text-gray-500"}>
+        <span className={active ? "text-black dark:text-white" : "text-gray-500 dark:text-gray-400"}>
           <Icon className="h-[18px] w-[18px]" />
         </span>
         <span>{item.label}</span>

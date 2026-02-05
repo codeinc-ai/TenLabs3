@@ -25,7 +25,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <div className="flex h-screen w-full bg-white overflow-hidden font-sans">
+    <div className="flex h-screen w-full bg-white dark:bg-black overflow-hidden font-sans transition-colors">
       {/* Desktop Sidebar - hidden on mobile */}
       <div className="hidden md:flex">
         <Sidebar />
@@ -41,7 +41,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
         
         {/* Page Content with Error Boundary */}
         <DashboardErrorBoundary>
-          <main className="flex-1 overflow-y-auto">
+          <main className="flex-1 overflow-y-auto bg-white dark:bg-black transition-colors">
             {children}
           </main>
         </DashboardErrorBoundary>
