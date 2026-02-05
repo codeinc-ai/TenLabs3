@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -18,11 +18,16 @@ import {
   Sparkles,
   AlertCircle,
   CheckCircle2,
-  Play,
-  Pause,
   Check,
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  AudioPlayerProvider,
+  AudioPlayerButton,
+  AudioPlayerProgress,
+  AudioPlayerTime,
+  AudioPlayerDuration,
+} from "@/components/ui/audio-player";
 
 interface VoicePreview {
   generatedVoiceId: string;
@@ -41,8 +46,6 @@ export function VoiceDesignDialog({
   onOpenChange,
   onSuccess,
 }: VoiceDesignDialogProps) {
-  const audioRef = useRef<HTMLAudioElement>(null);
-  
   const [step, setStep] = useState<"design" | "preview" | "save">("design");
   const [voiceDescription, setVoiceDescription] = useState("");
   const [sampleText, setSampleText] = useState(
@@ -51,7 +54,6 @@ export function VoiceDesignDialog({
   const [voiceName, setVoiceName] = useState("");
   const [previews, setPreviews] = useState<VoicePreview[]>([]);
   const [selectedPreview, setSelectedPreview] = useState<string | null>(null);
-  const [playingId, setPlayingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -65,7 +67,6 @@ export function VoiceDesignDialog({
       setVoiceName("");
       setPreviews([]);
       setSelectedPreview(null);
-      setPlayingId(null);
       setError(null);
       setSuccess(false);
     }
@@ -106,19 +107,6 @@ export function VoiceDesignDialog({
       setError(err instanceof Error ? err.message : "Failed to generate previews");
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handlePlayPreview = (preview: VoicePreview) => {
-    if (playingId === preview.generatedVoiceId) {
-      audioRef.current?.pause();
-      setPlayingId(null);
-    } else {
-      setPlayingId(preview.generatedVoiceId);
-      if (audioRef.current) {
-        audioRef.current.src = `data:${preview.mediaType};base64,${preview.audioBase64}`;
-        audioRef.current.play().catch(() => setPlayingId(null));
-      }
     }
   };
 
@@ -188,12 +176,6 @@ export function VoiceDesignDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
-        <audio
-          ref={audioRef}
-          onEnded={() => setPlayingId(null)}
-          onError={() => setPlayingId(null)}
-        />
-
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-purple-600" />
@@ -266,7 +248,7 @@ export function VoiceDesignDialog({
             )}
 
             {step === "preview" && (
-              <>
+              <AudioPlayerProvider>
                 <div className="space-y-3">
                   <Label>Select a Voice ({previews.length} options)</Label>
                   {previews.map((preview, index) => (
@@ -305,24 +287,20 @@ export function VoiceDesignDialog({
                           </p>
                         </div>
                       </div>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handlePlayPreview(preview);
-                        }}
-                      >
-                        {playingId === preview.generatedVoiceId ? (
-                          <Pause className="h-4 w-4" />
-                        ) : (
-                          <Play className="h-4 w-4" />
-                        )}
-                      </Button>
+                      <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                        <AudioPlayerButton
+                          item={{
+                            id: preview.generatedVoiceId,
+                            src: `data:${preview.mediaType};base64,${preview.audioBase64}`,
+                          }}
+                        />
+                        <AudioPlayerProgress className="w-20" />
+                        <AudioPlayerTime />
+                      </div>
                     </div>
                   ))}
                 </div>
-              </>
+              </AudioPlayerProvider>
             )}
 
             {step === "save" && (

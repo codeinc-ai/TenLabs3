@@ -212,7 +212,7 @@ function ToolCard({
   title: string;
   description: string;
   color: string;
-  icon: React.ElementType;
+  icon: React.ComponentType<{ size?: number; className?: string }>;
 }) {
   return (
     <button className="flex items-center gap-4 p-4 bg-white border border-gray-200 rounded-xl hover:border-gray-300 hover:shadow-sm transition-all text-left group">
