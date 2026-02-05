@@ -3,11 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import {
-  SignUpButton,
-  SignedIn,
-  SignedOut,
-} from "@clerk/nextjs";
+import { SignedIn, SignedOut } from "@clerk/nextjs";
 import { ChevronDown, Check, Minus, Plus, ArrowRight } from "lucide-react";
 import { Reveal } from "@/components/landing";
 import { Button } from "@/components/ui/button";
@@ -277,7 +273,7 @@ function PlanCard({ plan }: { plan: Plan }) {
 
         <div className="mt-5">
           <SignedOut>
-            <SignUpButton mode="modal">
+            <Link href="/sign-up">
               <button
                 className={cn(
                   "h-10 w-full rounded-full text-sm font-medium transition",
@@ -286,7 +282,7 @@ function PlanCard({ plan }: { plan: Plan }) {
               >
                 {plan.cta}
               </button>
-            </SignUpButton>
+            </Link>
           </SignedOut>
           <SignedIn>
             <Link href="/dashboard">
@@ -547,12 +543,12 @@ export default function PricingPage() {
                     </Button>
                   </Link>
                   <SignedOut>
-                    <SignUpButton mode="modal">
+                    <Link href="/sign-up">
                       <Button className="bg-white text-black hover:bg-white/90">
                         Sign up
                         <ArrowRight className="ml-2 size-4" />
                       </Button>
-                    </SignUpButton>
+                    </Link>
                   </SignedOut>
                   <SignedIn>
                     <Link href="/dashboard">

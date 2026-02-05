@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { SignUpButton, SignedIn, SignedOut } from "@clerk/nextjs";
+import { SignedIn, SignedOut } from "@clerk/nextjs";
 import { AudioLines, ArrowRight, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/landing";
@@ -63,11 +63,11 @@ function MiniHeader({ tagline }: { tagline: string }) {
                   Log in
                 </Button>
               </Link>
-              <SignUpButton mode="modal">
+              <Link href="/sign-up">
                 <Button className="hidden sm:inline-flex h-9 rounded-full bg-white text-black hover:bg-white/90 px-4">
                   Sign up
                 </Button>
-              </SignUpButton>
+              </Link>
             </SignedOut>
             <SignedIn>
               <Link href="/dashboard">
@@ -108,11 +108,11 @@ function Hero({ hero }: { hero: ProductHero }) {
             <Reveal delay={0.1}>
               <div className="mt-6 flex flex-wrap gap-3">
                 <SignedOut>
-                  <SignUpButton mode="modal">
+                  <Link href="/sign-up">
                     <Button className="h-10 rounded-full bg-white text-black hover:bg-white/90">
                       {hero.primaryCta}
                     </Button>
-                  </SignUpButton>
+                  </Link>
                 </SignedOut>
                 <SignedIn>
                   <Link href="/dashboard">
@@ -316,12 +316,12 @@ function CTASection() {
                 </div>
               </div>
               <SignedOut>
-                <SignUpButton mode="modal">
+                <Link href="/sign-up">
                   <Button className="bg-white text-black hover:bg-white/90">
                     Start free
                     <ArrowRight className="ml-2 size-4" />
                   </Button>
-                </SignUpButton>
+                </Link>
               </SignedOut>
               <SignedIn>
                 <Link href="/dashboard">

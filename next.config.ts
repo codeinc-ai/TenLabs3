@@ -4,6 +4,14 @@ import { withSentryConfig } from "@sentry/nextjs";
 const nextConfig: NextConfig = {
   /* config options here */
 
+  async redirects() {
+    return [
+      { source: "/products/text-to-speech", destination: "/products/tts", permanent: false },
+      { source: "/products/speech-to-text", destination: "/products/stt", permanent: false },
+      { source: "/products/realtime-stt", destination: "/products/stt", permanent: false },
+    ];
+  },
+
   // Sentry DSN is safe to expose to the client (it's not a secret).
   // We keep env var names consistent across server/client per project requirements.
   env: {

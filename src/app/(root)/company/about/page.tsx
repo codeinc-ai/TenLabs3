@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { SignUpButton, SignedIn, SignedOut } from "@clerk/nextjs";
+import { SignedIn, SignedOut } from "@clerk/nextjs";
 import { AudioLines, ArrowRight } from "lucide-react";
 
 function TopBar({ label }: { label: string }) {
@@ -26,11 +26,11 @@ function TopBar({ label }: { label: string }) {
 
           <div className="flex items-center gap-2">
             <SignedOut>
-              <SignUpButton mode="modal">
+              <Link href="/sign-up">
                 <button className="h-9 px-4 rounded-full bg-white text-black hover:bg-white/90 transition">
                   Sign up
                 </button>
-              </SignUpButton>
+              </Link>
             </SignedOut>
             <SignedIn>
               <Link href="/dashboard">
@@ -122,11 +122,11 @@ export default function AboutPage() {
             <div className="flex items-center justify-between">
               <div className="text-xs text-black/45">About</div>
               <SignedOut>
-                <SignUpButton mode="modal">
+                <Link href="/sign-up">
                   <button className="h-9 px-3 rounded-full bg-black text-white hover:bg-black/90 transition inline-flex items-center">
                     Sign up
                   </button>
-                </SignUpButton>
+                </Link>
               </SignedOut>
             </div>
 

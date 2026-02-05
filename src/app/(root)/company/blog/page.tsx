@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { SignUpButton, SignedIn, SignedOut } from "@clerk/nextjs";
+import { SignedIn, SignedOut } from "@clerk/nextjs";
 import { AudioLines, ArrowRight, Search, ArrowUpRight } from "lucide-react";
 import { useState, useMemo } from "react";
 
@@ -29,11 +29,11 @@ function TopBar({ label }: { label: string }) {
 
           <div className="flex items-center gap-2">
             <SignedOut>
-              <SignUpButton mode="modal">
+              <Link href="/sign-up">
                 <button className="h-9 px-4 rounded-full bg-white text-black hover:bg-white/90 transition">
                   Sign up
                 </button>
-              </SignUpButton>
+              </Link>
             </SignedOut>
             <SignedIn>
               <Link href="/dashboard">

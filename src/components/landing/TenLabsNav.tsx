@@ -3,13 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
-import {
-  SignInButton,
-  SignUpButton,
-  SignedIn,
-  SignedOut,
-  UserButton,
-} from "@clerk/nextjs";
+import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import { AudioLines, ArrowRight, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -349,19 +343,19 @@ export default function TenLabsNav({ variant = "sticky" }: TenLabsNavProps) {
 
           <div className="flex items-center gap-2">
             <SignedOut>
-              <SignInButton mode="modal">
+              <Link href="/sign-in">
                 <Button
                   variant="secondary"
                   className="hidden sm:inline-flex bg-white/5 hover:bg-white/10 border border-white/10 text-white"
                 >
                   Log in
                 </Button>
-              </SignInButton>
-              <SignUpButton mode="modal">
+              </Link>
+              <Link href="/sign-up">
                 <Button className="hidden sm:inline-flex bg-white text-black hover:bg-white/90 border border-white/10">
                   Sign up
                 </Button>
-              </SignUpButton>
+              </Link>
             </SignedOut>
             <SignedIn>
               <Link href="/dashboard">
@@ -425,23 +419,19 @@ export default function TenLabsNav({ variant = "sticky" }: TenLabsNavProps) {
 
                   <div className="mt-2 grid grid-cols-2 gap-2">
                     <SignedOut>
-                      <SignInButton mode="modal">
+                      <Link href="/sign-in" onClick={() => setOpen(false)}>
                         <Button
                           variant="secondary"
                           className="w-full bg-white/5 hover:bg-white/10 border border-white/10 text-white"
-                          onClick={() => setOpen(false)}
                         >
                           Log in
                         </Button>
-                      </SignInButton>
-                      <SignUpButton mode="modal">
-                        <Button
-                          className="w-full bg-white text-black hover:bg-white/90"
-                          onClick={() => setOpen(false)}
-                        >
+                      </Link>
+                      <Link href="/sign-up" onClick={() => setOpen(false)}>
+                        <Button className="w-full bg-white text-black hover:bg-white/90">
                           Sign up
                         </Button>
-                      </SignUpButton>
+                      </Link>
                     </SignedOut>
                     <SignedIn>
                       <Link href="/dashboard" className="col-span-2" onClick={() => setOpen(false)}>

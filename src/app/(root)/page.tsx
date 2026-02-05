@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState, useEffect, useMemo, useRef } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { SignUpButton, SignedIn, SignedOut } from "@clerk/nextjs";
+import { SignedIn, SignedOut } from "@clerk/nextjs";
 import {
   AudioLines,
   Sparkles,
@@ -692,7 +692,7 @@ function PricingCard({
           ))}
         </ul>
         <SignedOut>
-          <SignUpButton mode="modal">
+          <Link href="/sign-up">
             <Button
               className={cn("mt-6 w-full", highlight ? "bg-white text-black hover:bg-white/90" : "bg-white/8 text-white hover:bg-white/10 border border-white/10")}
               variant={highlight ? "default" : "secondary"}
@@ -700,7 +700,7 @@ function PricingCard({
               Choose {name}
               <ArrowRight className="ml-2 size-4" />
             </Button>
-          </SignUpButton>
+          </Link>
         </SignedOut>
         <SignedIn>
           <Link href="/dashboard/billing">
@@ -822,12 +822,12 @@ export default function TenLabsLanding() {
                 <Reveal delay={0.15}>
                   <div className="mt-7 flex flex-col sm:flex-row gap-3">
                     <SignedOut>
-                      <SignUpButton mode="modal">
+                      <Link href="/sign-up">
                         <Button className="h-11 bg-white text-black hover:bg-white/90">
                           Start free
                           <ArrowRight className="ml-2 size-4" />
                         </Button>
-                      </SignUpButton>
+                      </Link>
                     </SignedOut>
                     <SignedIn>
                       <Link href="/dashboard">
@@ -1196,12 +1196,12 @@ export default function TenLabsLanding() {
                         </Button>
                       </Link>
                       <SignedOut>
-                        <SignUpButton mode="modal">
+                        <Link href="/sign-up">
                           <Button className="h-11 rounded-full bg-white text-black hover:bg-white/90 px-5">
                             Start free
                             <ArrowRight className="ml-2 size-4" />
                           </Button>
-                        </SignUpButton>
+                        </Link>
                       </SignedOut>
                       <SignedIn>
                         <Link href="/dashboard">

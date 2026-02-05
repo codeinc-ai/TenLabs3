@@ -127,6 +127,8 @@ export default function TenLabsFooter() {
           <div>© {new Date().getFullYear()} TenLabs.ai. All rights reserved.</div>
           <div className="flex flex-wrap gap-4">
             {[
+              { href: "/sign-in", label: "Sign in" },
+              { href: "/sign-up", label: "Sign up" },
               { href: "/privacy", label: "Privacy" },
               { href: "/terms", label: "Terms" },
             ].map((l) => (
