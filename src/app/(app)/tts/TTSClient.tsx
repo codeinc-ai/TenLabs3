@@ -596,8 +596,7 @@ export function TTSClient({ userPlan = "free", currentUsage }: TTSClientProps) {
               )}
             </div>
 
-            {/* Provider-specific Settings */}
-            {provider === "minimax" ? (
+uld you change this carda and text to             {provider === "minimax" ? (
               <>
                 <div className="space-y-6">
                   <SliderControl

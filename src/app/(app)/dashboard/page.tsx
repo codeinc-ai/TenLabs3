@@ -1,11 +1,5 @@
 import { currentUser } from "@clerk/nextjs/server";
 import {
-  Mic,
-  BookOpen,
-  Image as ImageIcon,
-  Bot,
-  Music,
-  Languages,
   Plus,
   Library,
   Sparkles,
@@ -15,6 +9,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { getDashboardStats } from "@/lib/services/dashboardService";
+import { Icon1, Icon2, Icon3, Icon4, Icon5, Icon6, Icon17, Icon18, Icon19 } from "@/components/icons";
 
 /**
  * Dashboard Page (Home)
@@ -88,36 +83,36 @@ export default async function DashboardPage() {
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4 mb-16">
         <FeatureCard
           href="/tts"
-          icon={<Mic size={24} className="text-blue-500" />}
-          label="Text to Speech"
+          icon={<Icon1 className="w-full h-full" />}
+          label="Instant speech"
           hasNotification
         />
         <FeatureCard
-          href="/stt"
-          icon={<BookOpen size={24} className="text-orange-500" />}
-          label="Speech to Text"
+          href="/studio?create=book"
+          icon={<Icon2 className="w-full h-full" />}
+          label="Audiobook"
           hasNotification
         />
         <FeatureCard
-          href="/studio"
-          icon={<ImageIcon size={24} className="text-green-500" />}
-          label="Studio"
+          href="/image-video"
+          icon={<Icon3 className="w-full h-full" />}
+          label="Image & Video"
         />
         <FeatureCard
-          href="/voice-changer"
-          icon={<Bot size={24} className="text-purple-500" />}
-          label="Voice Changer"
+          href="/agents/agents"
+          icon={<Icon4 className="w-full h-full" />}
+          label="ElevenLabs Agents"
           hasNotification
         />
         <FeatureCard
-          href="/sound-effects"
-          icon={<Music size={24} className="text-amber-500" />}
-          label="Sound Effects"
+          href="/music"
+          icon={<Icon5 className="w-full h-full" />}
+          label="Music"
         />
         <FeatureCard
           href="/dubbing"
-          icon={<Languages size={24} className="text-teal-500" />}
-          label="Dubbing"
+          icon={<Icon6 className="w-full h-full" />}
+          label="Dubbed video"
           hasNotification
         />
       </div>
@@ -179,30 +174,30 @@ export default async function DashboardPage() {
           </h3>
           <div className="space-y-4">
             <CreateCard
-              href="/voices"
+              href="/voice-lab?action=create&creationType=voiceDesign"
               icon={
-                <div className="w-10 h-10 rounded-lg bg-red-500 flex items-center justify-center text-white">
-                  <Sparkles size={20} />
+                <div className="w-[122px] h-[92px] rounded-2xl bg-gray-100 dark:bg-[#1a1a1a] flex items-center justify-center overflow-hidden">
+                  <Icon17 className="w-full h-full max-w-[90%] max-h-[90%]" />
                 </div>
               }
               title="Voice Design"
               description="Design an entirely new voice from a text prompt"
             />
             <CreateCard
-              href="/voices"
+              href="/voice-lab?action=create"
               icon={
-                <div className="w-10 h-10 rounded-lg bg-emerald-500 flex items-center justify-center text-white">
-                  <Plus size={20} />
+                <div className="w-[122px] h-[92px] rounded-2xl bg-gray-100 dark:bg-[#1a1a1a] flex items-center justify-center overflow-hidden">
+                  <Icon18 className="w-full h-full max-w-[90%] max-h-[90%]" />
                 </div>
               }
               title="Clone your Voice"
               description="Create a realistic digital clone of your voice"
             />
             <CreateCard
-              href="/voices"
+              href="/voice-library/collections"
               icon={
-                <div className="w-10 h-10 rounded-lg bg-blue-500 flex items-center justify-center text-white">
-                  <Library size={20} />
+                <div className="w-[122px] h-[92px] rounded-2xl bg-gray-100 dark:bg-[#1a1a1a] flex items-center justify-center overflow-hidden">
+                  <Icon19 className="w-full h-full max-w-[90%] max-h-[90%]" />
                 </div>
               }
               title="Voice Collections"
@@ -245,13 +240,13 @@ function FeatureCard({
   hasNotification?: boolean;
 }) {
   return (
-    <Link href={href} className="flex flex-col items-center gap-4 group">
-      <div className="relative w-full aspect-square bg-gray-100 dark:bg-[#1a1a1a] rounded-2xl flex items-center justify-center group-hover:bg-gray-200 dark:group-hover:bg-[#252525] transition-colors">
-        <div className="w-16 h-16 bg-white dark:bg-[#2a2a2a] rounded-xl shadow-sm dark:shadow-none flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+    <Link href={href} className="flex flex-col items-center gap-2 group">
+      <div className="relative w-full aspect-square bg-gray-100 dark:bg-[rgba(243,243,255,0.086)] rounded-2xl flex items-center justify-center group-hover:bg-gray-200 dark:group-hover:bg-[rgba(243,243,255,0.12)] transition-colors overflow-hidden">
+        <div className="absolute inset-0 flex items-center justify-center p-4">
           {icon}
         </div>
         {hasNotification && (
-          <div className="absolute top-2 right-2 w-2 h-2 bg-blue-400 rounded-full"></div>
+          <div className="absolute top-2 right-2 w-2 h-2 bg-blue-400 rounded-full z-10"></div>
         )}
       </div>
       <span className="text-sm font-medium text-black dark:text-white text-center">{label}</span>
@@ -301,14 +296,12 @@ function CreateCard({
   return (
     <Link
       href={href}
-      className="w-full p-4 bg-gray-100 dark:bg-[#1a1a1a] rounded-2xl flex items-center gap-4 hover:bg-gray-200 dark:hover:bg-[#252525] transition-colors text-left group"
+      className="relative w-full p-1.5 bg-gray-100 dark:bg-[#0f0f10] rounded-2xl flex items-center gap-4 hover:bg-gray-200 dark:hover:bg-[#252525] transition-colors text-left group min-h-[92px]"
     >
-      <div className="group-hover:scale-110 transition-transform duration-300">
-        {icon}
-      </div>
-      <div>
-        <h4 className="font-semibold text-gray-900 dark:text-white">{title}</h4>
-        <p className="text-sm text-gray-500 dark:text-gray-400">{description}</p>
+      <div className="flex-shrink-0">{icon}</div>
+      <div className="flex-1 min-w-0">
+        <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-0.5">{title}</h4>
+        <p className="text-sm text-gray-500 dark:text-[rgba(237,237,255,0.47)]">{description}</p>
       </div>
     </Link>
   );
