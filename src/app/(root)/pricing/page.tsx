@@ -215,6 +215,10 @@ function BillingDropdown({ value, onChange }: { value: string; onChange: (v: str
   );
 }
 
+// Aurora-style gradient for hover (purple → orange → red)
+const auroraHoverGradient =
+  "linear-gradient(135deg, rgba(139, 92, 246, 0.35) 0%, rgba(251, 146, 60, 0.25) 50%, rgba(239, 68, 68, 0.2) 100%)";
+
 function PlanCard({ plan }: { plan: Plan }) {
   const highlighted = plan.highlight === "creator" || plan.highlight === "business";
   const hasBg = plan.highlight === "creator" || plan.highlight === "business";
@@ -222,10 +226,11 @@ function PlanCard({ plan }: { plan: Plan }) {
   return (
     <div
       className={cn(
-        "relative rounded-[26px] border border-white/10 bg-white/[0.03] tenlabs-ring overflow-hidden h-full",
-        highlighted ? "shadow-[0_40px_140px_rgba(0,0,0,0.75)]" : ""
+        "group relative rounded-[26px] border border-white/10 bg-white/[0.03] tenlabs-ring overflow-hidden h-full transition-all duration-300",
+        highlighted ? "shadow-[0_40px_140px_rgba(0,0,0,0.75)]" : "hover:border-white/20"
       )}
     >
+      {/* Static gradient for Creator/Business */}
       {hasBg && (
         <div className="absolute inset-0" aria-hidden>
           <div
@@ -239,6 +244,14 @@ function PlanCard({ plan }: { plan: Plan }) {
           <div className="absolute inset-0 bg-black/45" />
         </div>
       )}
+      {/* Aurora-style overlay on hover - for all cards */}
+      <div
+        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+        aria-hidden
+      >
+        <div className="absolute inset-0" style={{ background: auroraHoverGradient }} />
+        <div className="absolute inset-0 bg-black/30" />
+      </div>
 
       <div className="relative p-5">
         <div className="flex items-start justify-between gap-3">
@@ -316,6 +329,203 @@ function PlanCard({ plan }: { plan: Plan }) {
   );
 }
 
+type CompareCategory =
+  | "Text to Speech"
+  | "Speech to Text"
+  | "Agents"
+  | "Voice Changer"
+  | "Sound Effects"
+  | "Voice Isolator"
+  | "Music"
+  | "Image & Video"
+  | "Automatic Dubbing";
+
+const compareCategories: CompareCategory[] = [
+  "Text to Speech",
+  "Speech to Text",
+  "Agents",
+  "Voice Changer",
+  "Sound Effects",
+  "Voice Isolator",
+  "Music",
+  "Image & Video",
+  "Automatic Dubbing",
+];
+
+type CompareRow = {
+  group: string;
+  label: string;
+  values: Record<string, string>;
+};
+
+function CompareTable({ category }: { category: CompareCategory }) {
+  const columns = ["Free", "Starter", "Creator", "Pro", "Scale", "Business"] as const;
+
+  const rows: CompareRow[] = useMemo(() => {
+    if (category !== "Text to Speech") {
+      return [
+        {
+          group: "Included",
+          label: "Status",
+          values: {
+            Free: "—",
+            Starter: "—",
+            Creator: "—",
+            Pro: "—",
+            Scale: "—",
+            Business: "—",
+          },
+        },
+      ];
+    }
+
+    return [
+      {
+        group: "Multilingual V2/V3",
+        label: "Minutes included",
+        values: {
+          Free: "~10",
+          Starter: "~30",
+          Creator: "~100",
+          Pro: "~500",
+          Scale: "~2,000",
+          Business: "~11,000",
+        },
+      },
+      {
+        group: "Multilingual V2/V3",
+        label: "Additional minutes",
+        values: {
+          Free: "×",
+          Starter: "×",
+          Creator: "~$0.30/min",
+          Pro: "~$0.24/min",
+          Scale: "~$0.18/min",
+          Business: "~$0.12/min",
+        },
+      },
+      {
+        group: "Multilingual V2/V3",
+        label: "Audio quality",
+        values: {
+          Free: "128 kbps, 44.1kHz",
+          Starter: "128 kbps, 44.1kHz",
+          Creator: "128 & 192 kbps (via API), 44.1kHz",
+          Pro: "128 & 192 kbps (via Studio & API), 44.1kHz",
+          Scale: "128 & 192 kbps (via Studio & API), 44.1kHz",
+          Business: "128 & 192 kbps (via Studio & API), 44.1kHz",
+        },
+      },
+      {
+        group: "Flash",
+        label: "Minutes included",
+        values: {
+          Free: "~20",
+          Starter: "~60",
+          Creator: "~200",
+          Pro: "~1,000",
+          Scale: "~4,000",
+          Business: "~22,000",
+        },
+      },
+      {
+        group: "Flash",
+        label: "Additional minutes",
+        values: {
+          Free: "×",
+          Starter: "×",
+          Creator: "~$0.15/min",
+          Pro: "~$0.12/min",
+          Scale: "~$0.09/min",
+          Business: "~$0.06/min",
+        },
+      },
+      {
+        group: "Flash",
+        label: "Audio quality",
+        values: {
+          Free: "128 kbps, 44.1kHz",
+          Starter: "128 kbps, 44.1kHz",
+          Creator: "128 & 192 kbps (via API), 44.1kHz",
+          Pro: "128 & 192 kbps (via Studio & API), 44.1kHz",
+          Scale: "128 & 192 kbps (via Studio & API), 44.1kHz",
+          Business: "128 & 192 kbps (via Studio & API), 44.1kHz",
+        },
+      },
+    ];
+  }, [category]);
+
+  const grouped = useMemo(() => {
+    const map = new Map<string, CompareRow[]>();
+    rows.forEach((r) => {
+      const list = map.get(r.group) ?? [];
+      list.push(r);
+      map.set(r.group, list);
+    });
+    return Array.from(map.entries());
+  }, [rows]);
+
+  return (
+    <div className="rounded-[22px] border border-white/10 bg-white/[0.03] overflow-hidden tenlabs-ring">
+      <div className="overflow-auto">
+        <div className="min-w-[980px]">
+          <div className="grid grid-cols-[260px_repeat(6,1fr)] border-b border-white/10">
+            <div className="p-4 text-xs text-white/50">{category}</div>
+            {columns.map((c) => (
+              <div
+                key={c}
+                className="group/col relative p-4 text-xs text-white/65 transition-colors hover:text-white/90"
+              >
+                <div
+                  className="absolute inset-0 opacity-0 group-hover/col:opacity-100 transition-opacity duration-300 pointer-events-none"
+                  aria-hidden
+                >
+                  <div className="absolute inset-0" style={{ background: auroraHoverGradient }} />
+                  <div className="absolute inset-0 bg-black/25" />
+                </div>
+                <span className="relative">{c}</span>
+              </div>
+            ))}
+          </div>
+
+          {grouped.map(([group, list], gi) => (
+            <div key={group}>
+              <div className="grid grid-cols-[260px_repeat(6,1fr)] bg-black/30 border-b border-white/10">
+                <div className="p-4 text-xs text-white/55">{group}</div>
+                <div className="col-span-6" />
+              </div>
+
+              {list.map((r, i) => (
+                <div
+                  key={r.label + i}
+                  className="grid grid-cols-[260px_repeat(6,1fr)] border-b border-white/10"
+                >
+                  <div className="p-4 text-sm text-white/70">{r.label}</div>
+                  {columns.map((c) => (
+                    <div
+                      key={c}
+                      className="group/cell relative p-4 text-sm text-white/75 transition-colors hover:text-white/95"
+                    >
+                      <div
+                        className="absolute inset-0 opacity-0 group-hover/cell:opacity-100 transition-opacity duration-300 pointer-events-none"
+                        aria-hidden
+                      >
+                        <div className="absolute inset-0" style={{ background: auroraHoverGradient }} />
+                        <div className="absolute inset-0 bg-black/20" />
+                      </div>
+                      <span className="relative">{r.values[c]}</span>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 type FAQ = { q: string; a: string };
 
 const faqs: FAQ[] = [
@@ -356,6 +566,7 @@ const faqs: FAQ[] = [
 export default function PricingPage() {
   const [segment, setSegment] = useState<Segment>("all");
   const [billing, setBilling] = useState("Monthly billing");
+  const [category, setCategory] = useState<CompareCategory>("Text to Speech");
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   const topPlans = useMemo(() => {
@@ -470,6 +681,43 @@ export default function PricingPage() {
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Compare plans Section */}
+        <section className="relative py-14 md:py-20">
+          <div className="absolute inset-0" style={{ background: "#070707" }} aria-hidden />
+          <div className="relative mx-auto max-w-6xl px-4">
+            <Reveal>
+              <h2
+                className="text-3xl md:text-5xl font-medium tracking-tight"
+                style={{ fontFamily: "Plus Jakarta Sans, var(--font-sans)" }}
+              >
+                Compare plans
+              </h2>
+            </Reveal>
+
+            <div className="mt-8 flex items-center gap-2 overflow-auto pb-2">
+              {compareCategories.map((c) => {
+                const on = c === category;
+                return (
+                  <button
+                    key={c}
+                    onClick={() => setCategory(c)}
+                    className={cn(
+                      "shrink-0 h-9 px-3 rounded-full text-xs border transition",
+                      on ? "bg-white text-black border-white" : "bg-white/5 text-white/70 border-white/10 hover:bg-white/10 hover:text-white"
+                    )}
+                  >
+                    {c}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="mt-8">
+              <CompareTable category={category} />
             </div>
           </div>
         </section>

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
-import { AudioLines, ArrowRight, Menu, X } from "lucide-react";
+import { AudioLines, ArrowRight, Menu, X, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 function cn(...classes: Array<string | false | null | undefined>) {
@@ -37,6 +37,8 @@ export default function TenLabsNav({ variant = "sticky" }: TenLabsNavProps) {
   const [open, setOpen] = useState(false);
   const [megaOpen, setMegaOpen] = useState(false);
   const [resourcesOpen, setResourcesOpen] = useState(false);
+  const [mobileMegaOpen, setMobileMegaOpen] = useState(false);
+  const [mobileResourcesOpen, setMobileResourcesOpen] = useState(false);
 
   useEffect(() => {
     if (!open && !megaOpen && !resourcesOpen) return;
@@ -45,6 +47,8 @@ export default function TenLabsNav({ variant = "sticky" }: TenLabsNavProps) {
         setOpen(false);
         setMegaOpen(false);
         setResourcesOpen(false);
+        setMobileMegaOpen(false);
+        setMobileResourcesOpen(false);
       }
     };
     window.addEventListener("keydown", onKey);
@@ -392,12 +396,16 @@ export default function TenLabsNav({ variant = "sticky" }: TenLabsNavProps) {
               transition={{ duration: 0.22, ease: "easeOut" }}
               className="sm:hidden"
             >
-              <div className="mt-2 rounded-2xl border border-white/10 bg-black/75 backdrop-blur-xl tenlabs-ring overflow-hidden">
+              <div className="mt-2 rounded-2xl border border-white/10 bg-black/75 backdrop-blur-xl tenlabs-ring overflow-hidden max-h-[85vh] overflow-y-auto">
                 <div className="p-3 flex items-center justify-between">
                   <div className="text-xs text-white/55">Menu</div>
                   <button
                     className="size-9 rounded-xl border border-white/10 bg-white/5 text-white/80 hover:bg-white/10 transition grid place-items-center"
-                    onClick={() => setOpen(false)}
+                    onClick={() => {
+                      setOpen(false);
+                      setMobileMegaOpen(false);
+                      setMobileResourcesOpen(false);
+                    }}
                     aria-label="Close menu"
                   >
                     <X className="size-4" />
@@ -405,17 +413,113 @@ export default function TenLabsNav({ variant = "sticky" }: TenLabsNavProps) {
                 </div>
 
                 <div className="px-3 pb-3 grid gap-1">
-                  {top.map((it) => (
-                    <Link
-                      key={it.label}
-                      href={it.href === "#" ? "/" : it.href}
-                      className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white/80 hover:bg-white/[0.08] transition"
-                      onClick={() => setOpen(false)}
-                    >
-                      <span>{it.label}</span>
-                      <ArrowRight className="size-4 text-white/45" />
-                    </Link>
-                  ))}
+                  {top.map((it) => {
+                    if (it.label === "Creative Platform") {
+                      return (
+                        <div key={it.label}>
+                          <button
+                            onClick={() => {
+                              setMobileMegaOpen((v) => !v);
+                              setMobileResourcesOpen(false);
+                            }}
+                            className="flex w-full items-center justify-between rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white/80 hover:bg-white/[0.08] transition"
+                          >
+                            <span>{it.label}</span>
+                            <ChevronDown
+                              className={cn("size-4 text-white/45 transition-transform", mobileMegaOpen && "rotate-180")}
+                            />
+                          </button>
+                          <AnimatePresence>
+                            {mobileMegaOpen && (
+                              <motion.div
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: "auto", opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                transition={{ duration: 0.2 }}
+                                className="overflow-hidden"
+                              >
+                                <div className="mt-1 ml-2 pl-4 border-l border-white/10 space-y-1">
+                                  {[
+                                    ...mega.products.items,
+                                    ...mega.create.items,
+                                    ...mega.voice.items,
+                                  ].map((x) => (
+                                    <Link
+                                      key={x.href}
+                                      href={x.href}
+                                      className="block rounded-lg px-3 py-2.5 text-[13px] text-white/70 hover:bg-white/[0.06] hover:text-white transition"
+                                      onClick={() => {
+                                        setOpen(false);
+                                        setMobileMegaOpen(false);
+                                      }}
+                                    >
+                                      {x.label}
+                                    </Link>
+                                  ))}
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
+                      );
+                    }
+                    if (it.label === "Resources") {
+                      return (
+                        <div key={it.label}>
+                          <button
+                            onClick={() => {
+                              setMobileResourcesOpen((v) => !v);
+                              setMobileMegaOpen(false);
+                            }}
+                            className="flex w-full items-center justify-between rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white/80 hover:bg-white/[0.08] transition"
+                          >
+                            <span>{it.label}</span>
+                            <ChevronDown
+                              className={cn("size-4 text-white/45 transition-transform", mobileResourcesOpen && "rotate-180")}
+                            />
+                          </button>
+                          <AnimatePresence>
+                            {mobileResourcesOpen && (
+                              <motion.div
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: "auto", opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                transition={{ duration: 0.2 }}
+                                className="overflow-hidden"
+                              >
+                                <div className="mt-1 ml-2 pl-4 border-l border-white/10 space-y-1">
+                                  {resourcesItems.map((x) => (
+                                    <Link
+                                      key={x.href}
+                                      href={x.href}
+                                      className="block rounded-lg px-3 py-2.5 text-[13px] text-white/70 hover:bg-white/[0.06] hover:text-white transition"
+                                      onClick={() => {
+                                        setOpen(false);
+                                        setMobileResourcesOpen(false);
+                                      }}
+                                    >
+                                      {x.label}
+                                    </Link>
+                                  ))}
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
+                      );
+                    }
+                    return (
+                      <Link
+                        key={it.label}
+                        href={it.href}
+                        className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white/80 hover:bg-white/[0.08] transition"
+                        onClick={() => setOpen(false)}
+                      >
+                        <span>{it.label}</span>
+                        <ArrowRight className="size-4 text-white/45" />
+                      </Link>
+                    );
+                  })}
 
                   <div className="mt-2 grid grid-cols-2 gap-2">
                     <SignedOut>
