@@ -6,6 +6,7 @@ import { Sidebar } from "@/components/dashboard/sidebar";
 import { MobileSidebar } from "@/components/dashboard/mobile-sidebar";
 import { DashboardHeader } from "@/components/dashboard/header";
 import { DashboardErrorBoundary } from "@/components/dashboard/error-boundary";
+import { GhostCursorBg } from "@/components/dashboard/GhostCursorBg";
 
 interface DashboardShellProps {
   children: React.ReactNode;
@@ -41,8 +42,11 @@ export function DashboardShell({ children }: DashboardShellProps) {
         
         {/* Page Content with Error Boundary */}
         <DashboardErrorBoundary>
-          <main className="flex-1 overflow-y-auto bg-white dark:bg-black transition-colors">
-            {children}
+          <main className="flex-1 overflow-y-auto transition-colors relative">
+            <GhostCursorBg />
+            <div className="relative z-10 min-h-full">
+              {children}
+            </div>
           </main>
         </DashboardErrorBoundary>
       </div>

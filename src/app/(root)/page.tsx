@@ -32,6 +32,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Reveal } from "@/components/landing";
+import Aurora from "@/components/Aurora";
 
 type AgentState = "connecting" | "initializing" | "listening" | "speaking" | "thinking";
 
@@ -986,15 +987,24 @@ export default function TenLabsLanding() {
     <div className="min-h-screen bg-black text-white">
       <main>
         {/* Hero Section */}
-        <section className="relative overflow-hidden">
-          <div className="absolute inset-0" style={{ background: "var(--gradient-hero)" }} />
-          <div className="absolute inset-0 tenlabs-grid opacity-[0.18] hidden md:block" />
+        <section className="relative overflow-hidden min-h-[90vh]">
+          {/* Aurora background */}
+          <div className="absolute inset-0" style={{ zIndex: 0 }}>
+            <Aurora
+              colorStops={["#000000", "#1e1e1e", "#060606", "#1c1c1c"]}
+              amplitude={2.4}
+              blend={0}
+            />
+          </div>
+          {/* Subtle gradient overlay */}
+          <div className="absolute inset-0" style={{ background: "var(--gradient-hero)", opacity: 0.5, zIndex: 1 }} />
+          <div className="absolute inset-0 tenlabs-grid opacity-[0.12] hidden md:block" style={{ zIndex: 2 }} />
           <div
             className="absolute -top-56 left-1/2 h-[640px] w-[820px] -translate-x-1/2 rounded-full"
-            style={{ background: "radial-gradient(circle at 50% 50%, rgba(255,255,255,0.10), rgba(255,255,255,0.00) 65%)", filter: "blur(10px)" }}
+            style={{ background: "radial-gradient(circle at 50% 50%, rgba(255,255,255,0.10), rgba(255,255,255,0.00) 65%)", filter: "blur(10px)", zIndex: 2 }}
           />
 
-          <div className="relative mx-auto max-w-6xl px-4 pt-16 md:pt-22 pb-16">
+          <div className="relative mx-auto max-w-6xl px-4 pt-24 md:pt-32 pb-20" style={{ zIndex: 10 }}>
             <div className="grid items-center gap-12 md:grid-cols-[1.1fr_0.9fr]">
               <div>
                 <Reveal>

@@ -1,8 +1,18 @@
 import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
+import path from "path";
+
+// Explicit project root: Next.js was inferring wrong root due to multiple lockfiles
+// (e.g. in /Users/apple/), causing "Can't resolve 'tailwindcss' in '/Users/apple/Documents'"
+const projectRoot =
+  typeof __dirname !== "undefined" ? path.resolve(__dirname) : path.resolve(process.cwd());
 
 const nextConfig: NextConfig = {
   /* config options here */
+
+  turbopack: {
+    root: projectRoot,
+  },
 
   async redirects() {
     return [
