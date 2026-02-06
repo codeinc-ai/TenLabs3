@@ -1,4 +1,4 @@
-import { TenLabsNav, TenLabsFooter, ThreadsWave } from "@/components/landing";
+import { TenLabsNav, TenLabsFooter } from "@/components/landing";
 
 export default function RootLayout({
   children,
@@ -12,9 +12,6 @@ export default function RootLayout({
 
       {/* Main Content */}
       <main className="flex-1">{children}</main>
-
-      {/* Threads wave - above footer */}
-      <ThreadsWave />
 
       {/* Footer */}
       <TenLabsFooter />
