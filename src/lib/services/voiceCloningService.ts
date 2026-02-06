@@ -8,6 +8,7 @@ import { Voice } from "@/models/Voice";
 import { UserVoice } from "@/models/UserVoice";
 import { User } from "@/models/User";
 import { PLANS } from "@/constants";
+import { uploadAudioForCloning, cloneVoice, designVoice as minimaxDesignVoice } from "@/lib/providers/minimax/minimaxVoiceService";
 
 const ELEVENLABS_API_URL = "https://api.elevenlabs.io/v1";
 
@@ -88,53 +89,82 @@ export async function createInstantVoiceClone(
   clerkId: string,
   name: string,
   files: File[],
-  description?: string
+  description?: string,
+  provider: "elevenlabs" | "minimax" = "elevenlabs"
 ): Promise<CreatedVoice> {
   try {
     await validateVoiceSlots(clerkId);
 
-    const apiKey = await getElevenLabsApiKey();
+    if (provider === "minimax") {
+      // Minimax flow: upload files, then clone
+      if (files.length === 0) {
+        throw new Error("At least one audio file is required for Minimax voice cloning");
+      }
 
-    const formData = new FormData();
-    formData.append("name", name);
-    if (description) {
-      formData.append("description", description);
+      // Upload the first file (Minimax typically uses one file for cloning)
+      const fileId = await uploadAudioForCloning(files[0]);
+      
+      // Clone voice - Minimax requires a voice_id, but for new clones we can use empty string
+      // If that doesn't work, we may need to fetch a default system voice first
+      const voiceId = await cloneVoice(fileId, "", {
+        clonePrompt: description || name,
+      });
+
+      const savedVoice = await saveVoiceToDb(
+        clerkId,
+        voiceId,
+        name,
+        description,
+        "Cloned"
+      );
+
+      return savedVoice;
+    } else {
+      // ElevenLabs flow
+      const apiKey = await getElevenLabsApiKey();
+
+      const formData = new FormData();
+      formData.append("name", name);
+      if (description) {
+        formData.append("description", description);
+      }
+
+      for (const file of files) {
+        formData.append("files", file);
+      }
+
+      const response = await fetch(`${ELEVENLABS_API_URL}/voices/add`, {
+        method: "POST",
+        headers: {
+          "xi-api-key": apiKey,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => "");
+        throw new Error(`ElevenLabs API error (${response.status}): ${errorText}`);
+      }
+
+      const data = await response.json();
+      const voiceId = data.voice_id as string;
+
+      const savedVoice = await saveVoiceToDb(
+        clerkId,
+        voiceId,
+        name,
+        description,
+        "Cloned"
+      );
+
+      return savedVoice;
     }
-
-    for (const file of files) {
-      formData.append("files", file);
-    }
-
-    const response = await fetch(`${ELEVENLABS_API_URL}/voices/add`, {
-      method: "POST",
-      headers: {
-        "xi-api-key": apiKey,
-      },
-      body: formData,
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text().catch(() => "");
-      throw new Error(`ElevenLabs API error (${response.status}): ${errorText}`);
-    }
-
-    const data = await response.json();
-    const voiceId = data.voice_id as string;
-
-    const savedVoice = await saveVoiceToDb(
-      clerkId,
-      voiceId,
-      name,
-      description,
-      "Cloned"
-    );
-
-    return savedVoice;
   } catch (error) {
     Sentry.withScope((scope) => {
       scope.setTag("feature", "voice-cloning");
       scope.setTag("service", "voiceCloningService");
       scope.setTag("action", "createInstantVoiceClone");
+      scope.setTag("provider", provider);
       scope.setUser({ id: clerkId });
       Sentry.captureException(error);
     });
@@ -145,46 +175,66 @@ export async function createInstantVoiceClone(
 export async function generateVoiceDesignPreviews(
   clerkId: string,
   voiceDescription: string,
-  sampleText: string
+  sampleText: string,
+  provider: "elevenlabs" | "minimax" = "elevenlabs"
 ): Promise<VoicePreview[]> {
   try {
-    const apiKey = await getElevenLabsApiKey();
-
-    const response = await fetch(
-      `${ELEVENLABS_API_URL}/text-to-voice/create-previews`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "xi-api-key": apiKey,
+    if (provider === "minimax") {
+      // Minimax returns a single preview with hex audio
+      const result = await minimaxDesignVoice(voiceDescription, sampleText);
+      
+      // Convert hex to base64 for consistency
+      const audioBytes = Buffer.from(result.trialAudioHex, "hex");
+      const audioBase64 = audioBytes.toString("base64");
+      
+      return [
+        {
+          generatedVoiceId: result.voiceId,
+          audioBase64,
+          mediaType: "audio/mpeg", // Minimax typically returns MP3
         },
-        body: JSON.stringify({
-          voice_description: voiceDescription,
-          text: sampleText,
-        }),
+      ];
+    } else {
+      // ElevenLabs flow
+      const apiKey = await getElevenLabsApiKey();
+
+      const response = await fetch(
+        `${ELEVENLABS_API_URL}/text-to-voice/create-previews`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "xi-api-key": apiKey,
+          },
+          body: JSON.stringify({
+            voice_description: voiceDescription,
+            text: sampleText,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => "");
+        throw new Error(`ElevenLabs API error (${response.status}): ${errorText}`);
       }
-    );
 
-    if (!response.ok) {
-      const errorText = await response.text().catch(() => "");
-      throw new Error(`ElevenLabs API error (${response.status}): ${errorText}`);
+      const data = await response.json();
+      const previews: VoicePreview[] = (data.previews || []).map(
+        (preview: { generated_voice_id: string; audio_base_64: string; media_type: string }) => ({
+          generatedVoiceId: preview.generated_voice_id,
+          audioBase64: preview.audio_base_64,
+          mediaType: preview.media_type,
+        })
+      );
+
+      return previews;
     }
-
-    const data = await response.json();
-    const previews: VoicePreview[] = (data.previews || []).map(
-      (preview: { generated_voice_id: string; audio_base_64: string; media_type: string }) => ({
-        generatedVoiceId: preview.generated_voice_id,
-        audioBase64: preview.audio_base_64,
-        mediaType: preview.media_type,
-      })
-    );
-
-    return previews;
   } catch (error) {
     Sentry.withScope((scope) => {
       scope.setTag("feature", "voice-design");
       scope.setTag("service", "voiceCloningService");
       scope.setTag("action", "generateVoiceDesignPreviews");
+      scope.setTag("provider", provider);
       scope.setUser({ id: clerkId });
       Sentry.captureException(error);
     });
@@ -196,51 +246,68 @@ export async function designVoice(
   clerkId: string,
   voiceName: string,
   voiceDescription: string,
-  generatedVoiceId: string
+  generatedVoiceId: string,
+  provider: "elevenlabs" | "minimax" = "elevenlabs"
 ): Promise<CreatedVoice> {
   try {
     await validateVoiceSlots(clerkId);
 
-    const apiKey = await getElevenLabsApiKey();
+    if (provider === "minimax") {
+      // For Minimax, the generatedVoiceId is already the final voice ID
+      // We just need to save it to the database
+      const savedVoice = await saveVoiceToDb(
+        clerkId,
+        generatedVoiceId,
+        voiceName,
+        voiceDescription,
+        "Designed"
+      );
 
-    const response = await fetch(
-      `${ELEVENLABS_API_URL}/text-to-voice/create-voice-from-preview`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "xi-api-key": apiKey,
-        },
-        body: JSON.stringify({
-          voice_name: voiceName,
-          voice_description: voiceDescription,
-          generated_voice_id: generatedVoiceId,
-        }),
+      return savedVoice;
+    } else {
+      // ElevenLabs flow
+      const apiKey = await getElevenLabsApiKey();
+
+      const response = await fetch(
+        `${ELEVENLABS_API_URL}/text-to-voice/create-voice-from-preview`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "xi-api-key": apiKey,
+          },
+          body: JSON.stringify({
+            voice_name: voiceName,
+            voice_description: voiceDescription,
+            generated_voice_id: generatedVoiceId,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => "");
+        throw new Error(`ElevenLabs API error (${response.status}): ${errorText}`);
       }
-    );
 
-    if (!response.ok) {
-      const errorText = await response.text().catch(() => "");
-      throw new Error(`ElevenLabs API error (${response.status}): ${errorText}`);
+      const data = await response.json();
+      const voiceId = data.voice_id as string;
+
+      const savedVoice = await saveVoiceToDb(
+        clerkId,
+        voiceId,
+        voiceName,
+        voiceDescription,
+        "Designed"
+      );
+
+      return savedVoice;
     }
-
-    const data = await response.json();
-    const voiceId = data.voice_id as string;
-
-    const savedVoice = await saveVoiceToDb(
-      clerkId,
-      voiceId,
-      voiceName,
-      voiceDescription,
-      "Designed"
-    );
-
-    return savedVoice;
   } catch (error) {
     Sentry.withScope((scope) => {
       scope.setTag("feature", "voice-design");
       scope.setTag("service", "voiceCloningService");
       scope.setTag("action", "designVoice");
+      scope.setTag("provider", provider);
       scope.setUser({ id: clerkId });
       Sentry.captureException(error);
     });

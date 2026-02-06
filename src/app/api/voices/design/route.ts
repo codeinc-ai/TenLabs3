@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
       scope.setTag("userId", userId);
 
       const body = await req.json();
-      const { voiceName, voiceDescription, generatedVoiceId } = body;
+      const { provider = "elevenlabs", voiceName, voiceDescription, generatedVoiceId } = body;
 
       if (!voiceName || typeof voiceName !== "string") {
         return NextResponse.json(
@@ -43,11 +43,14 @@ export async function POST(req: NextRequest) {
         );
       }
 
+      scope.setTag("provider", provider);
+
       const result = await designVoice(
         userId,
         voiceName,
         voiceDescription,
-        generatedVoiceId
+        generatedVoiceId,
+        provider as "elevenlabs" | "minimax"
       );
 
       return NextResponse.json({ success: true, data: result }, { status: 201 });

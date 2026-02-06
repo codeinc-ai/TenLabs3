@@ -1,5 +1,3 @@
-import { TenLabsFooter } from "@/components/landing";
-
 export default function ProductsLayout({
   children,
 }: {
@@ -9,7 +7,6 @@ export default function ProductsLayout({
     <div className="min-h-screen flex flex-col bg-black">
       {/* No TenLabsNav here - ProductPageLayout has its own MiniHeader */}
       <main className="flex-1">{children}</main>
-      <TenLabsFooter />
     </div>
   );
 }

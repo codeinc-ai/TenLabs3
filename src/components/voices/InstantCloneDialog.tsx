@@ -33,6 +33,7 @@ import {
   AudioPlayerTime,
   AudioPlayerDuration,
 } from "@/components/ui/audio-player";
+import type { ProviderType } from "@/lib/providers/types";
 
 interface InstantCloneDialogProps {
   open: boolean;
@@ -53,6 +54,7 @@ export function InstantCloneDialog({
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   
+  const [provider, setProvider] = useState<ProviderType>("elevenlabs");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [files, setFiles] = useState<File[]>([]);
@@ -156,6 +158,7 @@ export function InstantCloneDialog({
     try {
       const formData = new FormData();
       formData.append("name", name.trim());
+      formData.append("provider", provider);
       if (description.trim()) {
         formData.append("description", description.trim());
       }
@@ -194,6 +197,7 @@ export function InstantCloneDialog({
   };
 
   const handleClose = () => {
+    setProvider("elevenlabs");
     setName("");
     setDescription("");
     setFiles([]);
@@ -242,6 +246,37 @@ export function InstantCloneDialog({
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
+
+            {/* Provider Selector */}
+            <div className="space-y-2">
+              <Label>Provider</Label>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setProvider("elevenlabs")}
+                  disabled={loading}
+                  className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    provider === "elevenlabs"
+                      ? "bg-black dark:bg-white text-white dark:text-black"
+                      : "bg-gray-100 dark:bg-[#1a1a1a] text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-[#222]"
+                  } ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
+                >
+                  ElevenLabs
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setProvider("minimax")}
+                  disabled={loading}
+                  className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    provider === "minimax"
+                      ? "bg-black dark:bg-white text-white dark:text-black"
+                      : "bg-gray-100 dark:bg-[#1a1a1a] text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-[#222]"
+                  } ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
+                >
+                  Minimax
+                </button>
+              </div>
+            </div>
 
             <div className="space-y-2">
               <Label htmlFor="voice-name">Voice Name *</Label>

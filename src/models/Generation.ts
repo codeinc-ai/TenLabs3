@@ -30,6 +30,7 @@ export interface IGeneration extends Document {
   audioFileId?: string;
 
   length: number;                // Audio length in seconds
+  provider?: string;             // TTS provider ("elevenlabs" | "minimax")
   isFavorite: boolean;           // Whether the user has favorited this generation
   createdAt: Date;               // When the generation was created
   updatedAt: Date;               // Last updated timestamp
@@ -53,6 +54,7 @@ const GenerationSchema: Schema = new Schema<IGeneration>(
     audioFileId: { type: String },
 
     length: { type: Number, default: 0 }, // optional: fill after audio is generated
+    provider: { type: String, default: "elevenlabs" },
     isFavorite: { type: Boolean, default: false }, // user favorite flag
   },
   {

@@ -25,7 +25,6 @@ import {
   Mic2,
   Wand2,
   ChevronDown,
-  Crown,
 } from "lucide-react";
 
 import type { VoiceListResponse, VoiceItem } from "@/lib/services/voiceService";
@@ -36,9 +35,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { InstantCloneDialog } from "@/components/voices/InstantCloneDialog";
-import { VoiceDesignDialog } from "@/components/voices/VoiceDesignDialog";
-import { ProfessionalCloneDialog } from "@/components/voices/ProfessionalCloneDialog";
 
 const categories = [
   { icon: MessageCircle, label: "Conversational" },
@@ -71,16 +67,6 @@ export function VoicesClient({ initialData, canUsePVC = false }: VoicesClientPro
   const [search, setSearch] = useState("");
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [savingId, setSavingId] = useState<string | null>(null);
-
-  // Voice creation dialogs
-  const [instantCloneOpen, setInstantCloneOpen] = useState(false);
-  const [voiceDesignOpen, setVoiceDesignOpen] = useState(false);
-  const [professionalCloneOpen, setProfessionalCloneOpen] = useState(false);
-
-  const handleVoiceCreated = () => {
-    fetchVoices(1);
-    router.push("/voices/my-voices");
-  };
 
   const fetchVoices = useCallback(
     async (page: number = 1) => {
@@ -225,37 +211,33 @@ export function VoicesClient({ initialData, canUsePVC = false }: VoicesClientPro
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuItem onClick={() => setInstantCloneOpen(true)} className="cursor-pointer">
-                  <Mic2 className="mr-2 h-4 w-4 text-emerald-600" />
-                  <div>
-                    <p className="font-medium">Instant Voice Clone</p>
-                    <p className="text-xs text-muted-foreground">Clone from audio samples</p>
-                  </div>
+                <DropdownMenuItem asChild className="cursor-pointer">
+                  <Link href="/voices/clone">
+                    <Mic2 className="mr-2 h-4 w-4 text-emerald-600" />
+                    <div>
+                      <p className="font-medium">Instant Voice Clone</p>
+                      <p className="text-xs text-muted-foreground">Clone from audio samples</p>
+                    </div>
+                  </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setVoiceDesignOpen(true)} className="cursor-pointer">
-                  <Sparkles className="mr-2 h-4 w-4 text-purple-600" />
-                  <div>
-                    <p className="font-medium">Design a Voice</p>
-                    <p className="text-xs text-muted-foreground">Create from description</p>
-                  </div>
+                <DropdownMenuItem asChild className="cursor-pointer">
+                  <Link href="/voices/design">
+                    <Sparkles className="mr-2 h-4 w-4 text-purple-600" />
+                    <div>
+                      <p className="font-medium">Design a Voice</p>
+                      <p className="text-xs text-muted-foreground">Create from description</p>
+                    </div>
+                  </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onClick={() => canUsePVC && setProfessionalCloneOpen(true)}
-                  className={`cursor-pointer ${!canUsePVC ? "opacity-60" : ""}`}
-                >
-                  <Crown className="mr-2 h-4 w-4 text-amber-600" />
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <p className="font-medium">Professional Clone</p>
-                      {!canUsePVC && (
-                        <span className="text-[10px] px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded font-medium">
-                          PRO
-                        </span>
-                      )}
+                <DropdownMenuItem asChild className="cursor-pointer">
+                  <Link href="/voices/remix">
+                    <Wand2 className="mr-2 h-4 w-4 text-amber-600" />
+                    <div>
+                      <p className="font-medium">Remix a Voice</p>
+                      <p className="text-xs text-muted-foreground">Modify with new characteristics</p>
                     </div>
-                    <p className="text-xs text-muted-foreground">High-quality trained clone</p>
-                  </div>
+                  </Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -328,6 +310,69 @@ export function VoicesClient({ initialData, canUsePVC = false }: VoicesClientPro
               </button>
             );
           })}
+        </div>
+
+        {/* Voice Creation Tools */}
+        <div className="mb-10">
+          <h2 className="text-lg font-semibold text-black dark:text-white mb-4">Voice Creation Tools</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Link
+              href="/voices/clone"
+              className="group relative p-6 rounded-2xl bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] hover:border-emerald-500/30 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="relative">
+                <div className="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center mb-4">
+                  <Mic2 size={24} className="text-emerald-500" />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-semibold text-black dark:text-white mb-1">Instant Voice Clone</h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Upload audio samples to clone any voice instantly</p>
+                  </div>
+                  <ChevronRight size={18} className="text-gray-400 dark:text-gray-500 group-hover:translate-x-1 transition-transform duration-300" />
+                </div>
+              </div>
+            </Link>
+
+            <Link
+              href="/voices/design"
+              className="group relative p-6 rounded-2xl bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] hover:border-purple-500/30 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-pink-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="relative">
+                <div className="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center mb-4">
+                  <Sparkles size={24} className="text-purple-500" />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-semibold text-black dark:text-white mb-1">Design a Voice</h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Create a unique voice from a text description</p>
+                  </div>
+                  <ChevronRight size={18} className="text-gray-400 dark:text-gray-500 group-hover:translate-x-1 transition-transform duration-300" />
+                </div>
+              </div>
+            </Link>
+
+            <Link
+              href="/voices/remix"
+              className="group relative p-6 rounded-2xl bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] hover:border-amber-500/30 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-amber-500/20 to-orange-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="relative">
+                <div className="w-12 h-12 bg-amber-500/10 rounded-xl flex items-center justify-center mb-4">
+                  <Wand2 size={24} className="text-amber-500" />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-semibold text-black dark:text-white mb-1">Remix a Voice</h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Modify an existing voice with new characteristics</p>
+                  </div>
+                  <ChevronRight size={18} className="text-gray-400 dark:text-gray-500 group-hover:translate-x-1 transition-transform duration-300" />
+                </div>
+              </div>
+            </Link>
+          </div>
         </div>
 
         {/* Trending Voices */}
@@ -476,22 +521,6 @@ export function VoicesClient({ initialData, canUsePVC = false }: VoicesClientPro
         )}
       </div>
 
-      {/* Voice Creation Dialogs */}
-      <InstantCloneDialog
-        open={instantCloneOpen}
-        onOpenChange={setInstantCloneOpen}
-        onSuccess={handleVoiceCreated}
-      />
-      <VoiceDesignDialog
-        open={voiceDesignOpen}
-        onOpenChange={setVoiceDesignOpen}
-        onSuccess={handleVoiceCreated}
-      />
-      <ProfessionalCloneDialog
-        open={professionalCloneOpen}
-        onOpenChange={setProfessionalCloneOpen}
-        onSuccess={handleVoiceCreated}
-      />
     </div>
   );
 }

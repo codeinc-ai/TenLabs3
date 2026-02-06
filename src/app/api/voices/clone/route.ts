@@ -22,6 +22,7 @@ export async function POST(req: NextRequest) {
       const formData = await req.formData();
       const name = formData.get("name");
       const description = formData.get("description") as string | null;
+      const provider = (formData.get("provider") as string) || "elevenlabs";
       const files = formData.getAll("files");
 
       if (!name || typeof name !== "string") {
@@ -46,11 +47,14 @@ export async function POST(req: NextRequest) {
         );
       }
 
+      scope.setTag("provider", provider);
+
       const result = await createInstantVoiceClone(
         userId,
         name,
         audioFiles,
-        description || undefined
+        description || undefined,
+        provider as "elevenlabs" | "minimax"
       );
 
       return NextResponse.json({ success: true, data: result }, { status: 201 });

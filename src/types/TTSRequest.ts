@@ -11,4 +11,5 @@ export interface TTSRequest {
   stability?: number;      // Optional override of default stability
   similarityBoost?: number;// Optional override of default similarity
   format?: "mp3" | "wav" | "opus"; // Audio format
+  model?: string;          // ElevenLabs model ID (defaults to eleven_multilingual_v2)
 }

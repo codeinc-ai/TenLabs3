@@ -30,6 +30,7 @@ export interface TtsGeneratedEvent {
   generationId: string;
   textLength: number;
   voiceId: string;
+  provider?: string;
 }
 
 export interface AudioPlayedEvent {
@@ -52,6 +53,7 @@ export interface GenerationDeletedEvent {
 
 export interface GenerationCreatedEvent {
   feature: "tts";
+  provider?: "elevenlabs" | "minimax";
   userId: string;
   generationId: string;
   charactersUsed: number;

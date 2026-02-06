@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
       scope.setTag("userId", userId);
 
       const body = await req.json();
-      const { voiceDescription, sampleText } = body;
+      const { provider = "elevenlabs", voiceDescription, sampleText } = body;
 
       if (!voiceDescription || typeof voiceDescription !== "string") {
         return NextResponse.json(
@@ -36,13 +36,16 @@ export async function POST(req: NextRequest) {
         );
       }
 
+      scope.setTag("provider", provider);
+
       const previews = await generateVoiceDesignPreviews(
         userId,
         voiceDescription,
-        sampleText
+        sampleText,
+        provider as "elevenlabs" | "minimax"
       );
 
-      return NextResponse.json({ success: true, data: previews }, { status: 200 });
+      return NextResponse.json({ success: true, previews }, { status: 200 });
     } catch (error: unknown) {
       Sentry.captureException(error);
 

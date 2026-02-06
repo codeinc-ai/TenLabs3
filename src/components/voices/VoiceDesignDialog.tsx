@@ -28,6 +28,7 @@ import {
   AudioPlayerTime,
   AudioPlayerDuration,
 } from "@/components/ui/audio-player";
+import type { ProviderType } from "@/lib/providers/types";
 
 interface VoicePreview {
   generatedVoiceId: string;
@@ -46,10 +47,11 @@ export function VoiceDesignDialog({
   onOpenChange,
   onSuccess,
 }: VoiceDesignDialogProps) {
+  const [provider, setProvider] = useState<ProviderType>("elevenlabs");
   const [step, setStep] = useState<"design" | "preview" | "save">("design");
   const [voiceDescription, setVoiceDescription] = useState("");
   const [sampleText, setSampleText] = useState(
-    "Hello! This is a sample of my voice. I can speak clearly and naturally."
+    "Hello! This is a sample of my voice. I can speak clearly and naturally, with warmth and confidence. Let me show you how versatile and expressive I can be."
   );
   const [voiceName, setVoiceName] = useState("");
   const [previews, setPreviews] = useState<VoicePreview[]>([]);
@@ -61,9 +63,10 @@ export function VoiceDesignDialog({
 
   useEffect(() => {
     if (!open) {
+      setProvider("elevenlabs");
       setStep("design");
       setVoiceDescription("");
-      setSampleText("Hello! This is a sample of my voice. I can speak clearly and naturally.");
+      setSampleText("Hello! This is a sample of my voice. I can speak clearly and naturally, with warmth and confidence. Let me show you how versatile and expressive I can be.");
       setVoiceName("");
       setPreviews([]);
       setSelectedPreview(null);
@@ -81,6 +84,10 @@ export function VoiceDesignDialog({
       setError("Please enter sample text for the voice to speak");
       return;
     }
+    if (sampleText.trim().length < 100) {
+      setError("Sample text must be at least 100 characters long");
+      return;
+    }
 
     setLoading(true);
     setError(null);
@@ -90,6 +97,7 @@ export function VoiceDesignDialog({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          provider,
           voiceDescription: voiceDescription.trim(),
           sampleText: sampleText.trim(),
         }),
@@ -132,6 +140,7 @@ export function VoiceDesignDialog({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          provider,
           voiceName: voiceName.trim(),
           voiceDescription: voiceDescription.trim(),
           generatedVoiceId: selectedPreview,
@@ -209,6 +218,37 @@ export function VoiceDesignDialog({
 
             {step === "design" && (
               <>
+                {/* Provider Selector */}
+                <div className="space-y-2">
+                  <Label>Provider</Label>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setProvider("elevenlabs")}
+                      disabled={loading}
+                      className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        provider === "elevenlabs"
+                          ? "bg-black dark:bg-white text-white dark:text-black"
+                          : "bg-gray-100 dark:bg-[#1a1a1a] text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-[#222]"
+                      } ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
+                    >
+                      ElevenLabs
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setProvider("minimax")}
+                      disabled={loading}
+                      className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        provider === "minimax"
+                          ? "bg-black dark:bg-white text-white dark:text-black"
+                          : "bg-gray-100 dark:bg-[#1a1a1a] text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-[#222]"
+                      } ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
+                    >
+                      Minimax
+                    </button>
+                  </div>
+                </div>
+
                 <div className="space-y-2">
                   <Label htmlFor="voice-description">Voice Description *</Label>
                   <Textarea
@@ -225,10 +265,15 @@ export function VoiceDesignDialog({
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="sample-text">Sample Text *</Label>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="sample-text">Sample Text *</Label>
+                    <span className={`text-xs ${sampleText.trim().length < 100 ? "text-red-500" : "text-muted-foreground"}`}>
+                      {sampleText.trim().length}/100 min
+                    </span>
+                  </div>
                   <Textarea
                     id="sample-text"
-                    placeholder="Enter text for the voice to speak in the preview..."
+                    placeholder="Enter text for the voice to speak in the preview (minimum 100 characters)..."
                     value={sampleText}
                     onChange={(e) => setSampleText(e.target.value)}
                     disabled={loading}

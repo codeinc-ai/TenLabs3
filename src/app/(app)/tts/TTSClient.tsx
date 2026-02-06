@@ -13,18 +13,20 @@ import {
   Gamepad2,
   Radio,
   Flower,
-  X,
   ChevronRight,
   RotateCcw,
   Play,
   Pause,
   Download,
   Loader2,
+  Clock,
 } from "lucide-react";
 
-import { DEFAULT_VOICES, TTS_DEFAULTS, PLANS } from "@/constants";
+import { DEFAULT_VOICES, TTS_DEFAULTS, PLANS, ELEVENLABS_MODELS } from "@/constants";
+import { MINIMAX_DEFAULT_VOICES, MINIMAX_MODELS, MINIMAX_EMOTIONS, MINIMAX_TTS_DEFAULTS } from "@/constants/minimax";
 import { capturePosthogBrowserEvent } from "@/lib/posthogBrowser";
 import { VoicePicker } from "@/components/ui/voice-picker";
+import type { ProviderType } from "@/lib/providers/types";
 
 interface TTSClientProps {
   userPlan?: "free" | "pro";
@@ -48,6 +50,16 @@ type VoicePickerVoice = {
 };
 
 const fallbackVoices: VoicePickerVoice[] = DEFAULT_VOICES.map((voice) => ({
+  voiceId: voice.id,
+  name: voice.name,
+  previewUrl: undefined,
+  labels: {
+    description: voice.category,
+    "use case": voice.category,
+  },
+}));
+
+const minimaxVoices: VoicePickerVoice[] = MINIMAX_DEFAULT_VOICES.map((voice) => ({
   voiceId: voice.id,
   name: voice.name,
   previewUrl: undefined,
@@ -85,6 +97,9 @@ export function TTSClient({ userPlan = "free", currentUsage }: TTSClientProps) {
 
   const voiceFromUrl = searchParams?.get("voice");
 
+  // Provider state
+  const [provider, setProvider] = useState<ProviderType>("elevenlabs");
+
   // Form state
   const [text, setText] = useState("");
   const [voices, setVoices] = useState<VoicePickerVoice[]>(fallbackVoices);
@@ -100,6 +115,25 @@ export function TTSClient({ userPlan = "free", currentUsage }: TTSClientProps) {
   const [similarity, setSimilarity] = useState(TTS_DEFAULTS.similarityBoost);
   const [speakerBoost, setSpeakerBoost] = useState(true);
   const [languageOverride, setLanguageOverride] = useState(false);
+  const [elevenModel, setElevenModel] = useState(TTS_DEFAULTS.model);
+
+  // Minimax-specific state
+  const [minimaxModel, setMinimaxModel] = useState(MINIMAX_TTS_DEFAULTS.model);
+  const [mmSpeed, setMmSpeed] = useState(MINIMAX_TTS_DEFAULTS.speed);
+  const [mmVolume, setMmVolume] = useState(MINIMAX_TTS_DEFAULTS.volume);
+  const [mmPitch, setMmPitch] = useState(MINIMAX_TTS_DEFAULTS.pitch);
+  const [mmEmotion, setMmEmotion] = useState<string>("");
+
+  const handleProviderChange = (p: ProviderType) => {
+    setProvider(p);
+    if (p === "minimax") {
+      setVoices(minimaxVoices);
+      setSelectedVoiceId(minimaxVoices[0]?.voiceId ?? "");
+    } else {
+      setVoices(fallbackVoices);
+      setSelectedVoiceId(fallbackVoices[0]?.voiceId ?? DEFAULT_VOICES[0]?.id);
+    }
+  };
 
   // Generation state
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
@@ -111,6 +145,14 @@ export function TTSClient({ userPlan = "free", currentUsage }: TTSClientProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+
+  // History state
+  const [activeSettingsTab, setActiveSettingsTab] = useState<"settings" | "history">("settings");
+  const [generations, setGenerations] = useState<
+    { id: string; text: string; voiceId: string; audioUrl: string; createdAt: string }[]
+  >([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [historyError, setHistoryError] = useState<string | null>(null);
 
   // Plan limits
   const limits = PLANS[userPlan];
@@ -191,6 +233,36 @@ export function TTSClient({ userPlan = "free", currentUsage }: TTSClientProps) {
     });
   }, [selectedVoiceId, userId]);
 
+  const fetchHistory = async () => {
+    setHistoryLoading(true);
+    setHistoryError(null);
+    try {
+      const res = await fetch("/api/generations?limit=20");
+      if (!res.ok) throw new Error("Failed to load history");
+      const json = await res.json();
+      const items = (json.data ?? json.generations ?? []).map(
+        (g: Record<string, unknown>) => ({
+          id: typeof g._id === "string" ? g._id : (typeof g.id === "string" ? g.id : String(g._id ?? g.id ?? "")),
+          text: typeof g.text === "string" ? g.text : "",
+          voiceId: typeof g.voiceId === "string" ? g.voiceId : "",
+          audioUrl: typeof g.audioUrl === "string" ? g.audioUrl : "",
+          createdAt: typeof g.createdAt === "string" ? g.createdAt : "",
+        })
+      );
+      setGenerations(items);
+    } catch (err) {
+      setHistoryError(err instanceof Error ? err.message : "Failed to load history");
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeSettingsTab === "history") {
+      fetchHistory();
+    }
+  }, [activeSettingsTab]);
+
   const generate = async () => {
     if (!text.trim() || isOverLimit) return;
 
@@ -203,16 +275,32 @@ export function TTSClient({ userPlan = "free", currentUsage }: TTSClientProps) {
     setDuration(0);
 
     try {
+      const body = provider === "minimax"
+        ? {
+            text,
+            voiceId: selectedVoiceId,
+            provider: "minimax",
+            model: minimaxModel,
+            speed: mmSpeed,
+            volume: mmVolume,
+            pitch: mmPitch,
+            ...(mmEmotion ? { emotion: mmEmotion } : {}),
+            format: "mp3",
+          }
+        : {
+            text,
+            voiceId: selectedVoiceId,
+            provider: "elevenlabs",
+            model: elevenModel,
+            stability,
+            similarityBoost: similarity,
+            format: "mp3",
+          };
+
       const res = await fetch("/api/tts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          text,
-          voiceId: selectedVoiceId,
-          stability,
-          similarityBoost: similarity,
-          format: "mp3",
-        }),
+        body: JSON.stringify(body),
       });
 
       if (!res.ok) {
@@ -235,6 +323,7 @@ export function TTSClient({ userPlan = "free", currentUsage }: TTSClientProps) {
           generationId: json.data.generationId,
           textLength: text.length,
           voiceId: selectedVoiceId,
+          provider,
         });
       }
     } catch (err) {
@@ -414,30 +503,54 @@ export function TTSClient({ userPlan = "free", currentUsage }: TTSClientProps) {
         {/* Main Panel Content */}
         <div className="flex flex-col h-full">
           <div className="flex border-b border-gray-200 dark:border-[#1a1a1a] px-6">
-            <button className="py-4 mr-6 text-sm font-medium text-black dark:text-white border-b-2 border-black dark:border-white">
+            <button
+              onClick={() => setActiveSettingsTab("settings")}
+              className={`py-4 mr-6 text-sm font-medium transition-colors ${
+                activeSettingsTab === "settings"
+                  ? "text-black dark:text-white border-b-2 border-black dark:border-white"
+                  : "text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+              }`}
+            >
               Settings
             </button>
-            <button className="py-4 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">
+            <button
+              onClick={() => setActiveSettingsTab("history")}
+              className={`py-4 text-sm font-medium transition-colors ${
+                activeSettingsTab === "history"
+                  ? "text-black dark:text-white border-b-2 border-black dark:border-white"
+                  : "text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+              }`}
+            >
               History
             </button>
           </div>
 
+          {activeSettingsTab === "settings" ? (
           <div className="flex-1 overflow-y-auto p-6 space-y-8">
-            {/* Promo Banner */}
-            <div className="relative p-4 rounded-xl bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white overflow-hidden group cursor-pointer">
-              <button className="absolute top-3 right-3 text-white/80 hover:text-white">
-                <X size={16} />
-              </button>
-              <div className="flex gap-4">
-                <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center flex-shrink-0 backdrop-blur-sm">
-                  <div className="w-6 h-6 border-2 border-white rounded-sm" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-sm mb-1">Try Studio 3.0</h3>
-                  <p className="text-xs text-white/90 leading-relaxed">
-                    Voiceovers, Eleven Music and SFX in one editor - now with video support.
-                  </p>
-                </div>
+            {/* Provider Selector */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-black dark:text-white">Provider</label>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handleProviderChange("elevenlabs")}
+                  className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    provider === "elevenlabs"
+                      ? "bg-black dark:bg-white text-white dark:text-black"
+                      : "bg-gray-100 dark:bg-[#1a1a1a] text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-[#222]"
+                  }`}
+                >
+                  ElevenLabs
+                </button>
+                <button
+                  onClick={() => handleProviderChange("minimax")}
+                  className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    provider === "minimax"
+                      ? "bg-black dark:bg-white text-white dark:text-black"
+                      : "bg-gray-100 dark:bg-[#1a1a1a] text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-[#222]"
+                  }`}
+                >
+                  Minimax
+                </button>
               </div>
             </div>
 
@@ -456,86 +569,243 @@ export function TTSClient({ userPlan = "free", currentUsage }: TTSClientProps) {
             {/* Model Selector */}
             <div className="space-y-2">
               <label className="text-sm font-medium text-black dark:text-white">Model</label>
-              <div className="w-full p-1 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-xl hover:border-gray-300 dark:hover:border-[#444] transition-colors cursor-pointer">
-                <div className="flex items-center justify-between p-2">
-                  <div className="flex items-center gap-3">
-                    <span className="px-1.5 py-0.5 rounded border border-black dark:border-white text-[10px] font-bold text-black dark:text-white">
-                      V2
-                    </span>
-                    <span className="text-sm font-medium text-gray-900 dark:text-gray-100">Eleven Multilingual v2</span>
-                  </div>
-                  <ChevronRight size={16} className="text-gray-400 dark:text-gray-500" />
+              {provider === "minimax" ? (
+                <select
+                  value={minimaxModel}
+                  onChange={(e) => setMinimaxModel(e.target.value)}
+                  className="w-full p-3 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-xl text-sm font-medium text-gray-900 dark:text-gray-100 hover:border-gray-300 dark:hover:border-[#444] transition-colors cursor-pointer outline-none"
+                >
+                  {MINIMAX_MODELS.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.name} — {m.description}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <select
+                  value={elevenModel}
+                  onChange={(e) => setElevenModel(e.target.value)}
+                  className="w-full p-3 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-xl text-sm font-medium text-gray-900 dark:text-gray-100 hover:border-gray-300 dark:hover:border-[#444] transition-colors cursor-pointer outline-none"
+                >
+                  {ELEVENLABS_MODELS.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.name} — {m.description}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
+
+            {/* Provider-specific Settings */}
+            {provider === "minimax" ? (
+              <>
+                <div className="space-y-6">
+                  <SliderControl
+                    label="Speed"
+                    leftLabel="Slower"
+                    rightLabel="Faster"
+                    value={mmSpeed * 50}
+                    onChange={(v) => setMmSpeed(v / 50)}
+                    min={0}
+                    max={100}
+                  />
+                  <SliderControl
+                    label="Volume"
+                    leftLabel="Quieter"
+                    rightLabel="Louder"
+                    value={mmVolume * 50}
+                    onChange={(v) => setMmVolume(v / 50)}
+                    min={0}
+                    max={100}
+                  />
+                  <SliderControl
+                    label="Pitch"
+                    leftLabel="Lower"
+                    rightLabel="Higher"
+                    value={(mmPitch + 12) * (100 / 24)}
+                    onChange={(v) => setMmPitch(Math.round(v * (24 / 100) - 12))}
+                    min={0}
+                    max={100}
+                  />
                 </div>
-              </div>
-            </div>
 
-            {/* Settings Sliders */}
-            <div className="space-y-6">
-              <SliderControl
-                label="Stability"
-                leftLabel="More variable"
-                rightLabel="More stable"
-                value={stability * 100}
-                onChange={(v) => setStability(v / 100)}
-              />
-              <SliderControl
-                label="Similarity"
-                leftLabel="Low"
-                rightLabel="High"
-                value={similarity * 100}
-                onChange={(v) => setSimilarity(v / 100)}
-              />
-            </div>
+                {/* Emotion Selector */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-black dark:text-white">Emotion</label>
+                  <select
+                    value={mmEmotion}
+                    onChange={(e) => setMmEmotion(e.target.value)}
+                    className="w-full p-3 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-xl text-sm font-medium text-gray-900 dark:text-gray-100 hover:border-gray-300 dark:hover:border-[#444] transition-colors cursor-pointer outline-none"
+                  >
+                    <option value="">None (default)</option>
+                    {MINIMAX_EMOTIONS.map((e) => (
+                      <option key={e} value={e}>
+                        {e.charAt(0).toUpperCase() + e.slice(1)}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-            {/* Toggles */}
-            <div className="space-y-4 pt-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-black dark:text-white">Language Override</span>
-                <button
-                  onClick={() => setLanguageOverride(!languageOverride)}
-                  className={`w-11 h-6 rounded-full transition-colors relative ${
-                    languageOverride ? "bg-black dark:bg-white" : "bg-gray-200 dark:bg-gray-700"
-                  }`}
-                >
-                  <div
-                    className={`w-5 h-5 bg-white dark:bg-gray-900 rounded-full absolute top-0.5 transition-transform ${
-                      languageOverride ? "left-[22px]" : "left-0.5"
-                    }`}
+                {/* Reset */}
+                <div className="pt-4 flex justify-end">
+                  <button
+                    onClick={() => {
+                      setMmSpeed(MINIMAX_TTS_DEFAULTS.speed);
+                      setMmVolume(MINIMAX_TTS_DEFAULTS.volume);
+                      setMmPitch(MINIMAX_TTS_DEFAULTS.pitch);
+                      setMmEmotion("");
+                      setMinimaxModel(MINIMAX_TTS_DEFAULTS.model);
+                    }}
+                    className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors"
+                  >
+                    <RotateCcw size={14} />
+                    Reset values
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="space-y-6">
+                  <SliderControl
+                    label="Stability"
+                    leftLabel="More variable"
+                    rightLabel="More stable"
+                    value={stability * 100}
+                    onChange={(v) => setStability(v / 100)}
                   />
-                </button>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-black dark:text-white">Speaker boost</span>
-                <button
-                  onClick={() => setSpeakerBoost(!speakerBoost)}
-                  className={`w-11 h-6 rounded-full transition-colors relative ${
-                    speakerBoost ? "bg-black dark:bg-white" : "bg-gray-200 dark:bg-gray-700"
-                  }`}
-                >
-                  <div
-                    className={`w-5 h-5 bg-white dark:bg-gray-900 rounded-full absolute top-0.5 transition-transform ${
-                      speakerBoost ? "left-[22px]" : "left-0.5"
-                    }`}
+                  <SliderControl
+                    label="Similarity"
+                    leftLabel="Low"
+                    rightLabel="High"
+                    value={similarity * 100}
+                    onChange={(v) => setSimilarity(v / 100)}
                   />
-                </button>
-              </div>
-            </div>
+                </div>
 
-            {/* Reset */}
-            <div className="pt-4 flex justify-end">
-              <button
-                onClick={() => {
-                  setStability(TTS_DEFAULTS.stability);
-                  setSimilarity(TTS_DEFAULTS.similarityBoost);
-                }}
-                className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors"
-              >
-                <RotateCcw size={14} />
-                Reset values
-              </button>
-            </div>
+                {/* Toggles */}
+                <div className="space-y-4 pt-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-black dark:text-white">Language Override</span>
+                    <button
+                      onClick={() => setLanguageOverride(!languageOverride)}
+                      className={`w-11 h-6 rounded-full transition-colors relative ${
+                        languageOverride ? "bg-black dark:bg-white" : "bg-gray-200 dark:bg-gray-700"
+                      }`}
+                    >
+                      <div
+                        className={`w-5 h-5 bg-white dark:bg-gray-900 rounded-full absolute top-0.5 transition-transform ${
+                          languageOverride ? "left-[22px]" : "left-0.5"
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-black dark:text-white">Speaker boost</span>
+                    <button
+                      onClick={() => setSpeakerBoost(!speakerBoost)}
+                      className={`w-11 h-6 rounded-full transition-colors relative ${
+                        speakerBoost ? "bg-black dark:bg-white" : "bg-gray-200 dark:bg-gray-700"
+                      }`}
+                    >
+                      <div
+                        className={`w-5 h-5 bg-white dark:bg-gray-900 rounded-full absolute top-0.5 transition-transform ${
+                          speakerBoost ? "left-[22px]" : "left-0.5"
+                        }`}
+                      />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Reset */}
+                <div className="pt-4 flex justify-end">
+                  <button
+                    onClick={() => {
+                      setStability(TTS_DEFAULTS.stability);
+                      setSimilarity(TTS_DEFAULTS.similarityBoost);
+                    }}
+                    className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors"
+                  >
+                    <RotateCcw size={14} />
+                    Reset values
+                  </button>
+                </div>
+              </>
+            )}
           </div>
+          ) : (
+          <div className="flex-1 overflow-y-auto">
+            {historyLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="h-6 w-6 animate-spin text-gray-400 dark:text-gray-500" />
+              </div>
+            ) : historyError ? (
+              <div className="p-6 text-center text-sm text-red-500">{historyError}</div>
+            ) : generations.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16 text-gray-400 dark:text-gray-500">
+                <Clock size={32} className="mb-3" />
+                <p className="text-sm font-medium">No generations yet</p>
+                <p className="text-xs mt-1">Your generated audio will appear here</p>
+              </div>
+            ) : (
+              <div>
+                {generations.map((gen) => (
+                  <button
+                    key={gen.id}
+                    onClick={() => {
+                      setAudioUrl(gen.audioUrl);
+                      setGenerationId(gen.id);
+                      setIsPlaying(false);
+                      setCurrentTime(0);
+                      setDuration(0);
+                    }}
+                    className="w-full text-left p-3 border-b border-gray-100 dark:border-[#222] hover:bg-gray-50 dark:hover:bg-[#1a1a1a] cursor-pointer transition-colors"
+                  >
+                    <p className="text-sm text-gray-800 dark:text-gray-200 line-clamp-2 mb-1">
+                      {gen.text || "Untitled generation"}
+                    </p>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-gray-400 dark:text-gray-500">
+                        {gen.createdAt
+                          ? new Date(gen.createdAt).toLocaleDateString(undefined, {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                            })
+                          : ""}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <span
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setAudioUrl(gen.audioUrl);
+                            setGenerationId(gen.id);
+                            setIsPlaying(false);
+                            if (audioRef.current) {
+                              audioRef.current.src = gen.audioUrl;
+                              audioRef.current.play().catch(() => {});
+                            }
+                          }}
+                          className="p-1 rounded hover:bg-gray-200 dark:hover:bg-[#333] transition-colors"
+                        >
+                          <Play size={12} className="text-gray-500 dark:text-gray-400" />
+                        </span>
+                        <a
+                          href={gen.audioUrl}
+                          download={`tts-${gen.id}.mp3`}
+                          onClick={(e) => e.stopPropagation()}
+                          className="p-1 rounded hover:bg-gray-200 dark:hover:bg-[#333] transition-colors"
+                        >
+                          <Download size={12} className="text-gray-500 dark:text-gray-400" />
+                        </a>
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          )}
         </div>
       </aside>
     </div>
@@ -548,13 +818,18 @@ function SliderControl({
   rightLabel,
   value,
   onChange,
+  min = 0,
+  max = 100,
 }: {
   label: string;
   leftLabel: string;
   rightLabel: string;
   value: number;
   onChange: (value: number) => void;
+  min?: number;
+  max?: number;
 }) {
+  const pct = max > min ? ((value - min) / (max - min)) * 100 : 0;
   return (
     <div className="space-y-3">
       <div className="flex justify-between items-baseline">
@@ -567,18 +842,18 @@ function SliderControl({
         <span>{rightLabel}</span>
       </div>
       <div className="relative h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full group cursor-pointer">
-        <div className="absolute h-full bg-black dark:bg-white rounded-full" style={{ width: `${value}%` }} />
+        <div className="absolute h-full bg-black dark:bg-white rounded-full" style={{ width: `${pct}%` }} />
         <input
           type="range"
-          min={0}
-          max={100}
+          min={min}
+          max={max}
           value={value}
           onChange={(e) => onChange(Number(e.target.value))}
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
         />
         <div
           className="absolute top-1/2 -translate-y-1/2 w-3.5 h-3.5 bg-black dark:bg-white rounded-full shadow-sm pointer-events-none"
-          style={{ left: `${value}%`, transform: "translate(-50%, -50%)" }}
+          style={{ left: `${pct}%`, transform: "translate(-50%, -50%)" }}
         />
       </div>
     </div>

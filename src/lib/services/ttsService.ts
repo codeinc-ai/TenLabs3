@@ -131,7 +131,7 @@ export const generateSpeech = async (payload: TTSRequest): Promise<TTSResponse> 
     // 6) Prepare request body for ElevenLabs API
     const requestBody = {
       text,
-      model_id: "eleven_multilingual_v2", // TODO: make configurable when multiple models are supported
+      model_id: payload.model ?? "eleven_multilingual_v2",
       voice_settings: {
         stability: stability ?? TTS_DEFAULTS.stability,
         similarity_boost: similarityBoost ?? TTS_DEFAULTS.similarityBoost,

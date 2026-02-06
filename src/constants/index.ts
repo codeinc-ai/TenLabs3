@@ -153,7 +153,16 @@ export const TTS_DEFAULTS = {
   similarityBoost: 0.75,
   // Default audio format for generated speech
   format: "mp3",
+  // Default ElevenLabs model
+  model: "eleven_multilingual_v2",
 };
+
+export const ELEVENLABS_MODELS = [
+  { id: "eleven_multilingual_v2", name: "Eleven Multilingual v2", description: "Most expressive, multi-language" },
+  { id: "eleven_turbo_v2_5", name: "Eleven Turbo v2.5", description: "Low latency, optimized" },
+  { id: "eleven_turbo_v2", name: "Eleven Turbo v2", description: "Low latency" },
+  { id: "eleven_monolingual_v1", name: "Eleven English v1", description: "English only" },
+] as const;
 
 /**
  * ==========================================
