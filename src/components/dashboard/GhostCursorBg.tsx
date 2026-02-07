@@ -9,8 +9,9 @@ import Aurora from "@/components/Aurora";
 export function GhostCursorBg() {
   return (
     <div
-      className="absolute inset-0 w-full h-full min-h-screen overflow-hidden pointer-events-none"
+      className="absolute inset-0 w-full h-full min-h-screen overflow-hidden pointer-events-none hidden dark:block"
       style={{ zIndex: 0 }}
+      aria-hidden="true"
     >
       <Aurora
         colorStops={["#1e1b4b", "#312e81", "#4c1d95"]}

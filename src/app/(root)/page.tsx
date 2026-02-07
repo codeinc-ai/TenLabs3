@@ -988,8 +988,8 @@ export default function TenLabsLanding() {
       <main>
         {/* Hero Section */}
         <section className="relative overflow-hidden min-h-[90vh]">
-          {/* Aurora background */}
-          <div className="absolute inset-0" style={{ zIndex: 0 }}>
+          {/* Aurora background - hidden in light theme */}
+          <div className="absolute inset-0 hidden dark:block" style={{ zIndex: 0 }}>
             <Aurora
               colorStops={["#000000", "#1e1e1e", "#060606", "#1c1c1c"]}
               amplitude={2.4}

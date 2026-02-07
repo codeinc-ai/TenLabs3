@@ -170,7 +170,7 @@ export function VoiceRemixClient() {
   return (
     <div className="relative min-h-screen bg-white dark:bg-black">
       <div
-        className="absolute inset-0 w-full h-full min-h-screen overflow-hidden pointer-events-none"
+        className="absolute inset-0 w-full h-full min-h-screen overflow-hidden pointer-events-none hidden dark:block"
         style={{ zIndex: 0 }}
       >
         <Aurora
