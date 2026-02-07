@@ -396,19 +396,19 @@ export function TTSClient({ userPlan = "free", currentUsage }: TTSClientProps) {
 
           {/* Suggestions / Quick Starts */}
           {!text && (
-            <div className="mt-8">
+            <div className="mt-8 min-w-0 max-w-full">
               <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Get started with</p>
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-col items-start gap-2.5 min-w-0 max-w-full">
                 {suggestionChips.map((chip) => {
                   const Icon = chip.icon;
                   return (
                     <button
                       key={chip.label}
                       onClick={() => setText(chip.label)}
-                      className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-full text-sm text-gray-700 dark:text-gray-200 hover:border-gray-400 dark:hover:border-[#444] hover:shadow-sm dark:hover:shadow-none transition-all"
+                      className="flex items-center gap-2.5 px-4 py-2.5 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-full text-sm text-gray-700 dark:text-gray-200 hover:border-gray-400 dark:hover:border-[#444] hover:shadow-sm dark:hover:shadow-none transition-all max-w-full min-w-0 text-left"
                     >
-                      <Icon size={16} className="text-gray-500 dark:text-gray-400" />
-                      <span>{chip.label}</span>
+                      <Icon size={16} className="flex-shrink-0 text-gray-500 dark:text-gray-400" />
+                      <span className="truncate">{chip.label}</span>
                     </button>
                   );
                 })}

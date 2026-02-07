@@ -299,6 +299,12 @@ export const transcribeAudio = async (payload: STTRequest): Promise<STTResponse>
       language: scribeResult.language_code || "en",
       duration,
       audioUrl: `/api/stt/${transcriptionId}/audio`,
+      words: scribeResult.words?.map((w) => ({
+        text: w.text,
+        start: w.start,
+        end: w.end,
+        speaker: w.speaker,
+      })),
     };
   } catch (error) {
     Sentry.withScope((scope) => {

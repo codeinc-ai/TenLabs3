@@ -1,16 +1,30 @@
 "use client";
 
+import { useEffect, useState } from "react";
+
 import Aurora from "@/components/Aurora";
 
 /**
- * Aurora background for dashboard homepage.
- * Uses Aurora (same as homepage hero) - reliable WebGL effect.
+ * Aurora background for dashboard pages.
+ * Hides immediately when realtime scribe starts, shows when it stops.
  */
 export function GhostCursorBg() {
+  const [hidden, setHidden] = useState(false);
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const active = (e as CustomEvent<boolean>).detail;
+      setHidden(active);
+    };
+
+    window.addEventListener("realtime-scribe-active", handler);
+    return () => window.removeEventListener("realtime-scribe-active", handler);
+  }, []);
+
   return (
     <div
-      className="absolute inset-0 w-full h-full min-h-screen overflow-hidden pointer-events-none hidden dark:block"
-      style={{ zIndex: 0 }}
+      className="absolute inset-0 w-full h-full min-h-screen overflow-hidden pointer-events-none hidden dark:block transition-opacity duration-200"
+      style={{ zIndex: 0, opacity: hidden ? 0 : 1 }}
       aria-hidden="true"
     >
       <Aurora

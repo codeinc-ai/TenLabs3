@@ -35,14 +35,14 @@ export function DashboardShell({ children }: DashboardShellProps) {
       {/* Mobile Sidebar - slide-out drawer */}
       <MobileSidebar open={mobileOpen} onOpenChange={setMobileOpen} />
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col h-screen min-w-0 overflow-hidden">
+      {/* Main Content Area — contain:paint clips fixed-position children (like aura glow) to this boundary */}
+      <div className="flex-1 flex flex-col h-screen min-w-0 overflow-hidden" style={{ contain: "paint" }}>
         {/* Header */}
         <DashboardHeader onMobileMenuClick={() => setMobileOpen(true)} />
         
         {/* Page Content with Error Boundary */}
         <DashboardErrorBoundary>
-          <main className="flex-1 overflow-y-auto transition-colors relative">
+          <main className="flex-1 overflow-y-auto overflow-x-hidden transition-colors relative">
             <GhostCursorBg />
             <div className="relative z-10 min-h-full">
               {children}

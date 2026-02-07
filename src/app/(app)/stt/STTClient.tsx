@@ -21,6 +21,14 @@ import {
 
 import { PLANS, STT_CONFIG } from "@/constants";
 import { RealtimeSTT } from "./RealtimeSTT";
+import {
+  TranscriptViewerContainer,
+  TranscriptViewerAudio,
+  TranscriptViewerWords,
+  TranscriptViewerPlayPauseButton,
+  TranscriptViewerScrubBar,
+  type CharacterAlignmentResponseModel,
+} from "@/components/ui/transcript-viewer";
 
 interface STTClientProps {
   userPlan?: "free" | "pro";
@@ -36,7 +44,45 @@ type TranscriptionResult = {
   language: string;
   duration: number;
   audioUrl: string;
+  words?: { text: string; start: number; end: number; speaker?: string }[];
 };
+
+/**
+ * Convert word-level timing data to character-level alignment
+ * required by the TranscriptViewer component.
+ */
+function wordsToAlignment(
+  words: { text: string; start: number; end: number }[]
+): CharacterAlignmentResponseModel {
+  const characters: string[] = [];
+  const starts: number[] = [];
+  const ends: number[] = [];
+
+  for (let i = 0; i < words.length; i++) {
+    const w = words[i];
+    const charCount = w.text.length;
+    const charDuration = charCount > 0 ? (w.end - w.start) / charCount : 0;
+
+    for (let c = 0; c < charCount; c++) {
+      characters.push(w.text[c]);
+      starts.push(w.start + c * charDuration);
+      ends.push(w.start + (c + 1) * charDuration);
+    }
+
+    // Add space between words (not after the last word)
+    if (i < words.length - 1) {
+      characters.push(" ");
+      starts.push(w.end);
+      ends.push(words[i + 1].start);
+    }
+  }
+
+  return {
+    characters,
+    characterStartTimesSeconds: starts,
+    characterEndTimesSeconds: ends,
+  };
+}
 
 interface TranscriptionListItem {
   id: string;
@@ -101,6 +147,16 @@ export function STTClient({ userPlan = "free", currentUsage }: STTClientProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"upload" | "realtime">("upload");
+  const [realtimeActive, setRealtimeActive] = useState(false);
+
+  // Reset Aurora when leaving the page or switching tabs
+  useEffect(() => {
+    return () => {
+      window.dispatchEvent(
+        new CustomEvent("realtime-scribe-active", { detail: false })
+      );
+    };
+  }, []);
 
   const limits = PLANS[userPlan];
   const remainingTranscriptions = Math.max(
@@ -308,7 +364,16 @@ export function STTClient({ userPlan = "free", currentUsage }: STTClientProps) {
 
         {/* Realtime Tab Content */}
         {activeTab === "realtime" && (
-          <RealtimeSTT userPlan={userPlan} />
+          <RealtimeSTT
+            userPlan={userPlan}
+            onActiveChange={(active) => {
+              setRealtimeActive(active);
+              // Tell GhostCursorBg to hide/show
+              window.dispatchEvent(
+                new CustomEvent("realtime-scribe-active", { detail: active })
+              );
+            }}
+          />
         )}
 
         {/* Upload Tab Content */}
@@ -380,8 +445,9 @@ export function STTClient({ userPlan = "free", currentUsage }: STTClientProps) {
 
         {/* Transcription Result */}
         {result && (
-          <div className="mb-8 p-6 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-xl">
-            <div className="flex items-center justify-between mb-4">
+          <div className="mb-8 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-xl overflow-hidden">
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-[#333]">
               <div>
                 <h3 className="font-semibold text-gray-900 dark:text-white">Transcription Result</h3>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -404,42 +470,61 @@ export function STTClient({ userPlan = "free", currentUsage }: STTClientProps) {
               </div>
             </div>
 
-            {/* Audio Player */}
-            <div className="mb-4 p-4 bg-gray-50 dark:bg-[#0a0a0a] rounded-lg">
-              <audio
-                ref={audioRef}
-                src={result.audioUrl}
-                onPlay={() => setIsPlaying(true)}
-                onPause={() => setIsPlaying(false)}
-                onEnded={() => setIsPlaying(false)}
-              />
-              <div className="flex items-center gap-4">
-                <button
-                  onClick={() => {
-                    if (isPlaying) {
-                      audioRef.current?.pause();
-                    } else {
-                      audioRef.current?.play();
-                    }
-                  }}
-                  className="w-10 h-10 bg-black dark:bg-white rounded-full flex items-center justify-center hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors"
-                >
-                  {isPlaying ? (
-                    <Pause size={16} className="text-white dark:text-black" />
-                  ) : (
-                    <Play size={16} className="text-white dark:text-black ml-0.5" />
-                  )}
-                </button>
-                <div className="flex-1 h-1 bg-gray-200 dark:bg-[#333] rounded-full">
-                  <div className="w-0 h-full bg-black dark:bg-white rounded-full" />
+            {/* Transcript Viewer with word-by-word highlighting */}
+            {result.words && result.words.length > 0 ? (
+              <TranscriptViewerContainer
+                audioSrc={result.audioUrl}
+                audioType="audio/mpeg"
+                alignment={wordsToAlignment(result.words)}
+                className="p-6"
+              >
+                <TranscriptViewerAudio />
+                <div className="max-h-[300px] overflow-y-auto rounded-lg bg-gray-50 dark:bg-[#0a0a0a] p-4">
+                  <TranscriptViewerWords className="text-base leading-relaxed" />
+                </div>
+                <div className="flex items-center gap-3 pt-2">
+                  <TranscriptViewerPlayPauseButton className="h-10 w-10 rounded-full" />
+                  <TranscriptViewerScrubBar className="flex-1" />
+                </div>
+              </TranscriptViewerContainer>
+            ) : (
+              /* Fallback: plain text display when no word timing data */
+              <div className="p-6">
+                <div className="mb-4 p-4 bg-gray-50 dark:bg-[#0a0a0a] rounded-lg">
+                  <audio
+                    ref={audioRef}
+                    src={result.audioUrl}
+                    onPlay={() => setIsPlaying(true)}
+                    onPause={() => setIsPlaying(false)}
+                    onEnded={() => setIsPlaying(false)}
+                  />
+                  <div className="flex items-center gap-4">
+                    <button
+                      onClick={() => {
+                        if (isPlaying) {
+                          audioRef.current?.pause();
+                        } else {
+                          audioRef.current?.play();
+                        }
+                      }}
+                      className="w-10 h-10 bg-black dark:bg-white rounded-full flex items-center justify-center hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors"
+                    >
+                      {isPlaying ? (
+                        <Pause size={16} className="text-white dark:text-black" />
+                      ) : (
+                        <Play size={16} className="text-white dark:text-black ml-0.5" />
+                      )}
+                    </button>
+                    <div className="flex-1 h-1 bg-gray-200 dark:bg-[#333] rounded-full">
+                      <div className="w-0 h-full bg-black dark:bg-white rounded-full" />
+                    </div>
+                  </div>
+                </div>
+                <div className="p-4 bg-gray-50 dark:bg-[#0a0a0a] rounded-lg max-h-[300px] overflow-y-auto">
+                  <p className="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap">{result.text}</p>
                 </div>
               </div>
-            </div>
-
-            {/* Text */}
-            <div className="p-4 bg-gray-50 dark:bg-[#0a0a0a] rounded-lg max-h-[300px] overflow-y-auto">
-              <p className="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap">{result.text}</p>
-            </div>
+            )}
           </div>
         )}
 
