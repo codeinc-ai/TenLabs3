@@ -4,6 +4,8 @@ export { Icon3 } from './Icon3';
 export { Icon4 } from './Icon4';
 export { Icon5 } from './Icon5';
 export { Icon6 } from './Icon6';
+export { Icon7 } from './Icon7';
+export { Icon8 } from './Icon8';
 export { Icon17 } from './Icon17';
 export { Icon18 } from './Icon18';
 export { Icon19 } from './Icon19';

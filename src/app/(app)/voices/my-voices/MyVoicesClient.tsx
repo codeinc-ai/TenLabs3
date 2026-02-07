@@ -21,7 +21,6 @@ import {
   List,
   MoreVertical,
   Wand2,
-  ChevronDown,
 } from "lucide-react";
 
 import type { VoiceItem } from "@/lib/services/voiceService";
@@ -47,9 +46,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { InstantCloneDialog } from "@/components/voices/InstantCloneDialog";
-import { VoiceDesignDialog } from "@/components/voices/VoiceDesignDialog";
-import { VoiceRemixDialog } from "@/components/voices/VoiceRemixDialog";
+
 
 interface MyVoicesClientProps {
   initialVoices: VoiceItem[];
@@ -80,17 +77,7 @@ export function MyVoicesClient({ initialVoices }: MyVoicesClientProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [voiceToDelete, setVoiceToDelete] = useState<VoiceItem | null>(null);
 
-  // Voice creation dialogs
-  const [instantCloneOpen, setInstantCloneOpen] = useState(false);
-  const [voiceDesignOpen, setVoiceDesignOpen] = useState(false);
 
-  // Remix dialog state
-  const [remixDialogOpen, setRemixDialogOpen] = useState(false);
-  const [voiceToRemix, setVoiceToRemix] = useState<{ voiceId: string; name: string } | null>(null);
-
-  const handleVoiceCreated = () => {
-    router.refresh();
-  };
 
   // Filter voices by search
   const filteredVoices = voices.filter((voice) => {
@@ -195,16 +182,8 @@ export function MyVoicesClient({ initialVoices }: MyVoicesClientProps) {
     return remixableCategories.includes(voice.category || "");
   };
 
-  // Open remix dialog
   const openRemixDialog = (voice: VoiceItem) => {
-    setVoiceToRemix({ voiceId: voice.voiceId, name: voice.name });
-    setRemixDialogOpen(true);
-  };
-
-  // Handle remix success
-  const handleRemixSuccess = (newVoice: { voiceId: string; name: string }) => {
-    // Refresh the page to show the new voice
-    router.refresh();
+    router.push(`/voices/remix?voiceId=${encodeURIComponent(voice.voiceId)}&voiceName=${encodeURIComponent(voice.name)}`);
   };
 
   // Get gender icon
@@ -678,16 +657,6 @@ export function MyVoicesClient({ initialVoices }: MyVoicesClientProps) {
         </DialogContent>
       </Dialog>
 
-      {/* Voice Remix Dialog */}
-      <VoiceRemixDialog
-        open={remixDialogOpen}
-        onOpenChange={(open) => {
-          setRemixDialogOpen(open);
-          if (!open) setVoiceToRemix(null);
-        }}
-        sourceVoice={voiceToRemix}
-        onSuccess={handleRemixSuccess}
-      />
     </div>
   );
 }

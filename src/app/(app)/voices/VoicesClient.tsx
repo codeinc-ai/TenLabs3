@@ -54,10 +54,9 @@ const useCaseCards = [
 
 interface VoicesClientProps {
   initialData: VoiceListResponse;
-  canUsePVC?: boolean;
 }
 
-export function VoicesClient({ initialData, canUsePVC = false }: VoicesClientProps) {
+export function VoicesClient({ initialData }: VoicesClientProps) {
   const router = useRouter();
   const audioRef = useRef<HTMLAudioElement>(null);
 

@@ -252,6 +252,17 @@ export interface PVCTrainingFailedEvent {
   error: string;
 }
 
+export interface MusicGeneratedEvent {
+  feature: "music";
+  userId: string;
+  plan: PlanType;
+  generationId: string;
+  durationMs: number;
+  forceInstrumental: boolean;
+  promptLength: number;
+  provider: string;
+}
+
 export interface UsageLimitHitEvent {
   feature: "tts" | "stt" | "sfx" | "voice-changer" | "voice-isolator" | "dubbing" | "text-to-dialogue" | "pvc";
   userId: string;
@@ -302,6 +313,7 @@ export type PostHogEventPropertiesMap = {
   pvc_training_started: PVCTrainingStartedEvent;
   pvc_training_completed: PVCTrainingCompletedEvent;
   pvc_training_failed: PVCTrainingFailedEvent;
+  music_generated: MusicGeneratedEvent;
   usage_limit_hit: UsageLimitHitEvent;
   billing_event: BillingEvent;
 };

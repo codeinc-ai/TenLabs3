@@ -13,7 +13,6 @@ import {
   Gamepad2,
   Radio,
   Flower,
-  ChevronRight,
   RotateCcw,
   Play,
   Pause,
@@ -722,6 +721,7 @@ uld you change this carda and text to             {provider === "minimax" ? (
                     onClick={() => {
                       setStability(TTS_DEFAULTS.stability);
                       setSimilarity(TTS_DEFAULTS.similarityBoost);
+                      setElevenModel(TTS_DEFAULTS.model);
                     }}
                     className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors"
                   >
