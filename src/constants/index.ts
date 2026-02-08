@@ -2,64 +2,120 @@
 
 /**
  * ==========================================
+ * Plan Type
+ * ==========================================
+ */
+export type PlanTier = "free" | "starter" | "creator" | "pro";
+
+/**
+ * ==========================================
  * Subscription Plans
  * ==========================================
  * Defines the limits and quotas for different user tiers.
- * You can add more plans (e.g., enterprise) here later.
+ *
+ * Free     – 5k credits/month
+ * Starter  – 22k credits/month  ($9)
+ * Creator  – 93k credits/month  ($22)
+ * Pro      – 500k credits/month ($110)
  */
 export const PLANS = {
   free: {
-    // Maximum number of characters a user can generate per month
-    maxChars: 10000,
-    // Maximum number of TTS generations per month
+    maxCredits: 5000,
+    maxChars: 5000,
     maxGenerations: 10,
-    // Maximum transcription minutes per month
-    maxTranscriptionMinutes: 10,
-    // Maximum number of STT transcriptions per month
-    maxTranscriptions: 5,
-    // Maximum number of sound effect generations per month
-    maxSoundEffects: 5,
-    // Maximum number of voice conversions per month
-    maxVoiceConversions: 5,
-    // Maximum voice conversion minutes per month
-    maxVoiceConversionMinutes: 5,
-    // Maximum number of voice isolations per month
-    maxVoiceIsolations: 5,
-    // Maximum voice isolation minutes per month
-    maxVoiceIsolationMinutes: 5,
-    // Maximum number of dubbing projects per month
-    maxDubbings: 3,
-    // Maximum dubbing minutes per month
-    maxDubbingMinutes: 10,
-    // Maximum number of dialogue generations per month
-    maxDialogueGenerations: 10,
-    // Maximum dialogue characters per month
-    maxDialogueCharacters: 5000,
-    // Maximum number of cloned/designed voices
+    maxTranscriptionMinutes: 5,
+    maxTranscriptions: 3,
+    maxSoundEffects: 10,
+    maxMusicGenerations: 3,
+    maxVoiceConversions: 3,
+    maxVoiceConversionMinutes: 3,
+    maxVoiceIsolations: 3,
+    maxVoiceIsolationMinutes: 3,
+    maxDubbings: 2,
+    maxDubbingMinutes: 5,
+    maxDialogueGenerations: 5,
+    maxDialogueCharacters: 3000,
     maxClonedVoices: 0,
-    // Professional Voice Clone access
     canUsePVC: false,
+    maxStudioProjects: 3,
+    commercialLicense: false,
+    audioQuality: "128kbps" as const,
+    supportTier: "community" as const,
+    canAddFunds: true,
   },
-  pro: {
-    maxChars: 50000,
-    maxGenerations: 100,
-    maxTranscriptionMinutes: 120,
+  starter: {
+    maxCredits: 22000,
+    maxChars: 22000,
+    maxGenerations: 50,
+    maxTranscriptionMinutes: 30,
+    maxTranscriptions: 15,
+    maxSoundEffects: 100,
+    maxMusicGenerations: 15,
+    maxVoiceConversions: 15,
+    maxVoiceConversionMinutes: 20,
+    maxVoiceIsolations: 15,
+    maxVoiceIsolationMinutes: 20,
+    maxDubbings: 10,
+    maxDubbingMinutes: 30,
+    maxDialogueGenerations: 30,
+    maxDialogueCharacters: 15000,
+    maxClonedVoices: 3,
+    canUsePVC: false,
+    maxStudioProjects: 20,
+    commercialLicense: true,
+    audioQuality: "128kbps" as const,
+    supportTier: "customer" as const,
+    canAddFunds: true,
+  },
+  creator: {
+    maxCredits: 93000,
+    maxChars: 93000,
+    maxGenerations: 200,
+    maxTranscriptionMinutes: 90,
     maxTranscriptions: 50,
-    maxSoundEffects: 50,
+    maxSoundEffects: 300,
+    maxMusicGenerations: 50,
     maxVoiceConversions: 50,
     maxVoiceConversionMinutes: 60,
     maxVoiceIsolations: 50,
     maxVoiceIsolationMinutes: 60,
-    maxDubbings: 30,
-    maxDubbingMinutes: 120,
-    maxDialogueGenerations: 100,
+    maxDubbings: 25,
+    maxDubbingMinutes: 90,
+    maxDialogueGenerations: 80,
     maxDialogueCharacters: 50000,
-    // Maximum number of cloned/designed voices
     maxClonedVoices: 10,
-    // Professional Voice Clone access
     canUsePVC: true,
+    maxStudioProjects: 50,
+    commercialLicense: true,
+    audioQuality: "192kbps" as const,
+    supportTier: "premium" as const,
+    canAddFunds: true,
   },
-};
+  pro: {
+    maxCredits: 500000,
+    maxChars: 500000,
+    maxGenerations: 1000,
+    maxTranscriptionMinutes: 300,
+    maxTranscriptions: 200,
+    maxSoundEffects: 800,
+    maxMusicGenerations: 250,
+    maxVoiceConversions: 200,
+    maxVoiceConversionMinutes: 200,
+    maxVoiceIsolations: 200,
+    maxVoiceIsolationMinutes: 200,
+    maxDubbings: 100,
+    maxDubbingMinutes: 300,
+    maxDialogueGenerations: 300,
+    maxDialogueCharacters: 200000,
+    maxClonedVoices: 30,
+    canUsePVC: true,
+    maxStudioProjects: 200,
+    commercialLicense: true,
+    audioQuality: "44.1kHz PCM" as const,
+    supportTier: "priority" as const,
+    canAddFunds: true,
+  },
+} as const;
 
 /**
  * ==========================================
@@ -71,43 +127,72 @@ export const BILLING_PLANS = {
   free: {
     name: "Free",
     description: "Perfect for trying out the platform",
-    price: {
-      monthly: 0,
-      yearly: 0,
-    },
+    price: { monthly: 0, yearly: 0 },
     features: [
-      "10,000 characters per month",
-      "10 generations per month",
-      "10 minutes of transcription",
-      "5 transcriptions per month",
+      "5,000 credits per month",
+      "Basic Text to Speech",
+      "Limited Speech to Text",
+      "10 Sound Effects per month",
+      "3 Music generations per month",
+      "3 projects in Studio",
       "Standard voices",
       "MP3 downloads",
       "Community support",
+      "Add funds",
     ],
     limitations: [
       "No commercial use",
+      "No voice cloning",
       "No priority support",
-      "No API access",
     ],
+  },
+  starter: {
+    name: "Starter",
+    description: "For individuals getting started",
+    price: { monthly: 9, yearly: 86 },
+    features: [
+      "22,000 credits per month",
+      "All Free features",
+      "Commercial license",
+      "Instant Voice Cloning",
+      "20 projects in Studio",
+      "100 Sound Effects per month",
+      "15 Music generations per month",
+      "Customer support",
+      "Add funds",
+    ],
+    limitations: [],
+  },
+  creator: {
+    name: "Creator",
+    description: "For professionals and content creators",
+    price: { monthly: 22, yearly: 211 },
+    features: [
+      "93,000 credits per month",
+      "All Starter features",
+      "Professional Voice Cloning",
+      "192kbps quality audio",
+      "50 projects in Studio",
+      "300 Sound Effects per month",
+      "50 Music generations per month",
+      "Extra credit purchasing options",
+      "Premium support",
+    ],
+    limitations: [],
   },
   pro: {
     name: "Pro",
-    description: "For professionals and content creators",
-    price: {
-      monthly: 19,
-      yearly: 190, // ~17% savings
-    },
+    description: "For teams and power users",
+    price: { monthly: 110, yearly: 1056 },
     features: [
-      "50,000 characters per month",
-      "100 generations per month",
-      "120 minutes of transcription",
-      "50 transcriptions per month",
-      "All premium voices",
-      "All audio formats",
-      "Commercial license",
+      "500,000 credits per month",
+      "All Creator features",
+      "44.1kHz PCM audio output via API",
+      "200 projects in Studio",
+      "800 Sound Effects per month",
+      "250 Music generations per month",
       "Priority support",
-      "API access",
-      "Voice cloning (coming soon)",
+      "Add funds",
     ],
     limitations: [],
   },

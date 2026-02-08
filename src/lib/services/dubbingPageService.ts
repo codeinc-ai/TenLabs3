@@ -10,7 +10,7 @@ import { getOrCreateUserWithMockData } from "@/lib/services/seedService";
  * Defines the user data needed for the Dubbing page.
  */
 export interface DubbingPageUserData {
-  plan: "free" | "pro";
+  plan: "free" | "starter" | "creator" | "pro";
   usage: {
     dubbingsUsed: number;
     dubbingMinutesUsed: number;

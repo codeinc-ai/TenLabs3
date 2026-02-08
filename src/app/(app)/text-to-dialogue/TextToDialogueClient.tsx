@@ -21,7 +21,7 @@ import { capturePosthogBrowserEvent } from "@/lib/posthogBrowser";
 
 interface TextToDialogueClientProps {
   userId?: string;
-  userPlan?: "free" | "pro";
+  userPlan?: "free" | "starter" | "creator" | "pro";
   currentUsage?: {
     dialogueGenerationsUsed: number;
     dialogueCharactersUsed: number;

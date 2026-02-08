@@ -10,7 +10,7 @@ import { getOrCreateUserWithMockData } from "@/lib/services/seedService";
  * Defines the user data needed for the Voice Changer page.
  */
 export interface VoiceChangerPageUserData {
-  plan: "free" | "pro";
+  plan: "free" | "starter" | "creator" | "pro";
   usage: {
     voiceConversionsUsed: number;
     voiceConversionMinutesUsed: number;

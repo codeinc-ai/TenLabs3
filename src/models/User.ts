@@ -12,13 +12,14 @@ export interface IUser extends Document {
   clerkId: string;
   email: string;                 // User's email (from Clerk)
   name?: string;                 // Optional display name
-  plan: "free" | "pro";          // Subscription plan
+  plan: "free" | "starter" | "creator" | "pro"; // Subscription plan
   usage: {
     charactersUsed: number;      // Number of characters generated
     generationsUsed: number;     // Number of TTS generations
     transcriptionMinutesUsed: number;  // Minutes of audio transcribed
     transcriptionsUsed: number;        // Number of STT transcriptions
     soundEffectsUsed: number;          // Number of SFX generations
+    musicGenerationsUsed: number;      // Number of music generations
     voiceConversionsUsed: number;      // Number of voice conversions
     voiceConversionMinutesUsed: number; // Minutes of voice conversion audio
     voiceIsolationsUsed: number;       // Number of voice isolations
@@ -28,6 +29,11 @@ export interface IUser extends Document {
     dialogueGenerationsUsed: number;   // Number of dialogue generations
     dialogueCharactersUsed: number;    // Characters used for dialogue
   };
+  // Coupon tracking
+  appliedCoupon?: string;        // Currently active coupon code
+  couponExpiresAt?: Date;        // When the coupon discount expires
+  planExpiresAt?: Date;          // When a direct-upgrade coupon plan expires
+  discountPercent?: number;      // Active discount percentage (from discount coupon)
   createdAt: Date;               // Account creation date
   updatedAt: Date;               // Last update date
 }
@@ -43,13 +49,14 @@ const UserSchema: Schema = new Schema<IUser>(
     clerkId: { type: String, required: true, unique: true },
     email: { type: String, required: true, unique: true },
     name: { type: String },
-    plan: { type: String, enum: ["free", "pro"], default: "free" },
+    plan: { type: String, enum: ["free", "starter", "creator", "pro"], default: "free" },
     usage: {
       charactersUsed: { type: Number, default: 0 },
       generationsUsed: { type: Number, default: 0 },
       transcriptionMinutesUsed: { type: Number, default: 0 },
       transcriptionsUsed: { type: Number, default: 0 },
       soundEffectsUsed: { type: Number, default: 0 },
+      musicGenerationsUsed: { type: Number, default: 0 },
       voiceConversionsUsed: { type: Number, default: 0 },
       voiceConversionMinutesUsed: { type: Number, default: 0 },
       voiceIsolationsUsed: { type: Number, default: 0 },
@@ -59,6 +66,11 @@ const UserSchema: Schema = new Schema<IUser>(
       dialogueGenerationsUsed: { type: Number, default: 0 },
       dialogueCharactersUsed: { type: Number, default: 0 },
     },
+    // Coupon tracking
+    appliedCoupon: { type: String },
+    couponExpiresAt: { type: Date },
+    planExpiresAt: { type: Date },
+    discountPercent: { type: Number },
   },
   {
     timestamps: true, // Automatically adds createdAt and updatedAt

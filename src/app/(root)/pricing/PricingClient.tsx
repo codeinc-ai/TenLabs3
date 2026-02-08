@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/dialog";
 
 interface PricingClientProps {
-  currentPlan?: "free" | "pro" | null;
+  currentPlan?: "free" | "starter" | "creator" | "pro" | null;
 }
 
 export function PricingClient({ currentPlan }: PricingClientProps) {
@@ -35,12 +35,12 @@ export function PricingClient({ currentPlan }: PricingClientProps) {
   const { isSignedIn } = useAuth();
   const [billingInterval, setBillingInterval] = useState<"month" | "year">("month");
   const [loading, setLoading] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState<"free" | "pro" | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState<"free" | "starter" | "creator" | "pro" | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  const handleSelectPlan = (plan: "free" | "pro") => {
+  const handleSelectPlan = (plan: "free" | "starter" | "creator" | "pro") => {
     if (!isSignedIn) {
       // Redirect to sign-up with return URL
       router.push(`/sign-up?redirect_url=/pricing`);
@@ -104,7 +104,7 @@ export function PricingClient({ currentPlan }: PricingClientProps) {
     }
   };
 
-  const getButtonText = (plan: "free" | "pro") => {
+  const getButtonText = (plan: "free" | "starter" | "creator" | "pro") => {
     if (!isSignedIn) {
       return plan === "pro" ? "Get Started" : "Sign Up Free";
     }
@@ -117,7 +117,7 @@ export function PricingClient({ currentPlan }: PricingClientProps) {
     return "Downgrade to Free";
   };
 
-  const isCurrentPlan = (plan: "free" | "pro") => {
+  const isCurrentPlan = (plan: "free" | "starter" | "creator" | "pro") => {
     return isSignedIn && plan === currentPlan;
   };
 

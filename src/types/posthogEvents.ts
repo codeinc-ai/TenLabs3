@@ -6,7 +6,7 @@
  * - Prefer stable identifiers: Clerk userId is used as distinctId.
  */
 
-export type PlanType = "free" | "pro";
+export type PlanType = "free" | "starter" | "creator" | "pro";
 
 export interface PageViewEvent {
   feature: "navigation";

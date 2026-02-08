@@ -204,7 +204,7 @@ async function getScribeToken(): Promise<{ token?: string; error?: string }> {
 }
 
 interface RealtimeSTTProps {
-  userPlan?: "free" | "pro"
+  userPlan?: "free" | "starter" | "creator" | "pro"
   onActiveChange?: (active: boolean) => void
 }
 

@@ -10,7 +10,7 @@ import { getOrCreateUserWithMockData } from "@/lib/services/seedService";
  * Defines the user data needed for the Voice Isolator page.
  */
 export interface VoiceIsolatorPageUserData {
-  plan: "free" | "pro";
+  plan: "free" | "starter" | "creator" | "pro";
   usage: {
     voiceIsolationsUsed: number;
     voiceIsolationMinutesUsed: number;

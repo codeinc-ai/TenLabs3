@@ -31,7 +31,7 @@ import {
 } from "@/components/ui/transcript-viewer";
 
 interface STTClientProps {
-  userPlan?: "free" | "pro";
+  userPlan?: "free" | "starter" | "creator" | "pro";
   currentUsage?: {
     transcriptionMinutesUsed: number;
     transcriptionsUsed: number;

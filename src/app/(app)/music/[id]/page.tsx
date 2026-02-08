@@ -1,21 +1,15 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import {
   ChevronLeft,
   Grid2x2,
-  Play,
-  Pause,
-  Download,
-  Share2,
   ArrowUp,
   Loader2,
-  Volume2,
-  RefreshCw,
 } from "lucide-react";
-import MusicOrb from "@/components/music/MusicOrb";
+import { Speaker } from "@/components/speaker";
 
 interface GenerationData {
   id: string;
@@ -33,106 +27,16 @@ function formatTime(seconds: number) {
   return `${mins}:${secs.toString().padStart(2, "0")}`;
 }
 
-function generateWaveformBars(count: number, seed: number) {
-  const bars: number[] = [];
-  let val = seed;
-  for (let i = 0; i < count; i++) {
-    val = (val * 9301 + 49297) % 233280;
-    bars.push(8 + (val % 40));
-  }
-  return bars;
-}
-
 export default function MusicStudioPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const id = params.id;
 
   const [generation, setGeneration] = useState<GenerationData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
   const [prompt, setPrompt] = useState("");
   const [regenerating, setRegenerating] = useState(false);
-
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const waveformRef = useRef<HTMLDivElement>(null);
-  const audioLevelRef = useRef(0);
-  const analyserRef = useRef<AnalyserNode | null>(null);
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const analyserRafRef = useRef<number | null>(null);
-  const hasAutoPlayedRef = useRef(false);
-
-  const waveformBars = useMemo(() => generateWaveformBars(120, 42), []);
-
-  // Web Audio API: connect analyser when audio plays, drive audioLevelRef for MusicOrb
-  const setupAudioAnalyser = useCallback(() => {
-    if (!audioRef.current || audioContextRef.current) return;
-    const ctx = new AudioContext();
-    const source = ctx.createMediaElementSource(audioRef.current);
-    const analyser = ctx.createAnalyser();
-    analyser.fftSize = 256;
-    analyser.smoothingTimeConstant = 0.7;
-    analyser.minDecibels = -60;
-    analyser.maxDecibels = -10;
-    source.connect(analyser);
-    analyser.connect(ctx.destination);
-    audioContextRef.current = ctx;
-    analyserRef.current = analyser;
-  }, []);
-
-  useEffect(() => {
-    if (!isPlaying) {
-      const decay = () => {
-        audioLevelRef.current *= 0.92;
-        if (audioLevelRef.current > 0.01) {
-          analyserRafRef.current = requestAnimationFrame(decay);
-        }
-      };
-      analyserRafRef.current = requestAnimationFrame(decay);
-      return () => {
-        if (analyserRafRef.current) {
-          cancelAnimationFrame(analyserRafRef.current);
-          analyserRafRef.current = null;
-        }
-      };
-    }
-
-    const analyser = analyserRef.current;
-    if (!analyser) return;
-
-    const data = new Uint8Array(analyser.frequencyBinCount);
-
-    const update = () => {
-      analyserRafRef.current = requestAnimationFrame(update);
-      analyser.getByteFrequencyData(data);
-      let sum = 0;
-      for (let i = 0; i < data.length; i++) sum += data[i];
-      const avg = sum / data.length / 255;
-      const level = Math.min(1, avg * 2.5);
-      audioLevelRef.current = level * 0.3 + audioLevelRef.current * 0.7;
-    };
-    update();
-
-    return () => {
-      if (analyserRafRef.current) {
-        cancelAnimationFrame(analyserRafRef.current);
-        analyserRafRef.current = null;
-      }
-    };
-  }, [isPlaying]);
-
-  const handleFirstPlay = useCallback(() => {
-    if (audioContextRef.current) return;
-    setupAudioAnalyser();
-    const ctx = audioContextRef.current as AudioContext | null;
-    if (ctx && ctx.state === "suspended") {
-      void ctx.resume();
-    }
-  }, [setupAudioAnalyser]);
 
   useEffect(() => {
     const stored = sessionStorage.getItem(`music_generation_${id}`);
@@ -177,56 +81,6 @@ export default function MusicStudioPage() {
 
     fetchFromHistory();
   }, [id]);
-
-  // Reset auto-play flag when id changes
-  useEffect(() => {
-    hasAutoPlayedRef.current = false;
-  }, [id]);
-
-  // Auto-play when navigated from history with ?play=1
-  useEffect(() => {
-    if (!generation || loading || searchParams.get("play") !== "1" || hasAutoPlayedRef.current) return;
-    hasAutoPlayedRef.current = true;
-    const audio = audioRef.current;
-    if (!audio) return;
-    handleFirstPlay();
-    audio.play().catch(() => setIsPlaying(false));
-    setIsPlaying(true);
-    // Remove ?play=1 from URL without triggering navigation
-    const url = new URL(window.location.href);
-    url.searchParams.delete("play");
-    window.history.replaceState({}, "", url.pathname + url.search);
-  }, [generation, loading, searchParams, handleFirstPlay]);
-
-  const togglePlayPause = useCallback(() => {
-    if (!audioRef.current) return;
-    if (isPlaying) {
-      audioRef.current.pause();
-    } else {
-      handleFirstPlay();
-      audioRef.current.play().catch(() => setIsPlaying(false));
-    }
-  }, [isPlaying, handleFirstPlay]);
-
-  const handleProgressClick = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      if (!audioRef.current || !duration) return;
-      const rect = e.currentTarget.getBoundingClientRect();
-      const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-      audioRef.current.currentTime = pct * duration;
-    },
-    [duration]
-  );
-
-  const handleWaveformClick = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      if (!audioRef.current || !duration) return;
-      const rect = e.currentTarget.getBoundingClientRect();
-      const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-      audioRef.current.currentTime = pct * duration;
-    },
-    [duration]
-  );
 
   const handleRegenerate = async () => {
     if (!prompt.trim() || regenerating) return;
@@ -274,15 +128,6 @@ export default function MusicStudioPage() {
     }
   };
 
-  const handleShare = async () => {
-    if (!generation) return;
-    try {
-      await navigator.clipboard.writeText(window.location.href);
-    } catch {
-      // clipboard not available
-    }
-  };
-
   const parsedLyrics = useMemo(() => {
     if (!generation?.lyrics) return null;
     return generation.lyrics.split("\n").map((line, i) => {
@@ -298,8 +143,6 @@ export default function MusicStudioPage() {
       return { type: "lyric" as const, text: trimmed, key: i };
     });
   }, [generation?.lyrics]);
-
-  const progressPct = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   if (loading) {
     return (
@@ -325,20 +168,6 @@ export default function MusicStudioPage() {
 
   return (
     <div className="flex h-screen w-full flex-col bg-[#0a0a0a] text-white">
-      <audio
-        ref={audioRef}
-        src={generation?.audioUrl}
-        preload="metadata"
-        onPlay={() => setIsPlaying(true)}
-        onPause={() => setIsPlaying(false)}
-        onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
-        onLoadedMetadata={(e) => setDuration(e.currentTarget.duration)}
-        onEnded={() => {
-          setIsPlaying(false);
-          setCurrentTime(0);
-        }}
-      />
-
       {/* Header */}
       <header className="flex h-[52px] w-full shrink-0 items-center justify-between border-b border-[#1a1a1a] bg-[#0d0d0d] px-4">
         <Link
@@ -366,32 +195,7 @@ export default function MusicStudioPage() {
       <main className="flex-1 overflow-y-auto">
         <div className="px-6 py-8 pb-4">
           <div className="mx-auto max-w-[680px] space-y-8">
-            {/* Style tags */}
-            {generation?.provider && (
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="rounded-full bg-[#1a1a1a] px-3 py-1 text-xs font-medium text-white/70">
-                  {generation.provider}
-                </span>
-                {generation.durationMs > 0 && (
-                  <span className="rounded-full bg-[#1a1a1a] px-3 py-1 text-xs font-medium text-white/70">
-                    {formatTime(generation.durationMs / 1000)}
-                  </span>
-                )}
-              </div>
-            )}
-
-            {/* Audio-reactive orb - animates with music */}
-            <div className="relative -mx-4 aspect-[16/9] max-h-[280px] overflow-hidden rounded-xl bg-[#0a0a0a] sm:mx-0 sm:rounded-2xl">
-              <MusicOrb
-                audioLevelRef={audioLevelRef}
-                hue={280}
-                hoverIntensity={2}
-                rotateOnHover={true}
-                backgroundColor="#0a0a0a"
-              />
-            </div>
-
-            {/* Lyrics display */}
+            {/* Lyrics at top */}
             <div className="space-y-4">
               {parsedLyrics ? (
                 parsedLyrics.map((line) => {
@@ -429,6 +233,20 @@ export default function MusicStudioPage() {
               )}
             </div>
 
+            {/* Style tags */}
+            {generation?.provider && (
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="rounded-full bg-[#1a1a1a] px-3 py-1 text-xs font-medium text-white/70">
+                  {generation.provider}
+                </span>
+                {generation.durationMs > 0 && (
+                  <span className="rounded-full bg-[#1a1a1a] px-3 py-1 text-xs font-medium text-white/70">
+                    {formatTime(generation.durationMs / 1000)}
+                  </span>
+                )}
+              </div>
+            )}
+
             {/* Generation info */}
             {generation?.createdAt && (
               <p className="text-xs text-white/30">
@@ -443,8 +261,8 @@ export default function MusicStudioPage() {
           </div>
         </div>
 
-        {/* Sticky bar: prompt + audio + waveform - always visible at bottom */}
-        <div className="sticky bottom-0 z-20 mt-auto border-t border-[#1a1a1a]">
+        {/* Sticky bar: prompt + Speaker - always visible at bottom */}
+        <div className="sticky bottom-0 z-20 mt-auto border-t border-[#1a1a1a] bg-[#0a0a0a]">
           {/* Prompt input for regeneration */}
           <div className="px-4 py-3">
             <div className="mx-auto flex max-w-[680px] items-end gap-2">
@@ -483,117 +301,19 @@ export default function MusicStudioPage() {
             )}
           </div>
 
-          {/* Audio player bar */}
-          <div className="border-t border-[#1a1a1a] px-4 py-3">
-            <div className="mx-auto flex max-w-[960px] items-center gap-4">
-          <button
-            onClick={togglePlayPause}
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white transition-colors hover:bg-white/90"
-          >
-            {isPlaying ? (
-              <Pause size={18} className="text-black" />
-            ) : (
-              <Play size={18} className="ml-0.5 text-black" />
-            )}
-          </button>
-
-          <span className="w-10 text-right text-xs tabular-nums text-white/50">
-            {formatTime(currentTime)}
-          </span>
-
-          <div
-            className="flex-1 cursor-pointer"
-            onClick={handleProgressClick}
-            role="slider"
-            aria-label="Audio progress"
-            aria-valuenow={Math.round(currentTime)}
-            aria-valuemax={Math.round(duration)}
-            tabIndex={0}
-          >
-            <div className="h-1 w-full overflow-hidden rounded-full bg-white/10">
-              <div
-                className="h-full rounded-full bg-white transition-[width]"
-                style={{ width: `${progressPct}%` }}
+          {/* Speaker component (waveform, play/pause, volume, no orbs) */}
+          {generation?.audioUrl && (
+            <div className="px-4 pb-4">
+              <Speaker
+                track={{
+                  url: generation.audioUrl,
+                  title: generation.prompt || "Music Generation",
+                }}
+                showOrbs={false}
+                className="border-[#1a1a1a] bg-[#111]"
               />
             </div>
-          </div>
-
-          <span className="w-10 text-xs tabular-nums text-white/50">
-            {formatTime(duration)}
-          </span>
-
-          <div className="flex items-center gap-1">
-            <Volume2 className="h-4 w-4 text-white/40" />
-            <a
-              href={generation?.audioUrl}
-              download={`music-${id}.mp3`}
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-white/40 transition-colors hover:bg-white/10 hover:text-white"
-            >
-              <Download size={16} />
-            </a>
-            <button
-              onClick={handleShare}
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-white/40 transition-colors hover:bg-white/10 hover:text-white"
-            >
-              <Share2 size={16} />
-            </button>
-            <Link
-              href={`/music/${id}`}
-              onClick={(e) => {
-                e.preventDefault();
-                if (audioRef.current) {
-                  audioRef.current.currentTime = 0;
-                  audioRef.current.play().catch(() => {});
-                }
-              }}
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-white/40 transition-colors hover:bg-white/10 hover:text-white"
-            >
-              <RefreshCw size={14} />
-            </Link>
-          </div>
-            </div>
-          </div>
-
-          {/* Waveform timeline */}
-          <div className="border-t border-[#1a1a1a] px-4 py-2">
-            <div className="mx-auto max-w-[960px]">
-          <div
-            ref={waveformRef}
-            className="relative flex h-12 w-full cursor-pointer items-end gap-[2px]"
-            onClick={handleWaveformClick}
-            role="slider"
-            aria-label="Waveform timeline"
-            aria-valuenow={Math.round(currentTime)}
-            aria-valuemax={Math.round(duration)}
-            tabIndex={0}
-          >
-            {waveformBars.map((height, i) => {
-              const barPct = (i / waveformBars.length) * 100;
-              const isPlayed = barPct < progressPct;
-              return (
-                <div
-                  key={i}
-                  className={`flex-1 rounded-sm transition-colors ${
-                    isPlayed ? "bg-white/60" : "bg-[#2a2a2a]"
-                  }`}
-                  style={{ height: `${height}px` }}
-                />
-              );
-            })}
-            <div
-              className="absolute top-0 bottom-0 w-0.5 bg-white"
-              style={{ left: `${progressPct}%` }}
-            />
-          </div>
-          <div className="mt-1 flex justify-between text-[10px] tabular-nums text-white/25">
-            <span>0:00</span>
-            <span>{duration > 0 ? formatTime(duration / 4) : ""}</span>
-            <span>{duration > 0 ? formatTime(duration / 2) : ""}</span>
-            <span>{duration > 0 ? formatTime((duration * 3) / 4) : ""}</span>
-            <span>{formatTime(duration)}</span>
-          </div>
-            </div>
-          </div>
+          )}
         </div>
       </main>
     </div>

@@ -47,9 +47,9 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { plan } = body;
 
-    if (plan !== "pro") {
+    if (!["starter", "creator", "pro"].includes(plan)) {
       return NextResponse.json(
-        { error: "Invalid plan. Only 'pro' upgrade is available." },
+        { error: "Invalid plan. Choose 'starter', 'creator', or 'pro'." },
         { status: 400 }
       );
     }

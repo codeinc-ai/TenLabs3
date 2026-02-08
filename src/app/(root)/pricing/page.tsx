@@ -35,60 +35,67 @@ const consumerPlans: Plan[] = [
     per: "per month",
     cta: "Build for free",
     features: [
-      "Text to Speech",
-      "Speech to Text",
-      "Music",
-      "Agents",
+      "Basic Text to Speech",
+      "Limited Speech to Text",
+      "10 Sound Effects",
+      "3 Music generations",
       "3 projects in Studio",
-      "Automated Dubbing",
-      "API Access",
+      "Community support",
+      "Add funds",
     ],
-    credits: "10k credits per month",
+    credits: "5k credits per month",
     segment: "all",
   },
   {
     id: "starter",
     name: "Starter",
-    price: "$5",
+    price: "$9",
     per: "per month",
     cta: "Choose Starter",
     features: [
-      "Everything in Free, plus",
+      "All Free features",
       "Commercial License",
       "Instant Voice Cloning",
       "20 projects in Studio",
-      "Dubbing Studio",
-      "Music commercial use",
+      "100 Sound Effects",
+      "15 Music generations",
+      "Customer support",
+      "Add funds",
     ],
-    credits: "30k credits per month",
+    credits: "22k credits per month",
     segment: "creative",
   },
   {
     id: "creator",
     name: "Creator",
-    price: "$11",
+    price: "$22",
     per: "per month",
     cta: "Choose Creator",
     badge: "Popular",
     highlight: "creator",
     features: [
-      "Everything in Starter, plus",
+      "All Starter features",
       "Professional Voice Cloning",
-      "Additional Credits",
       "192kbps quality audio",
+      "Extra credit purchasing",
+      "Premium support",
     ],
-    credits: "100k credits per month",
+    credits: "93k credits per month",
     segment: "creative",
   },
   {
     id: "pro",
     name: "Pro",
-    price: "$99",
+    price: "$110",
     per: "per month",
     cta: "Choose Pro",
     features: [
-      "Everything in Creator, plus",
-      "44.1kHz PCM audio output via API",
+      "All Creator features",
+      "44.1kHz PCM audio via API",
+      "800 Sound Effects",
+      "250 Music generations",
+      "Priority support",
+      "Add funds",
     ],
     credits: "500k credits per month",
     segment: "api",
@@ -784,10 +791,15 @@ export default function PricingPage() {
                     Create with the highest quality AI Audio
                   </div>
                 </div>
-                <div className="flex flex-col sm:flex-row gap-3">
+                <div className="flex flex-col sm:flex-row gap-3 items-center">
                   <Link href="/company/about">
                     <Button variant="secondary" className="bg-white/5 hover:bg-white/10 border border-white/12 text-white/85">
                       Contact Sales
+                    </Button>
+                  </Link>
+                  <Link href="/redeem">
+                    <Button variant="secondary" className="bg-white/5 hover:bg-white/10 border border-white/12 text-white/85">
+                      Redeem Code
                     </Button>
                   </Link>
                   <SignedOut>

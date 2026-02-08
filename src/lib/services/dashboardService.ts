@@ -16,7 +16,7 @@ export interface DashboardStats {
   user: {
     name: string;
     email: string;
-    plan: "free" | "pro";
+    plan: "free" | "starter" | "creator" | "pro";
   };
   usage: {
     charactersUsed: number;

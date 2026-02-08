@@ -19,7 +19,7 @@ import { VOICE_ISOLATOR_CONFIG, PLANS } from "@/constants";
 import { capturePosthogBrowserEvent } from "@/lib/posthogBrowser";
 
 interface VoiceIsolatorClientProps {
-  userPlan?: "free" | "pro";
+  userPlan?: "free" | "starter" | "creator" | "pro";
   currentUsage?: {
     voiceIsolationsUsed: number;
     voiceIsolationMinutesUsed: number;

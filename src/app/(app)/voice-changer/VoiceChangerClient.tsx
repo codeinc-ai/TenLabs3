@@ -23,7 +23,7 @@ import { DEFAULT_VOICES, VOICE_CHANGER_CONFIG, PLANS } from "@/constants";
 import { capturePosthogBrowserEvent } from "@/lib/posthogBrowser";
 
 interface VoiceChangerClientProps {
-  userPlan?: "free" | "pro";
+  userPlan?: "free" | "starter" | "creator" | "pro";
   currentUsage?: {
     voiceConversionsUsed: number;
     voiceConversionMinutesUsed: number;

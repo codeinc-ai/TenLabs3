@@ -28,7 +28,7 @@ import { VoicePicker } from "@/components/ui/voice-picker";
 import type { ProviderType } from "@/lib/providers/types";
 
 interface TTSClientProps {
-  userPlan?: "free" | "pro";
+  userPlan?: "free" | "starter" | "creator" | "pro";
   currentUsage?: {
     charactersUsed: number;
     generationsUsed: number;

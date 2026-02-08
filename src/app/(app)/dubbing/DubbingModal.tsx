@@ -12,7 +12,7 @@ interface DubbingModalProps {
   onClose: () => void;
   onSuccess: () => void;
   userId?: string;
-  userPlan?: "free" | "pro";
+  userPlan?: "free" | "starter" | "creator" | "pro";
   currentUsage?: {
     dubbingsUsed: number;
   };

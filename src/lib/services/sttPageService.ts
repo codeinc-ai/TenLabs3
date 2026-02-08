@@ -7,7 +7,7 @@ import { connectToDB } from "@/lib/mongodb";
 import { getOrCreateUserWithMockData } from "@/lib/services/seedService";
 
 export interface STTPageUserData {
-  plan: "free" | "pro";
+  plan: "free" | "starter" | "creator" | "pro";
   usage: {
     transcriptionMinutesUsed: number;
     transcriptionsUsed: number;

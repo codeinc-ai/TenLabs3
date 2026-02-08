@@ -7,7 +7,7 @@ import { DUBBING_CONFIG } from "@/constants";
 
 interface DubbingClientProps {
   userId?: string;
-  userPlan?: "free" | "pro";
+  userPlan?: "free" | "starter" | "creator" | "pro";
   currentUsage?: {
     dubbingsUsed: number;
   };

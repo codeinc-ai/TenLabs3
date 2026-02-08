@@ -26,7 +26,7 @@ export interface UsageSummary {
     characters: number;
     generations: number;
   };
-  plan: "free" | "pro";
+  plan: "free" | "starter" | "creator" | "pro";
 }
 
 /**

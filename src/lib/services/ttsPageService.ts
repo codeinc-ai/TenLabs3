@@ -10,7 +10,7 @@ import { getOrCreateUserWithMockData } from "@/lib/services/seedService";
  * Defines the user data needed for the TTS page.
  */
 export interface TTSPageUserData {
-  plan: "free" | "pro";
+  plan: "free" | "starter" | "creator" | "pro";
   usage: {
     charactersUsed: number;
     generationsUsed: number;

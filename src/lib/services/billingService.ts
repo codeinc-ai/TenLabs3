@@ -11,7 +11,7 @@ import { getOrCreateUserWithMockData } from "@/lib/services/seedService";
  * ==========================================
  */
 export interface SubscriptionInfo {
-  plan: "free" | "pro";
+  plan: "free" | "starter" | "creator" | "pro";
   status: "active" | "canceled" | "past_due" | "trialing";
   currentPeriodStart: string;
   currentPeriodEnd: string;
@@ -27,6 +27,9 @@ export interface SubscriptionInfo {
     currency: string;
     interval: "month" | "year";
   };
+  appliedCoupon?: string;
+  planExpiresAt?: string;
+  discountPercent?: number;
 }
 
 /**
@@ -116,7 +119,7 @@ export async function getSubscriptionInfo(
       return defaultInfo;
     }
 
-    const plan = user.plan || "free";
+    const plan = (user.plan || "free") as keyof typeof PLANS;
     const planLimits = PLANS[plan];
     const planDetails = BILLING_PLANS[plan];
 
@@ -143,6 +146,9 @@ export async function getSubscriptionInfo(
         currency: "usd",
         interval: "month",
       },
+      appliedCoupon: user.appliedCoupon || undefined,
+      planExpiresAt: user.planExpiresAt ? new Date(user.planExpiresAt).toISOString() : undefined,
+      discountPercent: user.discountPercent || undefined,
     };
   } catch (error) {
     Sentry.captureException(error);
@@ -197,8 +203,8 @@ export async function getBillingOverview(
     getPaymentMethods(clerkId),
   ]);
 
-  // Calculate next invoice for pro users
-  const nextInvoice = subscription.plan === "pro"
+  // Calculate next invoice for paid users
+  const nextInvoice = subscription.plan !== "free"
     ? {
         date: subscription.currentPeriodEnd,
         amount: subscription.price.amount,
@@ -221,7 +227,7 @@ export async function getBillingOverview(
  */
 export async function upgradePlan(
   clerkId: string,
-  newPlan: "pro"
+  newPlan: "starter" | "creator" | "pro"
 ): Promise<{ success: boolean; error?: string }> {
   try {
     await connectToDB();

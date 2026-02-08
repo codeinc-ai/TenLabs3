@@ -10,7 +10,7 @@ import { getOrCreateUserWithMockData } from "@/lib/services/seedService";
  * Defines the user data needed for the Text to Dialogue page.
  */
 export interface TextToDialoguePageUserData {
-  plan: "free" | "pro";
+  plan: "free" | "starter" | "creator" | "pro";
   usage: {
     dialogueGenerationsUsed: number;
     dialogueCharactersUsed: number;
