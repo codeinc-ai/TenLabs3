@@ -6,6 +6,7 @@ import { useUser } from "@clerk/nextjs";
 import {
   Home,
   Mic,
+  Mic2,
   FileAudio,
   Wand2,
   Sparkles,
@@ -43,6 +44,12 @@ interface NavItem {
 const MAIN_NAV_ITEMS: NavItem[] = [
   { href: "/dashboard", label: "Home", icon: Home },
   { href: "/voices", label: "Voices", icon: Mic },
+];
+
+const VOICE_TOOLS_ITEMS: NavItem[] = [
+  { href: "/voices/clone", label: "Instant Clone", icon: Mic2 },
+  { href: "/voices/design", label: "Design a Voice", icon: Sparkles },
+  { href: "/voices/remix", label: "Remix a Voice", icon: Wand2 },
 ];
 
 /**
@@ -135,6 +142,22 @@ export function Sidebar() {
                 active={isActive(item.href)}
               />
             ))}
+          </div>
+
+          {/* Voice Tools Section */}
+          <div>
+            <div className="px-3 py-2 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+              Voice Tools
+            </div>
+            <div className="space-y-0.5">
+              {VOICE_TOOLS_ITEMS.map((item) => (
+                <NavItem
+                  key={item.href}
+                  item={item}
+                  active={isActive(item.href)}
+                />
+              ))}
+            </div>
           </div>
 
           {/* Playground Section */}

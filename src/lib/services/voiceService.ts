@@ -587,3 +587,275 @@ export async function incrementVoiceUsage(voiceId: string): Promise<void> {
     Sentry.captureException(error);
   }
 }
+
+/**
+ * ==========================================
+ * Get Shared Voices (Voice Library)
+ * ==========================================
+ * Fetches shared voices from ElevenLabs Voice Library.
+ */
+export async function getSharedVoices(options: {
+  pageSize?: number;
+  page?: number;
+  search?: string;
+  gender?: string;
+  age?: string;
+  accent?: string;
+  language?: string;
+  category?: "professional" | "famous" | "high_quality";
+  featured?: boolean;
+  sort?: string;
+}): Promise<{
+  voices: Array<Record<string, unknown>>;
+  hasMore: boolean;
+}> {
+  try {
+    const apiKey = process.env.ELEVENLABS_API_KEY;
+    if (!apiKey) throw new Error("Missing ELEVENLABS_API_KEY");
+
+    const params = new URLSearchParams();
+    if (options.pageSize) params.set("page_size", String(options.pageSize));
+    if (options.page !== undefined) params.set("page", String(options.page));
+    if (options.search) params.set("search", options.search);
+    if (options.gender) params.set("gender", options.gender);
+    if (options.age) params.set("age", options.age);
+    if (options.accent) params.set("accent", options.accent);
+    if (options.language) params.set("language", options.language);
+    if (options.category) params.set("category", options.category);
+    if (options.featured) params.set("featured", "true");
+    if (options.sort) params.set("sort", options.sort);
+
+    const res = await fetch(
+      `https://api.elevenlabs.io/v1/shared-voices?${params}`,
+      { headers: { "xi-api-key": apiKey } }
+    );
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      throw new Error(`ElevenLabs shared voices error (${res.status}): ${errorText}`);
+    }
+
+    const data = await res.json();
+    return {
+      voices: data.voices ?? [],
+      hasMore: data.has_more ?? false,
+    };
+  } catch (error) {
+    Sentry.captureException(error);
+    throw error;
+  }
+}
+
+/**
+ * ==========================================
+ * Add Shared Voice to User's Collection
+ * ==========================================
+ */
+export async function addSharedVoice(
+  publicUserId: string,
+  voiceId: string,
+  newName: string
+): Promise<{ voiceId: string }> {
+  const apiKey = process.env.ELEVENLABS_API_KEY;
+  if (!apiKey) throw new Error("Missing ELEVENLABS_API_KEY");
+
+  const res = await fetch(
+    `https://api.elevenlabs.io/v1/voices/add/${publicUserId}/${voiceId}`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "xi-api-key": apiKey,
+      },
+      body: JSON.stringify({ new_name: newName }),
+    }
+  );
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(`Failed to add shared voice (${res.status}): ${errorText}`);
+  }
+
+  const data = await res.json();
+  return { voiceId: data.voice_id };
+}
+
+/**
+ * ==========================================
+ * Delete Voice via ElevenLabs API
+ * ==========================================
+ */
+export async function deleteVoice(voiceId: string): Promise<void> {
+  const apiKey = process.env.ELEVENLABS_API_KEY;
+  if (!apiKey) throw new Error("Missing ELEVENLABS_API_KEY");
+
+  const res = await fetch(
+    `https://api.elevenlabs.io/v1/voices/${voiceId}`,
+    {
+      method: "DELETE",
+      headers: { "xi-api-key": apiKey },
+    }
+  );
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(`Failed to delete voice (${res.status}): ${errorText}`);
+  }
+
+  try {
+    await connectToDB();
+    await Voice.deleteOne({ voiceId });
+    await UserVoice.deleteMany({ voiceId: (await Voice.findOne({ voiceId }))?._id });
+  } catch {
+    // DB cleanup is best-effort
+  }
+}
+
+/**
+ * ==========================================
+ * Edit Voice via ElevenLabs API
+ * ==========================================
+ */
+export async function editVoice(
+  voiceId: string,
+  name: string,
+  options?: {
+    description?: string;
+    files?: File[];
+    labels?: Record<string, string>;
+    removeBackgroundNoise?: boolean;
+  }
+): Promise<void> {
+  const apiKey = process.env.ELEVENLABS_API_KEY;
+  if (!apiKey) throw new Error("Missing ELEVENLABS_API_KEY");
+
+  const formData = new FormData();
+  formData.append("name", name);
+  if (options?.description) formData.append("description", options.description);
+  if (options?.removeBackgroundNoise) formData.append("remove_background_noise", "true");
+  if (options?.labels) formData.append("labels", JSON.stringify(options.labels));
+  if (options?.files) {
+    for (const file of options.files) {
+      formData.append("files", file);
+    }
+  }
+
+  const res = await fetch(
+    `https://api.elevenlabs.io/v1/voices/${voiceId}/edit`,
+    {
+      method: "POST",
+      headers: { "xi-api-key": apiKey },
+      body: formData,
+    }
+  );
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(`Failed to edit voice (${res.status}): ${errorText}`);
+  }
+
+  try {
+    await connectToDB();
+    await Voice.updateOne({ voiceId }, { $set: { name } });
+  } catch {
+    // DB sync is best-effort
+  }
+}
+
+/**
+ * ==========================================
+ * Get Voice Settings
+ * ==========================================
+ */
+export async function getVoiceSettings(voiceId: string): Promise<Record<string, unknown>> {
+  const apiKey = process.env.ELEVENLABS_API_KEY;
+  if (!apiKey) throw new Error("Missing ELEVENLABS_API_KEY");
+
+  const res = await fetch(
+    `https://api.elevenlabs.io/v1/voices/${voiceId}/settings`,
+    { headers: { "xi-api-key": apiKey } }
+  );
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(`Failed to get voice settings (${res.status}): ${errorText}`);
+  }
+
+  return await res.json();
+}
+
+/**
+ * ==========================================
+ * Update Voice Settings
+ * ==========================================
+ */
+export async function updateVoiceSettings(
+  voiceId: string,
+  settings: {
+    stability?: number;
+    similarity_boost?: number;
+    style?: number;
+    use_speaker_boost?: boolean;
+    speed?: number;
+  }
+): Promise<void> {
+  const apiKey = process.env.ELEVENLABS_API_KEY;
+  if (!apiKey) throw new Error("Missing ELEVENLABS_API_KEY");
+
+  const res = await fetch(
+    `https://api.elevenlabs.io/v1/voices/${voiceId}/settings/edit`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "xi-api-key": apiKey,
+      },
+      body: JSON.stringify(settings),
+    }
+  );
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(`Failed to update voice settings (${res.status}): ${errorText}`);
+  }
+}
+
+/**
+ * ==========================================
+ * Find Similar Voices
+ * ==========================================
+ */
+export async function findSimilarVoices(
+  audioFile?: File,
+  similarityThreshold?: number,
+  topK?: number
+): Promise<{
+  voices: Array<Record<string, unknown>>;
+  hasMore: boolean;
+}> {
+  const apiKey = process.env.ELEVENLABS_API_KEY;
+  if (!apiKey) throw new Error("Missing ELEVENLABS_API_KEY");
+
+  const formData = new FormData();
+  if (audioFile) formData.append("audio_file", audioFile);
+  if (similarityThreshold !== undefined)
+    formData.append("similarity_threshold", String(similarityThreshold));
+  if (topK !== undefined) formData.append("top_k", String(topK));
+
+  const res = await fetch("https://api.elevenlabs.io/v1/similar-voices", {
+    method: "POST",
+    headers: { "xi-api-key": apiKey },
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(`Failed to find similar voices (${res.status}): ${errorText}`);
+  }
+
+  const data = await res.json();
+  return {
+    voices: data.voices ?? [],
+    hasMore: data.has_more ?? false,
+  };
+}
