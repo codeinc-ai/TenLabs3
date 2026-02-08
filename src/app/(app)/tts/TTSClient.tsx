@@ -19,12 +19,17 @@ import {
   Download,
   Loader2,
   Clock,
+  Settings,
 } from "lucide-react";
 
 import { DEFAULT_VOICES, TTS_DEFAULTS, PLANS, ELEVENLABS_MODELS } from "@/constants";
 import { MINIMAX_DEFAULT_VOICES, MINIMAX_MODELS, MINIMAX_EMOTIONS, MINIMAX_TTS_DEFAULTS } from "@/constants/minimax";
 import { capturePosthogBrowserEvent } from "@/lib/posthogBrowser";
 import { VoicePicker } from "@/components/ui/voice-picker";
+import {
+  Sheet,
+  SheetContent,
+} from "@/components/ui/sheet";
 import type { ProviderType } from "@/lib/providers/types";
 
 interface TTSClientProps {
@@ -147,6 +152,7 @@ export function TTSClient({ userPlan = "free", currentUsage }: TTSClientProps) {
 
   // History state
   const [activeSettingsTab, setActiveSettingsTab] = useState<"settings" | "history">("settings");
+  const [mobileSettingsOpen, setMobileSettingsOpen] = useState(false);
   const [generations, setGenerations] = useState<
     { id: string; text: string; voiceId: string; audioUrl: string; createdAt: string }[]
   >([]);
@@ -278,7 +284,7 @@ export function TTSClient({ userPlan = "free", currentUsage }: TTSClientProps) {
         ? {
             text,
             voiceId: selectedVoiceId,
-            provider: "minimax",
+            provider: "Tenlabs V2",
             model: minimaxModel,
             speed: mmSpeed,
             volume: mmVolume,
@@ -475,7 +481,17 @@ export function TTSClient({ userPlan = "free", currentUsage }: TTSClientProps) {
         </div>
 
         {/* Bottom Bar */}
-        <div className="h-16 border-t border-gray-100 dark:border-[#1a1a1a] flex items-center justify-end px-6 flex-shrink-0 gap-4">
+        <div className="h-16 border-t border-gray-100 dark:border-[#1a1a1a] flex items-center justify-between px-6 flex-shrink-0 gap-4">
+          {/* Mobile settings button - only visible on small screens */}
+          <button
+            onClick={() => setMobileSettingsOpen(true)}
+            className="lg:hidden flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] transition-colors"
+            aria-label="Open settings"
+          >
+            <Settings size={18} />
+            <span>Settings</span>
+          </button>
+          <div className="flex-1 lg:flex-initial" />
           <button
             onClick={generate}
             disabled={loading || !text.trim() || isOverLimit}
@@ -807,6 +823,250 @@ uld you change this carda and text to             {provider === "minimax" ? (
           )}
         </div>
       </aside>
+
+      {/* Mobile Settings Sheet - only rendered on small screens, opens via Settings button */}
+      <Sheet open={mobileSettingsOpen} onOpenChange={setMobileSettingsOpen}>
+        <SheetContent
+          side="right"
+          className="w-full max-w-[380px] p-0 gap-0 bg-white dark:bg-black border-l border-gray-200 dark:border-[#1a1a1a] flex flex-col h-full overflow-hidden"
+        >
+          <div className="flex flex-col h-full overflow-hidden">
+            <div className="flex border-b border-gray-200 dark:border-[#1a1a1a] px-6 flex-shrink-0">
+              <button
+                onClick={() => setActiveSettingsTab("settings")}
+                className={`py-4 mr-6 text-sm font-medium transition-colors ${
+                  activeSettingsTab === "settings"
+                    ? "text-black dark:text-white border-b-2 border-black dark:border-white"
+                    : "text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                }`}
+              >
+                Settings
+              </button>
+              <button
+                onClick={() => setActiveSettingsTab("history")}
+                className={`py-4 text-sm font-medium transition-colors ${
+                  activeSettingsTab === "history"
+                    ? "text-black dark:text-white border-b-2 border-black dark:border-white"
+                    : "text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                }`}
+              >
+                History
+              </button>
+            </div>
+            {activeSettingsTab === "settings" ? (
+              <div className="flex-1 overflow-y-auto p-6 space-y-8">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-black dark:text-white">Provider</label>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleProviderChange("elevenlabs")}
+                      className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        provider === "elevenlabs"
+                          ? "bg-black dark:bg-white text-white dark:text-black"
+                          : "bg-gray-100 dark:bg-[#1a1a1a] text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-[#222]"
+                      }`}
+                    >
+                      ElevenLabs
+                    </button>
+                    <button
+                      onClick={() => handleProviderChange("minimax")}
+                      className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        provider === "minimax"
+                          ? "bg-black dark:bg-white text-white dark:text-black"
+                          : "bg-gray-100 dark:bg-[#1a1a1a] text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-[#222]"
+                      }`}
+                    >
+                      Minimax
+                    </button>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-black dark:text-white">Voice</label>
+                  <VoicePicker
+                    voices={voices}
+                    value={selectedVoiceId}
+                    onValueChange={(voiceId) => setSelectedVoiceId(voiceId)}
+                    placeholder={selectedVoice?.name ? selectedVoice.name : "Select a voice..."}
+                    className="rounded-xl border-gray-200 dark:border-[#333] h-12"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-black dark:text-white">Model</label>
+                  {provider === "minimax" ? (
+                    <select
+                      value={minimaxModel}
+                      onChange={(e) => setMinimaxModel(e.target.value)}
+                      className="w-full p-3 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-xl text-sm font-medium text-gray-900 dark:text-gray-100 hover:border-gray-300 dark:hover:border-[#444] transition-colors cursor-pointer outline-none"
+                    >
+                      {MINIMAX_MODELS.map((m) => (
+                        <option key={m.id} value={m.id}>
+                          {m.name} — {m.description}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <select
+                      value={elevenModel}
+                      onChange={(e) => setElevenModel(e.target.value)}
+                      className="w-full p-3 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-xl text-sm font-medium text-gray-900 dark:text-gray-100 hover:border-gray-300 dark:hover:border-[#444] transition-colors cursor-pointer outline-none"
+                    >
+                      {ELEVENLABS_MODELS.map((m) => (
+                        <option key={m.id} value={m.id}>
+                          {m.name} — {m.description}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                </div>
+                {provider === "minimax" ? (
+                  <div className="space-y-6">
+                    <SliderControl
+                      label="Speed"
+                      leftLabel="Slower"
+                      rightLabel="Faster"
+                      value={mmSpeed * 50}
+                      onChange={(v) => setMmSpeed(v / 50)}
+                      min={0}
+                      max={100}
+                    />
+                    <SliderControl
+                      label="Volume"
+                      leftLabel="Quieter"
+                      rightLabel="Louder"
+                      value={mmVolume * 50}
+                      onChange={(v) => setMmVolume(v / 50)}
+                      min={0}
+                      max={100}
+                    />
+                    <SliderControl
+                      label="Pitch"
+                      leftLabel="Lower"
+                      rightLabel="Higher"
+                      value={(mmPitch + 12) * (100 / 24)}
+                      onChange={(v) => setMmPitch(Math.round(v * (24 / 100) - 12))}
+                      min={0}
+                      max={100}
+                    />
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-black dark:text-white">Emotion</label>
+                      <select
+                        value={mmEmotion}
+                        onChange={(e) => setMmEmotion(e.target.value)}
+                        className="w-full p-3 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-xl text-sm font-medium text-gray-900 dark:text-gray-100 hover:border-gray-300 dark:hover:border-[#444] transition-colors cursor-pointer outline-none"
+                      >
+                        <option value="">None (default)</option>
+                        {MINIMAX_EMOTIONS.map((e) => (
+                          <option key={e} value={e}>
+                            {e.charAt(0).toUpperCase() + e.slice(1)}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    <SliderControl
+                      label="Stability"
+                      leftLabel="More variable"
+                      rightLabel="More stable"
+                      value={stability * 100}
+                      onChange={(v) => setStability(v / 100)}
+                    />
+                    <SliderControl
+                      label="Similarity"
+                      leftLabel="Low"
+                      rightLabel="High"
+                      value={similarity * 100}
+                      onChange={(v) => setSimilarity(v / 100)}
+                    />
+                    <div className="space-y-4 pt-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-black dark:text-white">Language Override</span>
+                        <button
+                          onClick={() => setLanguageOverride(!languageOverride)}
+                          className={`w-11 h-6 rounded-full transition-colors relative ${
+                            languageOverride ? "bg-black dark:bg-white" : "bg-gray-200 dark:bg-gray-700"
+                          }`}
+                        >
+                          <div
+                            className={`w-5 h-5 bg-white dark:bg-gray-900 rounded-full absolute top-0.5 transition-transform ${
+                              languageOverride ? "left-[22px]" : "left-0.5"
+                            }`}
+                          />
+                        </button>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-black dark:text-white">Speaker boost</span>
+                        <button
+                          onClick={() => setSpeakerBoost(!speakerBoost)}
+                          className={`w-11 h-6 rounded-full transition-colors relative ${
+                            speakerBoost ? "bg-black dark:bg-white" : "bg-gray-200 dark:bg-gray-700"
+                          }`}
+                        >
+                          <div
+                            className={`w-5 h-5 bg-white dark:bg-gray-900 rounded-full absolute top-0.5 transition-transform ${
+                              speakerBoost ? "left-[22px]" : "left-0.5"
+                            }`}
+                          />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="flex-1 overflow-y-auto">
+                {historyLoading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <Loader2 className="h-6 w-6 animate-spin text-gray-400 dark:text-gray-500" />
+                  </div>
+                ) : historyError ? (
+                  <div className="p-6 text-center text-sm text-red-500">{historyError}</div>
+                ) : generations.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-16 text-gray-400 dark:text-gray-500">
+                    <Clock size={32} className="mb-3" />
+                    <p className="text-sm font-medium">No generations yet</p>
+                    <p className="text-xs mt-1">Your generated audio will appear here</p>
+                  </div>
+                ) : (
+                  <div>
+                    {generations.map((gen) => (
+                      <button
+                        key={gen.id}
+                        onClick={() => {
+                          setText(gen.text || "");
+                          setAudioUrl(gen.audioUrl);
+                          setGenerationId(gen.id);
+                          setIsPlaying(false);
+                          setCurrentTime(0);
+                          setDuration(0);
+                          setMobileSettingsOpen(false);
+                        }}
+                        className="w-full text-left p-3 border-b border-gray-100 dark:border-[#222] hover:bg-gray-50 dark:hover:bg-[#1a1a1a] cursor-pointer transition-colors"
+                      >
+                        <p className="text-sm text-gray-800 dark:text-gray-200 line-clamp-2 mb-1">
+                          {gen.text || "Untitled generation"}
+                        </p>
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-gray-400 dark:text-gray-500">
+                            {gen.createdAt
+                              ? new Date(gen.createdAt).toLocaleDateString(undefined, {
+                                  month: "short",
+                                  day: "numeric",
+                                  year: "numeric",
+                                })
+                              : ""}
+                          </span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

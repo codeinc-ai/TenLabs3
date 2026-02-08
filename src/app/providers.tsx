@@ -7,6 +7,7 @@ import { useUser } from "@clerk/nextjs";
 
 import { capturePosthogBrowserEvent, initPosthogBrowser, posthog } from "@/lib/posthogBrowser";
 import { ThemeProvider } from "@/components/theme-provider";
+import { IntroVideo } from "@/components/IntroVideo";
 
 function pageNameFromPath(pathname: string | null): string {
   if (!pathname || pathname === "/") return "home";
@@ -55,7 +56,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
       enableSystem
       disableTransitionOnChange
     >
-      <PostHogProvider client={posthog}>{children}</PostHogProvider>
+      <PostHogProvider client={posthog}>
+        {children}
+        <IntroVideo />
+      </PostHogProvider>
     </ThemeProvider>
   );
 }

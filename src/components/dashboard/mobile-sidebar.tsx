@@ -31,6 +31,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { TenLabsLogo } from "@/components/TenLabsLogo";
 import { ADMIN_EMAILS } from "@/constants/admin";
 
 /**
@@ -100,8 +101,10 @@ export function MobileSidebar({ open, onOpenChange }: MobileSidebarProps) {
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="left" className="w-[280px] p-0 bg-white dark:bg-black border-r-gray-200 dark:border-r-[#1a1a1a]">
         <SheetHeader className="border-b border-gray-200 dark:border-[#1a1a1a] px-4 py-4">
-          <SheetTitle className="flex items-center gap-2 text-left font-bold text-lg text-black dark:text-white">
-            Ten Labs
+          <SheetTitle className="flex justify-center font-bold text-lg text-black dark:text-white">
+            <Link href="/dashboard" onClick={() => onOpenChange(false)} className="flex justify-center">
+              <TenLabsLogo height={28} />
+            </Link>
           </SheetTitle>
         </SheetHeader>
 

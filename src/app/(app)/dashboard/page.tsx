@@ -101,7 +101,7 @@ export default async function DashboardPage() {
         <FeatureCard
           href="/agents/agents"
           icon={<Icon4 className="w-full h-full" />}
-          label="ElevenLabs Agents"
+          label="Tenlabs Agents"
           hasNotification
         />
         <FeatureCard

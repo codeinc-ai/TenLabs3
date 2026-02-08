@@ -4,8 +4,9 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
-import { AudioLines, ArrowRight, Menu, X, ChevronDown } from "lucide-react";
+import { ArrowRight, Menu, X, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { TenLabsLogo } from "@/components/TenLabsLogo";
 
 function cn(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");
@@ -13,19 +14,11 @@ function cn(...classes: Array<string | false | null | undefined>) {
 
 function Logo() {
   return (
-    <div className="flex items-center gap-2">
-      <div className="size-8 rounded-xl tenlabs-glass tenlabs-ring grid place-items-center">
-        <AudioLines className="size-4 text-white" strokeWidth={1.8} />
-      </div>
-      <div className="leading-none">
-        <div
-          className="text-[13px] tracking-tight text-white/90"
-          style={{ fontFamily: "Plus Jakarta Sans, var(--font-sans)" }}
-        >
-          TenLabs
-        </div>
-      </div>
-    </div>
+    <TenLabsLogo
+      height={28}
+      href="/"
+      className="transition-opacity hover:opacity-90"
+    />
   );
 }
 

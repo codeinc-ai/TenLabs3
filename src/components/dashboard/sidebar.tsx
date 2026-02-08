@@ -25,6 +25,7 @@ import {
 
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { TenLabsLogo } from "@/components/TenLabsLogo";
 import { ADMIN_EMAILS } from "@/constants/admin";
 
 /**
@@ -105,8 +106,10 @@ export function Sidebar() {
     <aside className="w-[240px] min-w-[240px] max-w-[240px] bg-white dark:bg-black border-r border-gray-200 dark:border-gray-800 flex flex-col h-screen text-gray-600 dark:text-gray-300 text-sm flex-shrink-0 overflow-hidden transition-colors">
       {/* Logo Area */}
       <div className="p-4 pb-2">
-        <div className="font-bold text-lg text-black dark:text-white mb-4 px-2">
-          Ten Labs
+        <div className="flex justify-center w-full mb-4">
+          <Link href="/dashboard">
+            <TenLabsLogo height={28} />
+          </Link>
         </div>
 
         <button className="w-full flex items-center justify-between px-3 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-lg hover:bg-gray-50 dark:hover:bg-[#252525] transition-colors text-black dark:text-white">

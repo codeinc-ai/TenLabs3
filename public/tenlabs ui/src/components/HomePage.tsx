@@ -111,7 +111,7 @@ export function HomePage() {
 
           <FeatureCard
             icon={<Bot size={24} className="text-purple-500" />}
-            label="ElevenLabs Agents"
+            label="Tenlabs Agents"
             badge={
             <div className="absolute top-2 right-2 w-2 h-2 bg-purple-400 rounded-full"></div>
             } />
