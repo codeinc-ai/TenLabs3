@@ -19,6 +19,7 @@ import {
   Zap,
   MessageSquare,
   PenSquare,
+  Tag,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -64,6 +65,7 @@ const PRODUCTS_ITEMS: NavItem[] = [
 
 const ADMIN_ITEMS: NavItem[] = [
   { href: "/admin/blog", label: "Blog Management", icon: PenSquare },
+  { href: "/admin/coupons", label: "Coupons", icon: Tag },
 ];
 
 interface MobileSidebarProps {

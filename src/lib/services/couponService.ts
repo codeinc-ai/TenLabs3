@@ -3,6 +3,7 @@ import * as Sentry from "@sentry/nextjs";
 import { connectToDB } from "@/lib/mongodb";
 import { Coupon, ICoupon } from "@/models/Coupon";
 import { User } from "@/models/User";
+import { getOrCreateUserWithMockData } from "@/lib/services/seedService";
 
 /**
  * ==========================================
@@ -147,11 +148,8 @@ export async function redeemCoupon(
     }
 
     const coupon = validation.coupon;
-    const user = await User.findOne({ clerkId });
-
-    if (!user) {
-      return { success: false, error: "User not found" };
-    }
+    // Ensure user exists (create if first time - e.g. signed up but never hit dashboard)
+    const user = await getOrCreateUserWithMockData(clerkId);
 
     // Check if user already has an active coupon
     if (user.appliedCoupon && user.couponExpiresAt && new Date(user.couponExpiresAt) > new Date()) {
