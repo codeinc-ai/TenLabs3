@@ -1,16 +1,19 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   ArrowRight,
   AudioLines,
   Check,
   CreditCard,
+  LogIn,
   Minus,
   Plus,
   Tag,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Aurora from "@/components/Aurora";
@@ -80,10 +83,22 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 }
 
 export default function RedeemPage() {
+  const router = useRouter();
   const [code, setCode] = useState("");
   const [redeemed, setRedeemed] = useState(false);
   const [error, setError] = useState<string | false>(false);
   const [loading, setLoading] = useState(false);
+  const [showLoginPopup, setShowLoginPopup] = useState(false);
+
+  // Auto-fill code from sessionStorage if user was redirected back after login
+  useEffect(() => {
+    const pending = sessionStorage.getItem("pending_redeem_code");
+    if (pending) {
+      setCode(pending);
+      sessionStorage.removeItem("pending_redeem_code");
+    }
+  }, []);
+
   const [redeemResult, setRedeemResult] = useState<{
     type?: "direct_upgrade" | "discount";
     plan?: string;
@@ -95,6 +110,7 @@ export default function RedeemPage() {
     if (!code) return;
     setLoading(true);
     setError(false);
+    setShowLoginPopup(false);
 
     try {
       const res = await fetch("/api/coupons/redeem", {
@@ -102,6 +118,13 @@ export default function RedeemPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code: code.trim() }),
       });
+
+      // If user is not logged in, API returns 401
+      if (res.status === 401) {
+        setShowLoginPopup(true);
+        setLoading(false);
+        return;
+      }
 
       const result = await res.json();
 
@@ -118,6 +141,14 @@ export default function RedeemPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleLoginRedirect = () => {
+    // Save the code in sessionStorage so user can redeem after login
+    if (code.trim()) {
+      sessionStorage.setItem("pending_redeem_code", code.trim());
+    }
+    router.push(`/sign-in?redirect_url=/redeem`);
   };
 
   return (
@@ -194,6 +225,7 @@ export default function RedeemPage() {
                           onChange={(e) => {
                             setCode(e.target.value);
                             setError(false);
+                            setShowLoginPopup(false);
                           }}
                           placeholder="ENTER-CODE-HERE"
                           className="relative w-full h-14 bg-black border border-white/10 rounded-xl px-5 text-center text-lg tracking-widest uppercase placeholder:text-white/20 focus:outline-none focus:border-white/30 focus:ring-1 focus:ring-white/30 transition shadow-2xl"
@@ -285,6 +317,84 @@ export default function RedeemPage() {
               </div>
             </Reveal>
           </div>
+
+          {/* Login popup overlay */}
+          <AnimatePresence>
+            {showLoginPopup && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4"
+                onClick={() => setShowLoginPopup(false)}
+              >
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                  transition={{ duration: 0.25, ease: "easeOut" }}
+                  className="relative w-full max-w-md p-8 rounded-3xl border border-white/10 bg-[#111] shadow-2xl"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {/* Close button */}
+                  <button
+                    onClick={() => setShowLoginPopup(false)}
+                    className="absolute top-4 right-4 size-8 rounded-full border border-white/10 bg-white/5 grid place-items-center text-white/60 hover:text-white hover:bg-white/10 transition"
+                  >
+                    <X className="size-4" />
+                  </button>
+
+                  <div className="flex flex-col items-center text-center">
+                    <div className="size-14 rounded-2xl border border-white/10 bg-white/[0.05] grid place-items-center mb-5">
+                      <LogIn className="size-6 text-white" strokeWidth={1.8} />
+                    </div>
+
+                    <h2
+                      className="text-xl font-semibold text-white"
+                      style={{ fontFamily: "Plus Jakarta Sans, var(--font-sans)" }}
+                    >
+                      Sign in to redeem
+                    </h2>
+                    <p className="mt-2 text-sm text-white/55 leading-relaxed">
+                      You need to be logged in to use your promo code.
+                      Sign in or create an account first, then redeem your code.
+                    </p>
+
+                    {code.trim() && (
+                      <div className="mt-4 w-full px-4 py-2.5 rounded-xl border border-white/10 bg-white/[0.03]">
+                        <p className="text-xs text-white/40 mb-1">Your code</p>
+                        <p className="text-sm font-mono tracking-widest text-white uppercase">
+                          {code.trim()}
+                        </p>
+                      </div>
+                    )}
+
+                    <div className="mt-6 flex flex-col gap-3 w-full">
+                      <Button
+                        onClick={handleLoginRedirect}
+                        className="w-full h-11 rounded-xl bg-white text-black hover:bg-white/90 font-medium"
+                      >
+                        Sign In
+                        <ArrowRight className="ml-2 size-4" />
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          if (code.trim()) {
+                            sessionStorage.setItem("pending_redeem_code", code.trim());
+                          }
+                          router.push(`/sign-up?redirect_url=/redeem`);
+                        }}
+                        variant="secondary"
+                        className="w-full h-11 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white/80 font-medium"
+                      >
+                        Create Account
+                      </Button>
+                    </div>
+                  </div>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </section>
 
         <section

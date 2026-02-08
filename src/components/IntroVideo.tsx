@@ -1,12 +1,9 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, Suspense } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
-import dynamic from "next/dynamic";
-
-const Silk = dynamic(() => import("@/components/Silk"), { ssr: false });
 
 function LogoIcon({ size = 120, className = "" }: { size?: number; className?: string }) {
   return (
@@ -87,17 +84,12 @@ export function IntroVideo() {
       className="fixed inset-0 z-[99999] overflow-hidden text-white"
       style={{ isolation: "isolate", pointerEvents: isDoorOpen ? "none" : "auto" }}
     >
-      {/* Silk background — fades out when doors open so website shows through */}
+      {/* Black background — fades out when doors open so website shows through */}
       <motion.div
-        className="absolute inset-0 z-0"
+        className="absolute inset-0 z-0 bg-black"
         animate={{ opacity: isDoorOpen ? 0 : 1 }}
         transition={{ duration: 0.3 }}
-      >
-        <div className="absolute inset-0 bg-black" />
-        <Suspense fallback={null}>
-          <Silk speed={1.0} scale={1} color="#1f1d20" noiseIntensity={1.5} rotation={0} />
-        </Suspense>
-      </motion.div>
+      />
 
       {/* Skip button */}
       {!isDoorOpen && (

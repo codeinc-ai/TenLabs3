@@ -19,6 +19,7 @@ export default function SignInPage() {
 
         <div className="clerk-dark-theme">
           <SignIn
+            forceRedirectUrl="/dashboard"
             appearance={{
               elements: {
                 rootBox: "w-full",

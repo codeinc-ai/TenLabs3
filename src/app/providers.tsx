@@ -8,6 +8,7 @@ import { useUser } from "@clerk/nextjs";
 import { capturePosthogBrowserEvent, initPosthogBrowser, posthog } from "@/lib/posthogBrowser";
 import { ThemeProvider } from "@/components/theme-provider";
 import { IntroVideo } from "@/components/IntroVideo";
+import { FaviconSwitcher } from "@/components/FaviconSwitcher";
 
 function pageNameFromPath(pathname: string | null): string {
   if (!pathname || pathname === "/") return "home";
@@ -58,6 +59,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     >
       <PostHogProvider client={posthog}>{children}</PostHogProvider>
       <IntroVideo />
+      <FaviconSwitcher />
     </ThemeProvider>
   );
 }

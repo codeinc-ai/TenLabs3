@@ -1,21 +1,23 @@
 "use client";
 
-import React from "react";
+import React, { useState, useRef, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Search, Plus, ChevronRight } from "lucide-react";
+import { Search, Plus, ChevronRight, Play, Pause, Loader2 } from "lucide-react";
 import { Icon7, Icon8 } from "@/components/icons";
 import { MusicPromptBox } from "@/components/music";
 
-/** Simple waveform bars for track preview */
-function WaveformBars() {
+/** Animated waveform bars – animate when playing */
+function WaveformBars({ playing = false }: { playing?: boolean }) {
   const heights = [8, 12, 18, 22, 14, 22, 10, 14, 14, 10];
   return (
     <div className="flex items-end gap-0.5 h-5">
       {heights.map((h, i) => (
         <div
           key={i}
-          className="w-[3px] min-h-[3px] rounded-full bg-white/30"
+          className={`w-[3px] min-h-[3px] rounded-full transition-all duration-300 ${
+            playing ? "bg-white/80 animate-pulse" : "bg-white/30"
+          }`}
           style={{ height: `${h}px` }}
         />
       ))}
@@ -25,7 +27,7 @@ function WaveformBars() {
 
 const TRENDING_TRACKS = [
   {
-    id: "1",
+    id: "6987b857eeaaa9a52d130d0e",
     title: "Sultry Glam Intro",
     desc: "Amapiano, Romantic, Energetic",
     image:
@@ -34,7 +36,7 @@ const TRENDING_TRACKS = [
     bpm: "114 BPM",
   },
   {
-    id: "2",
+    id: "6987222c7b65ce67aef83b8e",
     title: "Concrete Ambition",
     desc: "City Lights Pop, Boom Bap, Moody",
     image:
@@ -43,7 +45,7 @@ const TRENDING_TRACKS = [
     bpm: "151 BPM",
   },
   {
-    id: "3",
+    id: "6987202d7b65ce67aef83b30",
     title: "Quiet Reflection",
     desc: "Classical, Peaceful",
     image:
@@ -52,7 +54,7 @@ const TRENDING_TRACKS = [
     bpm: "123 BPM",
   },
   {
-    id: "4",
+    id: "698705da7b65ce67aef83af5",
     title: "Midnight Haze",
     desc: "Peaceful, Dreamy, Lofi Beats",
     image:
@@ -61,7 +63,7 @@ const TRENDING_TRACKS = [
     bpm: "84 BPM",
   },
   {
-    id: "5",
+    id: "698700507b65ce67aef83aef",
     title: "Cloud Sync",
     desc: "Utility, Technology Music",
     image:
@@ -121,7 +123,74 @@ const NEWEST_TRACKS = [
 
 const FILTERS = ["Genre", "Mood", "Theme", "Duration", "BPM", "Vocals"];
 
+function formatTime(seconds: number) {
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins}:${secs.toString().padStart(2, "0")}`;
+}
+
 export default function MusicPage() {
+  const [playingId, setPlayingId] = useState<string | null>(null);
+  const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const playTrack = useCallback(
+    (trackId: string) => {
+      // If same track, toggle play/pause
+      if (playingId === trackId && audioRef.current) {
+        if (audioRef.current.paused) {
+          audioRef.current.play();
+          setPlayingId(trackId);
+        } else {
+          audioRef.current.pause();
+          setPlayingId(null);
+        }
+        return;
+      }
+
+      // Stop current audio
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = "";
+      }
+
+      setLoadingId(trackId);
+      setCurrentTime(0);
+      setDuration(0);
+
+      const audio = new Audio(`/api/music/${trackId}`);
+      audioRef.current = audio;
+
+      audio.addEventListener("loadedmetadata", () => {
+        setDuration(audio.duration);
+      });
+      audio.addEventListener("timeupdate", () => {
+        setCurrentTime(audio.currentTime);
+      });
+      audio.addEventListener("ended", () => {
+        setPlayingId(null);
+        setCurrentTime(0);
+      });
+      audio.addEventListener("canplay", () => {
+        setLoadingId(null);
+        setPlayingId(trackId);
+        audio.play().catch(() => {
+          setPlayingId(null);
+          setLoadingId(null);
+        });
+      });
+      audio.addEventListener("error", () => {
+        setLoadingId(null);
+        setPlayingId(null);
+      });
+
+      audio.load();
+    },
+    [playingId]
+  );
+
   const featuredCollections = [
     {
       id: "featured",
@@ -160,6 +229,10 @@ export default function MusicPage() {
         "https://storage.googleapis.com/eleven-public-cdn/public/music_explore/collections/yi8tQCP8Z78jnlRCDwKl/artwork_R6hukLgSDnAxOf3AExpH.jpg",
     },
   ];
+
+  const nowPlayingTrack = playingId
+    ? TRENDING_TRACKS.find((t) => t.id === playingId) ?? null
+    : null;
 
   return (
     <div className="flex flex-col min-h-[calc(100vh-4rem)] w-full pt-8 px-5 text-white">
@@ -312,40 +385,77 @@ export default function MusicPage() {
                 <ChevronRight className="h-4 w-4" />
               </Link>
               <div className="flex flex-col">
-                {TRENDING_TRACKS.map((track) => (
-                  <div
-                    key={track.id}
-                    className="flex items-center gap-3 p-2 rounded-xl cursor-pointer hover:bg-white/5 transition-colors"
-                  >
-                    <div className="relative h-10 w-10 flex-shrink-0 rounded-lg overflow-hidden">
-                      <Image
-                        src={track.image}
-                        alt={track.title}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                    <div className="flex-1 min-w-0 flex flex-col justify-between gap-0.5">
-                      <p className="text-sm font-medium text-white truncate">
-                        {track.title}
-                      </p>
-                      <p className="text-xs text-white/50 truncate">
-                        {track.desc}
-                      </p>
-                    </div>
-                    <div className="flex-shrink-0">
-                      <WaveformBars />
-                    </div>
-                    <div className="flex flex-col items-end justify-between gap-0.5 min-w-[60px]">
-                      <p className="text-xs text-white/50 tabular-nums">
-                        {track.duration}
-                      </p>
-                      <p className="text-xs text-white/50 tabular-nums">
-                        {track.bpm}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+                {TRENDING_TRACKS.map((track) => {
+                  const isPlaying = playingId === track.id;
+                  const isLoading = loadingId === track.id;
+                  return (
+                    <button
+                      key={track.id}
+                      type="button"
+                      onClick={() => playTrack(track.id)}
+                      className={`flex items-center gap-3 p-2 rounded-xl cursor-pointer transition-colors text-left ${
+                        isPlaying
+                          ? "bg-white/10"
+                          : "hover:bg-white/5"
+                      }`}
+                    >
+                      {/* Thumbnail with play/pause overlay */}
+                      <div className="relative h-10 w-10 flex-shrink-0 rounded-lg overflow-hidden group">
+                        <Image
+                          src={track.image}
+                          alt={track.title}
+                          fill
+                          className="object-cover"
+                        />
+                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                          {isLoading ? (
+                            <Loader2 className="h-4 w-4 text-white animate-spin" />
+                          ) : isPlaying ? (
+                            <Pause className="h-4 w-4 text-white" />
+                          ) : (
+                            <Play className="h-4 w-4 text-white ml-0.5" />
+                          )}
+                        </div>
+                        {isPlaying && (
+                          <div className="absolute inset-0 bg-black/40 flex items-center justify-center group-hover:hidden">
+                            <div className="flex items-end gap-[2px] h-3">
+                              {[1, 2, 3].map((b) => (
+                                <div
+                                  key={b}
+                                  className="w-[2px] bg-white rounded-full animate-bounce"
+                                  style={{
+                                    height: `${6 + b * 2}px`,
+                                    animationDelay: `${b * 0.15}s`,
+                                    animationDuration: "0.6s",
+                                  }}
+                                />
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0 flex flex-col justify-between gap-0.5">
+                        <p className={`text-sm font-medium truncate ${isPlaying ? "text-white" : "text-white"}`}>
+                          {track.title}
+                        </p>
+                        <p className="text-xs text-white/50 truncate">
+                          {track.desc}
+                        </p>
+                      </div>
+                      <div className="flex-shrink-0">
+                        <WaveformBars playing={isPlaying} />
+                      </div>
+                      <div className="flex flex-col items-end justify-between gap-0.5 min-w-[60px]">
+                        <p className="text-xs text-white/50 tabular-nums">
+                          {track.duration}
+                        </p>
+                        <p className="text-xs text-white/50 tabular-nums">
+                          {track.bpm}
+                        </p>
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
@@ -409,11 +519,60 @@ export default function MusicPage() {
           </div>
 
           {/* Music prompt box - sticky at bottom */}
-          <div className="sticky bottom-0 z-10 mt-8 pt-4">
+          <div className={`sticky bottom-0 z-10 mt-8 pt-4 ${nowPlayingTrack ? "pb-16" : ""}`}>
             <MusicPromptBox />
           </div>
         </div>
       </main>
+
+      {/* Now Playing bar – fixed at bottom */}
+      {nowPlayingTrack && (
+        <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-white/10 bg-[#111]/95 backdrop-blur-md">
+          {/* Progress bar */}
+          <div className="h-0.5 w-full bg-white/10">
+            <div
+              className="h-full bg-white transition-all duration-200"
+              style={{ width: `${duration ? (currentTime / duration) * 100 : 0}%` }}
+            />
+          </div>
+          <div className="flex items-center gap-3 px-4 py-2.5 max-w-[1152px] mx-auto">
+            {/* Thumbnail */}
+            <div className="relative h-10 w-10 flex-shrink-0 rounded-lg overflow-hidden">
+              <Image
+                src={nowPlayingTrack.image}
+                alt={nowPlayingTrack.title}
+                fill
+                className="object-cover"
+              />
+            </div>
+            {/* Info */}
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-white truncate">
+                {nowPlayingTrack.title}
+              </p>
+              <p className="text-xs text-white/50 truncate">
+                {nowPlayingTrack.desc}
+              </p>
+            </div>
+            {/* Time */}
+            <span className="text-xs text-white/40 tabular-nums hidden sm:block">
+              {formatTime(currentTime)} / {formatTime(duration)}
+            </span>
+            {/* Play/Pause */}
+            <button
+              type="button"
+              onClick={() => playTrack(nowPlayingTrack.id)}
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-black hover:bg-white/90 transition-colors flex-shrink-0"
+            >
+              {playingId === nowPlayingTrack.id ? (
+                <Pause className="h-3.5 w-3.5" />
+              ) : (
+                <Play className="h-3.5 w-3.5 ml-0.5" />
+              )}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
