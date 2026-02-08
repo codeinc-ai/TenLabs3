@@ -56,10 +56,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
       enableSystem
       disableTransitionOnChange
     >
-      <PostHogProvider client={posthog}>
-        {children}
-        <IntroVideo />
-      </PostHogProvider>
+      <PostHogProvider client={posthog}>{children}</PostHogProvider>
+      <IntroVideo />
     </ThemeProvider>
   );
 }

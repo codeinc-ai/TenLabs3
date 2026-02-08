@@ -258,7 +258,7 @@ function PlanCard({ plan }: { plan: Plan }) {
       >
         <div className="absolute inset-0" style={{ background: auroraHoverGradient }} />
         <div className="absolute inset-0 bg-black/30" />
-      </div>
+            </div>
 
       <div className="relative p-5">
         <div className="flex items-start justify-between gap-3">
@@ -328,7 +328,7 @@ function PlanCard({ plan }: { plan: Plan }) {
               <div>{f}</div>
             </div>
           ))}
-        </div>
+          </div>
 
         <div className="mt-6 text-xs text-white/55">{plan.credits}</div>
       </div>
@@ -500,7 +500,7 @@ function CompareTable({ category }: { category: CompareCategory }) {
               <div className="grid grid-cols-[260px_repeat(6,1fr)] bg-black/30 border-b border-white/10">
                 <div className="p-4 text-xs text-white/55">{group}</div>
                 <div className="col-span-6" />
-              </div>
+        </div>
 
               {list.map((r, i) => (
                 <div

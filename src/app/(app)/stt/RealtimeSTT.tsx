@@ -541,8 +541,8 @@ export function RealtimeSTT({ userPlan: _userPlan = "free", onActiveChange }: Re
                 isPartial={isPartial}
                 isConnected={connectionState === "connected"}
               />
-            )}
-          </div>
+        )}
+      </div>
 
           <div
             className={cn(
@@ -575,7 +575,7 @@ export function RealtimeSTT({ userPlan: _userPlan = "free", onActiveChange }: Re
                 text="Say something aloud..."
                 className="text-3xl font-light tracking-wide whitespace-nowrap"
               />
-            </div>
+        </div>
           </div>
 
           <div
@@ -594,8 +594,8 @@ export function RealtimeSTT({ userPlan: _userPlan = "free", onActiveChange }: Re
                   </h1>
                   <p className="text-muted-foreground text-sm">
                     Transcribe your voice in real-time with high accuracy
-                  </p>
-                </div>
+              </p>
+            </div>
 
                 <div className="w-full space-y-2">
                   <label className="text-foreground/70 text-sm font-medium">

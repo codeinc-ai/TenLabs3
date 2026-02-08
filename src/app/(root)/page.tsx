@@ -173,7 +173,7 @@ function BarVizDemo({ state }: { state: AgentState }) {
           />
         );
       })}
-    </div>
+            </div>
   );
 }
 
@@ -264,7 +264,7 @@ function TextToSpeechDemo() {
               )}
             >
               {p.label}
-            </button>
+                  </button>
           ))}
         </div>
 
@@ -303,7 +303,7 @@ function TextToSpeechDemo() {
                 </button>
               ))}
             </div>
-          </div>
+            </div>
 
           <div className="rounded-2xl border border-white/10 bg-black/25 p-3">
             <div className="text-[11px] text-white/55">Export</div>
@@ -312,16 +312,16 @@ function TextToSpeechDemo() {
                 <div key={t} className="rounded-xl border border-white/10 bg-white/5 px-2 py-2 text-[11px] text-white/70">
                   {t}
                 </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
-        </div>
 
         <div className="mt-4 rounded-2xl border border-white/10 bg-black/25 p-3">
           <div className="flex items-center justify-between gap-3">
             <div className="text-[11px] text-white/55">Script</div>
             <div className="text-[11px] text-white/45">{text.length.toLocaleString()} characters</div>
-          </div>
+        </div>
           <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
@@ -384,8 +384,8 @@ function DubbingDemo() {
                 {l.label}
               </button>
             ))}
-          </div>
-        </div>
+                </div>
+              </div>
 
         <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
           <div className="text-[11px] text-white/55">To</div>
@@ -421,16 +421,16 @@ function DubbingDemo() {
           >
             {preserveTone ? "On" : "Off"}
           </button>
-        </div>
+          </div>
 
         <div className="mt-3 rounded-xl border border-white/10 bg-black/25 px-3 py-3">
           <div className="flex items-center justify-between">
             <div className="text-[11px] text-white/55">Output</div>
             <div className="text-[11px] text-white/45">{from.label} → {to.label}</div>
-          </div>
+                </div>
           <div className="mt-2 flex items-end justify-center">
             <BarVizDemo state="speaking" />
-          </div>
+              </div>
         </div>
       </div>
     </div>
@@ -532,15 +532,15 @@ function VoiceCloningDemo() {
             >
               {s}
             </button>
-          ))}
-        </div>
+            ))}
+          </div>
 
         <div className="mt-3 rounded-xl border border-white/10 bg-black/25 px-3 py-3">
           {step === "upload" ? (
             <div>
               <div className="text-xs text-white/70">Upload samples</div>
               <div className="mt-1 text-[11px] text-white/45">3–5 minutes of clean speech for best results.</div>
-            </div>
+        </div>
           ) : step === "train" ? (
             <div>
               <div className="text-xs text-white/70">Train model</div>
@@ -661,7 +661,7 @@ function UseCaseCard({
             <span>{p}</span>
           </div>
         ))}
-      </div>
+          </div>
 
       {/* CTA buttons */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-3">
@@ -676,7 +676,7 @@ function UseCaseCard({
             Read docs
           </Button>
         </Link>
-      </div>
+              </div>
     </div>
   );
 
@@ -731,10 +731,10 @@ function PricingCard({
             <li key={it} className="flex items-start gap-2">
               <Check className="mt-0.5 size-4 text-white/85" strokeWidth={2.4} />
               <span>{it}</span>
-            </li>
-          ))}
-        </ul>
-        <SignedOut>
+                  </li>
+                ))}
+              </ul>
+              <SignedOut>
           <Link href="/sign-up">
             <Button
               className={cn("mt-6 w-full", highlight ? "bg-white text-black hover:bg-white/90" : "bg-white/8 text-white hover:bg-white/10 border border-white/10")}
@@ -744,8 +744,8 @@ function PricingCard({
               <ArrowRight className="ml-2 size-4" />
             </Button>
           </Link>
-        </SignedOut>
-        <SignedIn>
+              </SignedOut>
+              <SignedIn>
           <Link href="/dashboard/billing">
             <Button
               className={cn("mt-6 w-full", highlight ? "bg-white text-black hover:bg-white/90" : "bg-white/8 text-white hover:bg-white/10 border border-white/10")}
@@ -754,9 +754,9 @@ function PricingCard({
               Choose {name}
               <ArrowRight className="ml-2 size-4" />
             </Button>
-          </Link>
-        </SignedIn>
-      </div>
+                </Link>
+              </SignedIn>
+            </div>
     </Card>
   );
 }
@@ -770,7 +770,7 @@ function FAQItem({ q, a }: { q: string; a: string }) {
         <div>
           <div className="text-base font-medium text-white" style={{ fontFamily: "Plus Jakarta Sans, var(--font-sans)" }}>
             {q}
-          </div>
+              </div>
           <AnimatePresence initial={false}>
             {open && (
               <motion.p
@@ -784,7 +784,7 @@ function FAQItem({ q, a }: { q: string; a: string }) {
               </motion.p>
             )}
           </AnimatePresence>
-        </div>
+              </div>
         <div
           className={cn(
             "shrink-0 size-9 rounded-lg border border-white/10 bg-white/5 grid place-items-center text-white/70 transition",
@@ -1032,29 +1032,29 @@ export default function TenLabsLanding() {
 
                 <Reveal delay={0.15}>
                   <div className="mt-7 flex flex-col sm:flex-row gap-3">
-                    <SignedOut>
+              <SignedOut>
                       <Link href="/sign-up">
                         <Button className="h-11 bg-white text-black hover:bg-white/90">
                           Start free
                           <ArrowRight className="ml-2 size-4" />
                         </Button>
                       </Link>
-                    </SignedOut>
-                    <SignedIn>
+              </SignedOut>
+              <SignedIn>
                       <Link href="/dashboard">
                         <Button className="h-11 bg-white text-black hover:bg-white/90">
                           Go to Dashboard
                           <ArrowRight className="ml-2 size-4" />
                         </Button>
-                      </Link>
-                    </SignedIn>
+                </Link>
+              </SignedIn>
                     <Link href="/creative-platform">
                       <Button variant="secondary" className="h-11 bg-white/5 hover:bg-white/10 border border-white/10">
                         <Play className="mr-2 size-4" />
                         Watch demo
                       </Button>
                     </Link>
-                  </div>
+            </div>
                 </Reveal>
 
                 <Reveal delay={0.22}>
@@ -1078,7 +1078,7 @@ export default function TenLabsLanding() {
                     ))}
                   </div>
                 </Reveal>
-              </div>
+          </div>
 
               <Reveal delay={reduce ? 0 : 0.1}>
                 <div className="relative">
@@ -1116,9 +1116,9 @@ export default function TenLabsLanding() {
                   </div>
                 </div>
               </Reveal>
-            </div>
           </div>
-        </section>
+        </div>
+      </section>
 
         {/* Features Section */}
         <section id="features" className="relative py-16 md:py-22">
@@ -1143,7 +1143,7 @@ export default function TenLabsLanding() {
                     <div className="p-6">
                       <div className="size-11 rounded-xl border border-white/10 bg-white/5 grid place-items-center text-white">
                         {f.icon}
-                      </div>
+            </div>
                       <div className="mt-4 text-lg font-semibold text-white" style={{ fontFamily: "Plus Jakarta Sans, var(--font-sans)" }}>
                         {f.title}
                       </div>
@@ -1174,7 +1174,7 @@ export default function TenLabsLanding() {
                   style={{ fontFamily: "Plus Jakarta Sans, var(--font-sans)" }}
                 >
                   Voice workflows that ship
-                </h2>
+              </h2>
                 <p className="mt-4 text-[15px] leading-7 text-white/65">
                   Interactive demos for each use case — ready for product landing pages.
                 </p>
@@ -1419,29 +1419,29 @@ export default function TenLabsLanding() {
                           Contact sales
                         </Button>
                       </Link>
-                      <SignedOut>
+                <SignedOut>
                         <Link href="/sign-up">
                           <Button className="h-11 rounded-full bg-white text-black hover:bg-white/90 px-5">
                             Start free
                             <ArrowRight className="ml-2 size-4" />
                           </Button>
                         </Link>
-                      </SignedOut>
-                      <SignedIn>
+                </SignedOut>
+                <SignedIn>
                         <Link href="/dashboard">
                           <Button className="h-11 rounded-full bg-white text-black hover:bg-white/90 px-5">
                             Dashboard
                             <ArrowRight className="ml-2 size-4" />
                           </Button>
-                        </Link>
-                      </SignedIn>
-                    </div>
-                  </div>
-                </div>
+                  </Link>
+                </SignedIn>
+              </div>
+            </div>
+          </div>
               </div>
             </Reveal>
-          </div>
-        </section>
+        </div>
+      </section>
       </main>
     </div>
   );
