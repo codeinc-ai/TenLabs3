@@ -284,7 +284,7 @@ export function TTSClient({ userPlan = "free", currentUsage }: TTSClientProps) {
         ? {
             text,
             voiceId: selectedVoiceId,
-            provider: "Tenlabs V2",
+            provider: "minimax",
             model: minimaxModel,
             speed: mmSpeed,
             volume: mmVolume,

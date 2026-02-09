@@ -101,9 +101,17 @@ export async function generateSpeech(
     const apiKey = getMinimaxApiKey();
     const model = options.model ?? MINIMAX_TTS_DEFAULTS.model;
 
+    // MiniMax v2 API does NOT support an "emotion" field in voice_setting.
+    // Instead, we prepend an emotion instruction tag to the text so the model
+    // adjusts its delivery accordingly.
+    let processedText = text;
+    if (options.emotion) {
+      processedText = `[${options.emotion}] ${text}`;
+    }
+
     const requestBody = {
       model,
-      text,
+      text: processedText,
       stream: false,
       output_format: "hex",
       voice_setting: {
@@ -111,7 +119,6 @@ export async function generateSpeech(
         speed: options.speed ?? MINIMAX_TTS_DEFAULTS.speed,
         vol: options.volume ?? MINIMAX_TTS_DEFAULTS.volume,
         pitch: options.pitch ?? MINIMAX_TTS_DEFAULTS.pitch,
-        ...(options.emotion ? { emotion: options.emotion } : {}),
       },
       audio_setting: {
         sample_rate: MINIMAX_TTS_DEFAULTS.sampleRate,
@@ -122,14 +129,32 @@ export async function generateSpeech(
       language_boost: MINIMAX_TTS_DEFAULTS.languageBoost,
     };
 
-    const response = await fetch(`${MINIMAX_API_URL}/t2a_v2`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify(requestBody),
-    });
+    // 30s timeout to avoid indefinite hangs
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 30000);
+
+    let response: Response;
+    try {
+      response = await fetch(`${MINIMAX_API_URL}/t2a_v2`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify(requestBody),
+        signal: controller.signal,
+      });
+    } catch (fetchError) {
+      clearTimeout(timeout);
+      if (fetchError instanceof DOMException && fetchError.name === "AbortError") {
+        throw new Error("Minimax API request timed out after 30 seconds");
+      }
+      throw new Error(
+        `Failed to connect to Minimax API: ${fetchError instanceof Error ? fetchError.message : "Network error"}`
+      );
+    } finally {
+      clearTimeout(timeout);
+    }
 
     if (!response.ok) {
       const errorText = await response.text().catch(() => "");
@@ -194,15 +219,19 @@ export async function generateSpeechAsync(
     const apiKey = getMinimaxApiKey();
     const model = options.model ?? MINIMAX_TTS_DEFAULTS.model;
 
+    let processedText = text;
+    if (options.emotion) {
+      processedText = `[${options.emotion}] ${text}`;
+    }
+
     const requestBody = {
       model,
-      text,
+      text: processedText,
       voice_setting: {
         voice_id: voiceId,
         speed: options.speed ?? MINIMAX_TTS_DEFAULTS.speed,
         vol: options.volume ?? MINIMAX_TTS_DEFAULTS.volume,
         pitch: options.pitch ?? MINIMAX_TTS_DEFAULTS.pitch,
-        ...(options.emotion ? { emotion: options.emotion } : {}),
       },
       audio_setting: {
         sample_rate: MINIMAX_TTS_DEFAULTS.sampleRate,
@@ -213,14 +242,31 @@ export async function generateSpeechAsync(
       language_boost: MINIMAX_TTS_DEFAULTS.languageBoost,
     };
 
-    const response = await fetch(`${MINIMAX_API_URL}/t2a_async_v2`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify(requestBody),
-    });
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 30000);
+
+    let response: Response;
+    try {
+      response = await fetch(`${MINIMAX_API_URL}/t2a_async_v2`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify(requestBody),
+        signal: controller.signal,
+      });
+    } catch (fetchError) {
+      clearTimeout(timeout);
+      if (fetchError instanceof DOMException && fetchError.name === "AbortError") {
+        throw new Error("Minimax async API request timed out after 30 seconds");
+      }
+      throw new Error(
+        `Failed to connect to Minimax API: ${fetchError instanceof Error ? fetchError.message : "Network error"}`
+      );
+    } finally {
+      clearTimeout(timeout);
+    }
 
     if (!response.ok) {
       const errorText = await response.text().catch(() => "");
