@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import {
   Play,
   Volume2,
@@ -9,6 +10,8 @@ import {
   TrendingUp,
   Settings,
   BarChart3,
+  Loader2,
+  ExternalLink,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -33,12 +36,43 @@ const features = [
   },
 ];
 
+interface AudioNativeProject {
+  _id: string;
+  name: string;
+  elevenLabsProjectId: string;
+  title?: string;
+  author?: string;
+  voiceId: string;
+  modelId: string;
+  textColor?: string;
+  backgroundColor?: string;
+  htmlSnippet?: string;
+  status: string;
+  autoConvert: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 interface AudioNativeClientProps {
   userPlan: "free" | "starter" | "creator" | "pro";
 }
 
 export function AudioNativeClient({ userPlan }: AudioNativeClientProps) {
   const hasAccess = userPlan === "creator" || userPlan === "pro";
+  const [projects, setProjects] = useState<AudioNativeProject[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!hasAccess) return;
+    setLoading(true);
+    fetch("/api/audio-native")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) setProjects(data.data);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [hasAccess]);
 
   return (
     <div className="flex-1 overflow-y-auto">
@@ -175,6 +209,69 @@ export function AudioNativeClient({ userPlan }: AudioNativeClientProps) {
                 Contact Sales
               </Link>
             </div>
+          </div>
+        )}
+
+        {/* Your Projects */}
+        {hasAccess && (
+          <div className="mb-10">
+            <h2 className="text-lg font-semibold text-black dark:text-white mb-4">
+              Your Projects
+            </h2>
+            {loading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 size={24} className="animate-spin text-gray-400" />
+              </div>
+            ) : projects.length === 0 ? (
+              <div className="border border-gray-200 dark:border-[#333] rounded-xl p-8 text-center">
+                <Radio size={24} className="mx-auto mb-3 text-gray-400 dark:text-gray-500" />
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  No projects yet. Create your first Audio Native project to get started.
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {projects.map((project) => (
+                  <Link
+                    key={project._id}
+                    href={`/audio-native/${project._id}`}
+                    className="group border border-gray-200 dark:border-[#333] bg-white dark:bg-[#1a1a1a] rounded-xl p-5 hover:border-gray-300 dark:hover:border-[#444] transition-colors"
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      <h3 className="font-medium text-black dark:text-white group-hover:underline truncate mr-2">
+                        {project.name}
+                      </h3>
+                      <span
+                        className={`flex-shrink-0 text-xs font-medium px-2 py-0.5 rounded-full ${
+                          project.status === "ready"
+                            ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                            : "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
+                        }`}
+                      >
+                        {project.status}
+                      </span>
+                    </div>
+                    {(project.title || project.author) && (
+                      <p className="text-sm text-gray-500 dark:text-gray-400 mb-2 truncate">
+                        {project.title}
+                        {project.title && project.author && " · "}
+                        {project.author}
+                      </p>
+                    )}
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-gray-400 dark:text-gray-500">
+                        {new Date(project.createdAt).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })}
+                      </span>
+                      <ExternalLink size={14} className="text-gray-400 dark:text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
         )}
 

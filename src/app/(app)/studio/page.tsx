@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import Link from "next/link";
 import {
   Search,
   Upload,
@@ -16,6 +17,7 @@ import {
   Wand2,
   LayoutGrid,
   List,
+  Radio,
 } from "lucide-react";
 
 const audioTools = [
@@ -107,8 +109,36 @@ const recentProjects = [
  *
  * Create audiobooks, podcasts, video voiceovers, and more.
  */
+interface AudioNativeProject {
+  _id: string;
+  name: string;
+  title?: string;
+  author?: string;
+  status: "processing" | "ready";
+  createdAt: string;
+}
+
 export default function StudioPage() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [audioNativeProjects, setAudioNativeProjects] = useState<AudioNativeProject[]>([]);
+  const [audioNativeLoading, setAudioNativeLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchAudioNativeProjects() {
+      try {
+        const res = await fetch("/api/audio-native");
+        const json = await res.json();
+        if (json.success && Array.isArray(json.data)) {
+          setAudioNativeProjects(json.data);
+        }
+      } catch {
+        // keep empty array
+      } finally {
+        setAudioNativeLoading(false);
+      }
+    }
+    fetchAudioNativeProjects();
+  }, []);
 
   return (
     <div className="flex-1 overflow-y-auto">
@@ -147,6 +177,53 @@ export default function StudioPage() {
             ))}
           </div>
         </div>
+
+        {/* Audio Native Section */}
+        {!audioNativeLoading && audioNativeProjects.length > 0 && (
+          <div className="mb-10">
+            <h2 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-4">
+              Audio Native
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {audioNativeProjects.map((project) => (
+                <Link
+                  key={project._id}
+                  href={`/audio-native/${project._id}`}
+                  className="text-left group block"
+                >
+                  <div className="aspect-video bg-gray-100 dark:bg-[#1a1a1a] rounded-xl mb-3 overflow-hidden group-hover:bg-gray-200 dark:group-hover:bg-[#252525] transition-colors">
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Radio size={32} className="text-gray-400 dark:text-gray-500 group-hover:text-gray-500 dark:group-hover:text-gray-400 transition-colors" />
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-medium text-gray-900 dark:text-white text-sm truncate group-hover:text-black dark:group-hover:text-gray-200">
+                      {project.name}
+                    </h3>
+                    <span
+                      className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full ${
+                        project.status === "ready"
+                          ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
+                          : "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400"
+                      }`}
+                    >
+                      <span
+                        className={`w-1.5 h-1.5 rounded-full ${
+                          project.status === "ready" ? "bg-green-500" : "bg-yellow-500"
+                        }`}
+                      />
+                      {project.status}
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-400 dark:text-gray-500">
+                    {project.author && <>{project.author} · </>}
+                    {new Date(project.createdAt).toLocaleDateString()}
+                  </p>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Recent Projects Section */}
         <div>
