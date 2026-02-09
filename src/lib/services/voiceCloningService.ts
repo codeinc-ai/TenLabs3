@@ -324,18 +324,26 @@ export async function generateVoiceRemixPreviews(
   try {
     const apiKey = await getElevenLabsApiKey();
 
+    // Build request body — text is optional (100-1000 chars); if too short, use auto_generate_text
+    const body: Record<string, unknown> = {
+      voice_description: voiceDescription,
+    };
+    if (sampleText && sampleText.length >= 100 && sampleText.length <= 1000) {
+      body.text = sampleText;
+    } else {
+      body.auto_generate_text = true;
+    }
+
+    // Correct endpoint: /v1/text-to-voice/{voice_id}/remix
     const response = await fetch(
-      `${ELEVENLABS_API_URL}/text-to-voice/${voiceId}/create-previews`,
+      `${ELEVENLABS_API_URL}/text-to-voice/${voiceId}/remix`,
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "xi-api-key": apiKey,
         },
-        body: JSON.stringify({
-          voice_description: voiceDescription,
-          text: sampleText,
-        }),
+        body: JSON.stringify(body),
       }
     );
 
@@ -346,7 +354,7 @@ export async function generateVoiceRemixPreviews(
 
     const data = await response.json();
     const previews: VoicePreview[] = (data.previews || []).map(
-      (preview: { generated_voice_id: string; audio_base_64: string; media_type: string }) => ({
+      (preview: { generated_voice_id: string; audio_base_64: string; media_type: string; duration_secs?: number }) => ({
         generatedVoiceId: preview.generated_voice_id,
         audioBase64: preview.audio_base_64,
         mediaType: preview.media_type,

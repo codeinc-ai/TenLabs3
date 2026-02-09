@@ -41,7 +41,7 @@ export function VoiceRemixClient() {
   const [step, setStep] = useState<"remix" | "preview" | "save">("remix");
   const [voiceDescription, setVoiceDescription] = useState("");
   const [sampleText, setSampleText] = useState(
-    "Hello! This is a sample of my remixed voice."
+    "Hello! This is a sample of my remixed voice. I can speak clearly and naturally, with warmth and confidence. Let me show you how versatile and expressive I can be."
   );
   const [name, setName] = useState("");
   const [previews, setPreviews] = useState<VoicePreview[]>([]);
@@ -92,7 +92,7 @@ export function VoiceRemixClient() {
       }
 
       const data = await res.json();
-      setPreviews(data.previews || []);
+      setPreviews(data.data || data.previews || []);
       setStep("preview");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to generate previews");
