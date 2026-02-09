@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   ChevronLeft,
@@ -11,6 +11,12 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { DEFAULT_VOICES, ELEVENLABS_MODELS } from "@/constants";
+
+interface MyVoice {
+  voiceId: string;
+  name: string;
+  category?: string;
+}
 
 export default function AudioNativeCreatePage() {
   const router = useRouter();
@@ -27,6 +33,30 @@ export default function AudioNativeCreatePage() {
   const [file, setFile] = useState<File | null>(null);
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [myVoices, setMyVoices] = useState<MyVoice[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const fetchMyVoices = async () => {
+      try {
+        const res = await fetch("/api/voices?limit=100&sortBy=name");
+        if (!res.ok) return;
+        const json = await res.json();
+        const voices: MyVoice[] = (json.voices ?? [])
+          .filter((v: Record<string, unknown>) => !v.isDefault)
+          .map((v: Record<string, unknown>) => ({
+            voiceId: v.voiceId as string,
+            name: v.name as string,
+            category: (v.category as string) || "Custom",
+          }));
+        if (!cancelled) setMyVoices(voices);
+      } catch {
+        // keep empty
+      }
+    };
+    fetchMyVoices();
+    return () => { cancelled = true; };
+  }, []);
 
   const handleCreate = async () => {
     if (!name.trim()) return;
@@ -126,11 +156,22 @@ export default function AudioNativeCreatePage() {
                 onChange={(e) => setVoiceId(e.target.value)}
                 className="w-full p-3 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-xl text-sm text-gray-900 dark:text-gray-100 outline-none focus:border-gray-400 dark:focus:border-[#555] transition-colors cursor-pointer"
               >
-                {DEFAULT_VOICES.map((v) => (
-                  <option key={v.id} value={v.id}>
-                    {v.name} — {v.category}
-                  </option>
-                ))}
+                {myVoices.length > 0 && (
+                  <optgroup label="My Voices">
+                    {myVoices.map((v) => (
+                      <option key={v.voiceId} value={v.voiceId}>
+                        {v.name} — {v.category}
+                      </option>
+                    ))}
+                  </optgroup>
+                )}
+                <optgroup label="Default Voices">
+                  {DEFAULT_VOICES.map((v) => (
+                    <option key={v.id} value={v.id}>
+                      {v.name} — {v.category}
+                    </option>
+                  ))}
+                </optgroup>
               </select>
             </div>
             <div className="space-y-2">
