@@ -21,6 +21,8 @@ import {
   List,
   MoreVertical,
   Wand2,
+  Download,
+  Plus,
 } from "lucide-react";
 
 import type { VoiceItem } from "@/lib/services/voiceService";
@@ -170,6 +172,18 @@ export function MyVoicesClient({ initialVoices }: MyVoicesClientProps) {
     router.push(`/tts?voice=${voice.voiceId}`);
   };
 
+  // Download preview audio
+  const handleDownload = (voice: VoiceItem) => {
+    if (!voice.previewUrl) return;
+    const a = document.createElement("a");
+    a.href = voice.previewUrl;
+    a.download = `${voice.name.replace(/\s+/g, "-").toLowerCase()}-preview.mp3`;
+    a.target = "_blank";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
   // Open delete dialog
   const openDeleteDialog = (voice: VoiceItem) => {
     setVoiceToDelete(voice);
@@ -184,6 +198,20 @@ export function MyVoicesClient({ initialVoices }: MyVoicesClientProps) {
 
   const openRemixDialog = (voice: VoiceItem) => {
     router.push(`/voices/remix?voiceId=${encodeURIComponent(voice.voiceId)}&voiceName=${encodeURIComponent(voice.name)}`);
+  };
+
+  // Get category color
+  const getCategoryColor = (category?: string) => {
+    switch (category) {
+      case "Designed":
+        return "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400";
+      case "Cloned":
+        return "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400";
+      case "Remixed":
+        return "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400";
+      default:
+        return "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300";
+    }
   };
 
   // Get gender icon
@@ -215,7 +243,7 @@ export function MyVoicesClient({ initialVoices }: MyVoicesClientProps) {
   // Voice card component
   const VoiceCard = ({ voice }: { voice: VoiceItem }) => (
     <Card
-      className={`group relative overflow-hidden transition-shadow hover:shadow-md ${
+      className={`group relative overflow-hidden transition-all hover:shadow-lg hover:-translate-y-0.5 ${
         voice.isFavorite ? "ring-1 ring-yellow-500/50" : ""
       }`}
     >
@@ -224,7 +252,7 @@ export function MyVoicesClient({ initialVoices }: MyVoicesClientProps) {
         <div className="absolute right-3 top-3 z-10">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
+              <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity">
                 <MoreVertical className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -242,6 +270,12 @@ export function MyVoicesClient({ initialVoices }: MyVoicesClientProps) {
                   </>
                 )}
               </DropdownMenuItem>
+              {voice.previewUrl && (
+                <DropdownMenuItem onClick={() => handleDownload(voice)}>
+                  <Download className="mr-2 h-4 w-4" />
+                  Download Preview
+                </DropdownMenuItem>
+              )}
               {canRemixVoice(voice) && (
                 <>
                   <DropdownMenuSeparator />
@@ -266,23 +300,31 @@ export function MyVoicesClient({ initialVoices }: MyVoicesClientProps) {
         {/* Favorite Badge */}
         {voice.isFavorite && (
           <div className="absolute left-3 top-3">
-            <Badge className="bg-yellow-500 text-yellow-950">
-              <Star className="mr-1 h-3 w-3 fill-current" />
-              Favorite
-            </Badge>
+            <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
           </div>
         )}
 
         {/* Voice Avatar & Name */}
-        <div className="flex items-start gap-4 mt-6">
-          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-primary/5 text-2xl">
+        <div className="flex items-start gap-4 mt-2">
+          <div className="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-primary/5 text-2xl">
             <User className="h-7 w-7 text-primary" />
+            {/* Play overlay on hover */}
+            <button
+              onClick={() => handlePlay(voice)}
+              className="absolute inset-0 flex items-center justify-center rounded-full bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              {playingId === voice.voiceId ? (
+                <Pause className="h-5 w-5 text-white" />
+              ) : (
+                <Play className="h-5 w-5 text-white ml-0.5" />
+              )}
+            </button>
           </div>
           <div className="min-w-0 flex-1">
             <h3 className="font-semibold truncate">{voice.name}</h3>
             <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
               <span>{getGenderIcon(voice.gender)}</span>
-              <span>{getAgeLabel(voice.age)}</span>
+              {getAgeLabel(voice.age) && <span>{getAgeLabel(voice.age)}</span>}
               {voice.accent && (
                 <>
                   <span>•</span>
@@ -293,12 +335,12 @@ export function MyVoicesClient({ initialVoices }: MyVoicesClientProps) {
           </div>
         </div>
 
-        {/* Category */}
+        {/* Category Badge */}
         {voice.category && (
-          <div className="mt-4">
-            <Badge variant="secondary" className="text-xs">
+          <div className="mt-3">
+            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium ${getCategoryColor(voice.category)}`}>
               {voice.category}
-            </Badge>
+            </span>
           </div>
         )}
 
@@ -311,31 +353,20 @@ export function MyVoicesClient({ initialVoices }: MyVoicesClientProps) {
 
         {/* Actions */}
         <div className="mt-4 flex items-center gap-2">
-          {/* Preview Button */}
           <Button
-            variant={playingId === voice.voiceId ? "default" : "outline"}
-            size="sm"
             className="flex-1"
-            onClick={() => handlePlay(voice)}
+            size="sm"
+            onClick={() => handleUseVoice(voice)}
           >
-            {playingId === voice.voiceId ? (
-              <>
-                <Pause className="mr-1 h-4 w-4" />
-                Playing...
-              </>
-            ) : (
-              <>
-                <Play className="mr-1 h-4 w-4" />
-                Preview
-              </>
-            )}
+            <Sparkles className="mr-1.5 h-4 w-4" />
+            Use in TTS
           </Button>
 
           {/* Favorite Button */}
           <Button
             variant="outline"
             size="icon"
-            className="shrink-0"
+            className="shrink-0 h-8 w-8"
             onClick={() => handleToggleFavorite(voice)}
             disabled={togglingFavoriteId === voice.voiceId}
           >
@@ -348,16 +379,6 @@ export function MyVoicesClient({ initialVoices }: MyVoicesClientProps) {
             )}
           </Button>
         </div>
-
-        {/* Use Voice Button */}
-        <Button
-          className="mt-3 w-full"
-          size="sm"
-          onClick={() => handleUseVoice(voice)}
-        >
-          <Sparkles className="mr-2 h-4 w-4" />
-          Use This Voice
-        </Button>
       </CardContent>
     </Card>
   );
@@ -365,34 +386,44 @@ export function MyVoicesClient({ initialVoices }: MyVoicesClientProps) {
   // Voice list item component
   const VoiceListItem = ({ voice }: { voice: VoiceItem }) => (
     <Card
-      className={`transition-shadow hover:shadow-md ${
+      className={`transition-all hover:shadow-md ${
         voice.isFavorite ? "ring-1 ring-yellow-500/50" : ""
       }`}
     >
       <CardContent className="p-4">
         <div className="flex items-center gap-4">
-          {/* Avatar */}
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-primary/5">
-            <User className="h-6 w-6 text-primary" />
-          </div>
+          {/* Avatar with play */}
+          <button
+            onClick={() => handlePlay(voice)}
+            className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-primary/5 hover:from-primary/30 hover:to-primary/10 transition-colors"
+          >
+            {playingId === voice.voiceId ? (
+              <Pause className="h-5 w-5 text-primary" />
+            ) : (
+              <Play className="h-5 w-5 text-primary ml-0.5" />
+            )}
+          </button>
 
           {/* Info */}
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
               <h3 className="font-semibold truncate">{voice.name}</h3>
               {voice.isFavorite && (
-                <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
+                <Star className="h-3.5 w-3.5 fill-yellow-500 text-yellow-500 shrink-0" />
+              )}
+              {voice.category && (
+                <span className={`inline-flex items-center px-1.5 py-0 rounded-full text-[10px] font-medium ${getCategoryColor(voice.category)}`}>
+                  {voice.category}
+                </span>
               )}
             </div>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <span>{getGenderIcon(voice.gender)}</span>
-              <span>{getAgeLabel(voice.age)}</span>
-              {voice.category && (
+              {getAgeLabel(voice.age) && <span>{getAgeLabel(voice.age)}</span>}
+              {voice.accent && (
                 <>
                   <span>•</span>
-                  <Badge variant="secondary" className="text-xs px-1.5 py-0">
-                    {voice.category}
-                  </Badge>
+                  <span>{voice.accent}</span>
                 </>
               )}
             </div>
@@ -400,19 +431,8 @@ export function MyVoicesClient({ initialVoices }: MyVoicesClientProps) {
 
           {/* Actions */}
           <div className="flex items-center gap-2">
-            <Button
-              variant={playingId === voice.voiceId ? "default" : "outline"}
-              size="sm"
-              onClick={() => handlePlay(voice)}
-            >
-              {playingId === voice.voiceId ? (
-                <Pause className="h-4 w-4" />
-              ) : (
-                <Play className="h-4 w-4" />
-              )}
-            </Button>
             <Button size="sm" onClick={() => handleUseVoice(voice)}>
-              <Sparkles className="mr-2 h-4 w-4" />
+              <Sparkles className="mr-1.5 h-4 w-4" />
               Use
             </Button>
             <DropdownMenu>
@@ -435,6 +455,12 @@ export function MyVoicesClient({ initialVoices }: MyVoicesClientProps) {
                     </>
                   )}
                 </DropdownMenuItem>
+                {voice.previewUrl && (
+                  <DropdownMenuItem onClick={() => handleDownload(voice)}>
+                    <Download className="mr-2 h-4 w-4" />
+                    Download Preview
+                  </DropdownMenuItem>
+                )}
                 {canRemixVoice(voice) && (
                   <>
                     <DropdownMenuSeparator />
@@ -470,7 +496,7 @@ export function MyVoicesClient({ initialVoices }: MyVoicesClientProps) {
       />
 
       {/* Page Header */}
-      <div className="flex items-start justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" asChild>
             <Link href="/voices">
@@ -484,12 +510,26 @@ export function MyVoicesClient({ initialVoices }: MyVoicesClientProps) {
             </p>
           </div>
         </div>
-        <Button asChild>
-          <Link href="/voices">
-            <Mic2 className="mr-2 h-4 w-4" />
-            Browse Voices
-          </Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" asChild>
+            <Link href="/voices/design">
+              <Sparkles className="mr-2 h-4 w-4" />
+              Design Voice
+            </Link>
+          </Button>
+          <Button variant="outline" asChild>
+            <Link href="/voices/clone">
+              <Plus className="mr-2 h-4 w-4" />
+              Clone Voice
+            </Link>
+          </Button>
+          <Button asChild>
+            <Link href="/voices">
+              <Mic2 className="mr-2 h-4 w-4" />
+              Browse
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {/* Error Alert */}
@@ -529,20 +569,27 @@ export function MyVoicesClient({ initialVoices }: MyVoicesClientProps) {
       {voices.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="rounded-full bg-muted p-4">
-              <Mic2 className="h-10 w-10 text-muted-foreground" />
+            <div className="rounded-full bg-purple-100 dark:bg-purple-900/30 p-4">
+              <Mic2 className="h-10 w-10 text-purple-600 dark:text-purple-400" />
             </div>
-            <h2 className="mt-6 text-xl font-semibold">No saved voices</h2>
+            <h2 className="mt-6 text-xl font-semibold">No saved voices yet</h2>
             <p className="mt-2 max-w-md text-sm text-muted-foreground">
-              Browse the voice library and save your favorite voices for quick
-              access.
+              Create a custom voice with AI voice design, clone your own voice, or browse the library.
             </p>
-            <Button className="mt-6" asChild>
-              <Link href="/voices">
-                <Mic2 className="mr-2 h-4 w-4" />
-                Browse Voice Library
-              </Link>
-            </Button>
+            <div className="mt-6 flex items-center gap-3">
+              <Button variant="outline" asChild>
+                <Link href="/voices/design">
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  Design a Voice
+                </Link>
+              </Button>
+              <Button asChild>
+                <Link href="/voices">
+                  <Mic2 className="mr-2 h-4 w-4" />
+                  Browse Library
+                </Link>
+              </Button>
+            </div>
           </CardContent>
         </Card>
       ) : filteredVoices.length === 0 ? (

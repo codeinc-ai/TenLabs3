@@ -179,32 +179,55 @@ export function TTSClient({ userPlan = "free", currentUsage }: TTSClientProps) {
   }, [selectedVoiceId, voices]);
 
   useEffect(() => {
-    // Fetch richer voice metadata (including previewUrl) when available.
+    // Fetch default voices AND user's custom voices (designed, cloned, etc.)
     let cancelled = false;
     const run = async () => {
       try {
-        const res = await fetch("/api/voices?defaultOnly=true&limit=100&sortBy=name");
-        if (!res.ok) return;
-        const json = (await res.json()) as { voices?: Array<Record<string, unknown>> };
-        const apiVoices: VoicePickerVoice[] = (json.voices ?? [])
-          .map((v): VoicePickerVoice | null => {
-            const voiceId = typeof v.voiceId === "string" ? v.voiceId : null;
-            const name = typeof v.name === "string" ? v.name : null;
-            if (!voiceId || !name) return null;
-            return {
-              voiceId,
-              name,
-              previewUrl: typeof v.previewUrl === "string" ? v.previewUrl : undefined,
-              labels: {
-                accent: typeof v.accent === "string" ? v.accent : undefined,
-                gender: typeof v.gender === "string" ? v.gender : undefined,
-                age: typeof v.age === "string" ? v.age : undefined,
-                description: typeof v.description === "string" ? v.description : undefined,
-                "use case": typeof v.category === "string" ? v.category : undefined,
-              },
-            };
-          })
-          .filter((v): v is VoicePickerVoice => v !== null);
+        // Fetch both in parallel
+        const [defaultRes, myRes] = await Promise.all([
+          fetch("/api/voices?defaultOnly=true&limit=100&sortBy=name"),
+          fetch("/api/voices/my-voices").catch(() => null),
+        ]);
+
+        const mapVoice = (v: Record<string, unknown>): VoicePickerVoice | null => {
+          const voiceId = typeof v.voiceId === "string" ? v.voiceId : null;
+          const name = typeof v.name === "string" ? v.name : null;
+          if (!voiceId || !name) return null;
+          return {
+            voiceId,
+            name,
+            previewUrl: typeof v.previewUrl === "string" ? v.previewUrl : undefined,
+            labels: {
+              accent: typeof v.accent === "string" ? v.accent : undefined,
+              gender: typeof v.gender === "string" ? v.gender : undefined,
+              age: typeof v.age === "string" ? v.age : undefined,
+              description: typeof v.description === "string" ? v.description : undefined,
+              "use case": typeof v.category === "string" ? v.category : undefined,
+            },
+          };
+        };
+
+        let apiVoices: VoicePickerVoice[] = [];
+
+        if (defaultRes.ok) {
+          const json = (await defaultRes.json()) as { voices?: Array<Record<string, unknown>> };
+          apiVoices = (json.voices ?? [])
+            .map(mapVoice)
+            .filter((v): v is VoicePickerVoice => v !== null);
+        }
+
+        // Merge user's custom voices (designed, cloned) — they appear at the top
+        if (myRes && myRes.ok) {
+          const myJson = (await myRes.json()) as { voices?: Array<Record<string, unknown>> };
+          const myVoices = (myJson.voices ?? [])
+            .map(mapVoice)
+            .filter((v): v is VoicePickerVoice => v !== null);
+
+          // Deduplicate: user voices take priority
+          const defaultIds = new Set(myVoices.map((v) => v.voiceId));
+          const dedupedDefaults = apiVoices.filter((v) => !defaultIds.has(v.voiceId));
+          apiVoices = [...myVoices, ...dedupedDefaults];
+        }
 
         if (!cancelled && apiVoices.length) setVoices(apiVoices);
       } catch {

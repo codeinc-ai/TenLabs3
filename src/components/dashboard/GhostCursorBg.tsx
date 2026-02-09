@@ -1,15 +1,26 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 
-import Aurora from "@/components/Aurora";
+// Lazy-load Aurora so WebGL setup doesn't block initial paint
+const Aurora = dynamic(() => import("@/components/Aurora"), {
+  ssr: false,
+  loading: () => null,
+});
 
 /**
  * Aurora background for dashboard pages.
  * Hides immediately when realtime scribe starts, shows when it stops.
+ * Falls back to a CSS gradient if WebGL is unavailable.
  */
 export function GhostCursorBg() {
   const [hidden, setHidden] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const handler = (e: Event) => {
@@ -20,6 +31,8 @@ export function GhostCursorBg() {
     window.addEventListener("realtime-scribe-active", handler);
     return () => window.removeEventListener("realtime-scribe-active", handler);
   }, []);
+
+  if (!mounted) return null;
 
   return (
     <div

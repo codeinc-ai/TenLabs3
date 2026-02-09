@@ -14,6 +14,7 @@ import {
   CheckCircle2,
   Check,
   ArrowLeft,
+  Download,
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
@@ -47,6 +48,7 @@ export function VoiceDesignClient() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [savedVoiceId, setSavedVoiceId] = useState<string | null>(null);
 
   const handleGeneratePreviews = async () => {
     if (!voiceDescription.trim()) {
@@ -95,6 +97,24 @@ export function VoiceDesignClient() {
     setSelectedPreview(generatedVoiceId);
   };
 
+  const handleDownloadPreview = (preview: VoicePreview, index: number) => {
+    const byteChars = atob(preview.audioBase64);
+    const byteArray = new Uint8Array(byteChars.length);
+    for (let i = 0; i < byteChars.length; i++) {
+      byteArray[i] = byteChars.charCodeAt(i);
+    }
+    const ext = preview.mediaType.includes("wav") ? "wav" : "mp3";
+    const blob = new Blob([byteArray], { type: preview.mediaType });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `voice-preview-${index + 1}.${ext}`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   const handleSaveVoice = async () => {
     if (!selectedPreview) {
       setError("Please select a voice preview");
@@ -125,11 +145,10 @@ export function VoiceDesignClient() {
         throw new Error(data.error || "Failed to save voice");
       }
 
+      const data = await res.json();
+      const voiceId = data.data?.voiceId || selectedPreview;
+      setSavedVoiceId(voiceId);
       setSuccess(true);
-
-      setTimeout(() => {
-        router.push("/voices/my-voices");
-      }, 1500);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save voice");
     } finally {
@@ -233,6 +252,21 @@ export function VoiceDesignClient() {
               <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
                 Your designed voice &quot;{voiceName}&quot; is ready to use.
               </p>
+              <div className="mt-6 flex items-center gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => router.push("/voices/my-voices")}
+                >
+                  View My Voices
+                </Button>
+                <Button
+                  onClick={() => router.push(`/tts?voice=${savedVoiceId || selectedPreview}`)}
+                  className="bg-purple-600 hover:bg-purple-700"
+                >
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  Use in TTS
+                </Button>
+              </div>
             </div>
           ) : (
             <div className="space-y-5">
@@ -367,6 +401,13 @@ export function VoiceDesignClient() {
                           />
                           <AudioPlayerProgress className="w-20" />
                           <AudioPlayerTime />
+                          <button
+                            onClick={() => handleDownloadPreview(preview, index)}
+                            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-[#222] transition-colors"
+                            title="Download preview"
+                          >
+                            <Download className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                          </button>
                         </div>
                       </div>
                     ))}
