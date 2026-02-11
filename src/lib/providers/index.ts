@@ -11,11 +11,14 @@ export type {
 } from "./types";
 
 export * as minimax from "./minimax";
+export * as noiz from "./noiz";
 
-export function getProvider(provider: "elevenlabs" | "minimax") {
+export function getProvider(provider: "elevenlabs" | "minimax" | "noiz") {
   switch (provider) {
     case "minimax":
       return import("./minimax");
+    case "noiz":
+      return import("./noiz");
     case "elevenlabs":
       throw new Error(
         "ElevenLabs provider not yet migrated to the provider abstraction layer. " +

@@ -86,6 +86,24 @@ export default function AudioNativeCreatePage() {
         throw new Error(data.error || `Request failed (${res.status})`);
       }
 
+      const result = await res.json();
+      const projectId = result.data?.projectId;
+
+      if (projectId) {
+        const listRes = await fetch("/api/audio-native");
+        if (listRes.ok) {
+          const listData = await listRes.json();
+          const projects = listData.data || [];
+          const match = projects.find(
+            (p: Record<string, unknown>) => p.elevenLabsProjectId === projectId
+          );
+          if (match?._id) {
+            router.push(`/audio-native/${match._id}`);
+            return;
+          }
+        }
+      }
+
       router.push("/audio-native");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create project");

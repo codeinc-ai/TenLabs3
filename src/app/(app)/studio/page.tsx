@@ -26,6 +26,14 @@ const audioTools = [
     description: "Start from scratch, or import files",
     color: "bg-emerald-500",
     icon: BookOpen,
+    href: "/tts",
+  },
+  {
+    title: "New audiobook (Noiz)",
+    description: "Use Noiz AI voices for your audiobook",
+    color: "bg-cyan-500",
+    icon: BookOpen,
+    href: "/tts?provider=noiz",
   },
   {
     title: "Create a podcast",
@@ -285,14 +293,16 @@ function ToolCard({
   description,
   color,
   icon: Icon,
+  href,
 }: {
   title: string;
   description: string;
   color: string;
   icon: React.ComponentType<{ size?: number; className?: string }>;
+  href?: string;
 }) {
-  return (
-    <button className="flex items-center gap-4 p-4 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-xl hover:border-gray-300 dark:hover:border-[#444] hover:shadow-sm dark:hover:shadow-none transition-all text-left group">
+  const content = (
+    <>
       <div
         className={`w-10 h-10 ${color} rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform`}
       >
@@ -302,6 +312,22 @@ function ToolCard({
         <h3 className="font-medium text-gray-900 dark:text-white text-sm">{title}</h3>
         <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{description}</p>
       </div>
+    </>
+  );
+
+  const className = "flex items-center gap-4 p-4 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-xl hover:border-gray-300 dark:hover:border-[#444] hover:shadow-sm dark:hover:shadow-none transition-all text-left group";
+
+  if (href) {
+    return (
+      <Link href={href} className={className}>
+        {content}
+      </Link>
+    );
+  }
+
+  return (
+    <button className={className}>
+      {content}
     </button>
   );
 }

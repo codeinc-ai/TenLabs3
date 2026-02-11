@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { Types } from "mongoose";
 import { generateSpeech } from "@/lib/services/ttsService";
 import { generateSpeech as generateMinimaxSpeech } from "@/lib/providers/minimax/minimaxTtsService";
+import { generateSpeech as generateNoizSpeech } from "@/lib/providers/noiz/noizTtsService";
 import { TTSRequest } from "@/types/TTSRequest";
 import { connectToDB } from "@/lib/mongodb";
 import { User } from "@/models/User";
@@ -18,7 +19,7 @@ import { PLANS } from "@/constants";
  * TTS API Route
  * ==========================================
  * Handles POST requests to generate TTS audio.
- * Supports providers: "elevenlabs" (default), "minimax"
+ * Supports providers: "elevenlabs" (default), "minimax", "noiz"
  * Endpoint: /api/tts
  */
 export async function POST(req: NextRequest) {
@@ -137,6 +138,104 @@ export async function POST(req: NextRequest) {
           properties: {
             feature: "tts",
             provider: "minimax",
+            userId: user.id,
+            plan: dbUser.plan,
+            generationId,
+            charactersUsed: body.text.length,
+            voiceId: body.voiceId,
+          },
+        });
+
+        return NextResponse.json(
+          { success: true, data: { audioUrl, generationId } },
+          { status: 200 }
+        );
+      }
+
+      if (provider === "noiz") {
+        const noizKey = process.env.NOIZ_API_KEY;
+        if (!noizKey) {
+          return NextResponse.json(
+            { error: "Noiz provider is not configured" },
+            { status: 503 }
+          );
+        }
+
+        await connectToDB();
+
+        const dbUser = await User.findOne({ clerkId: user.id });
+        if (!dbUser) {
+          return NextResponse.json({ error: "User not found" }, { status: 404 });
+        }
+
+        const plan = dbUser.plan as keyof typeof PLANS;
+        const limits = PLANS[plan];
+        const nextCharCount = dbUser.usage.charactersUsed + body.text.length;
+        const nextGenerationCount = dbUser.usage.generationsUsed + 1;
+
+        if (nextCharCount > limits.maxChars) {
+          return NextResponse.json(
+            { error: "User has exceeded character limit for their plan" },
+            { status: 403 }
+          );
+        }
+
+        if (nextGenerationCount > limits.maxGenerations) {
+          return NextResponse.json(
+            { error: "User has exceeded generation limit for their plan" },
+            { status: 403 }
+          );
+        }
+
+        const noizResult = await generateNoizSpeech(
+          body.text,
+          body.voiceId || "",
+          user.id,
+          {
+            qualityPreset: body.qualityPreset,
+            speed: body.speed,
+            outputFormat: body.outputFormat,
+          }
+        );
+
+        const generationId = noizResult.generationId;
+        const audioUrl = `/api/audio/${generationId}`;
+        const audioPath = noizResult.audioPath;
+        const audioFileId = noizResult.audioFileId;
+
+        try {
+          await Generation.create({
+            _id: new Types.ObjectId(generationId),
+            userId: dbUser._id,
+            text: body.text,
+            voiceId: body.voiceId,
+            audioPath,
+            audioUrl: noizResult.audioUrl,
+            audioFileId,
+            length: noizResult.duration ?? 0,
+            provider: "noiz",
+          });
+        } catch (dbError) {
+          if (audioPath && audioFileId) {
+            try {
+              await deleteBackblazeFile({ fileName: audioPath, fileId: audioFileId });
+            } catch {
+              // cleanup failed
+            }
+          }
+          throw dbError;
+        }
+
+        dbUser.usage.charactersUsed = nextCharCount;
+        dbUser.usage.generationsUsed = nextGenerationCount;
+        await dbUser.save();
+
+        capturePosthogServerEvent({
+          distinctId: user.id,
+          event: "generation_created",
+          properties: {
+            feature: "tts",
+            provider: "noiz",
             userId: user.id,
             plan: dbUser.plan,
             generationId,

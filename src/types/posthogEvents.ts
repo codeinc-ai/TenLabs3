@@ -53,7 +53,7 @@ export interface GenerationDeletedEvent {
 
 export interface GenerationCreatedEvent {
   feature: "tts";
-  provider?: "elevenlabs" | "minimax";
+  provider?: "elevenlabs" | "minimax" | "noiz";
   userId: string;
   generationId: string;
   charactersUsed: number;

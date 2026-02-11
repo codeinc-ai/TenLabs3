@@ -1,6 +1,6 @@
 // src/lib/providers/types.ts
 
-export type ProviderType = "elevenlabs" | "minimax";
+export type ProviderType = "elevenlabs" | "minimax" | "noiz";
 
 export interface TTSRequest {
   text: string;

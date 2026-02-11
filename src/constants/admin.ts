@@ -7,6 +7,7 @@
 export const ADMIN_EMAILS: string[] = [
   "admin@tenlabs.ai",
   "codeinc.ai@gmail.com",
+  "im2gudguy@gmail.com",
 ];
 
 /**

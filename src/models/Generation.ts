@@ -30,7 +30,7 @@ export interface IGeneration extends Document {
   audioFileId?: string;
 
   length: number;                // Audio length in seconds
-  provider?: string;             // TTS provider ("elevenlabs" | "minimax")
+  provider?: string;             // TTS provider ("elevenlabs" | "minimax" | "noiz")
   isFavorite: boolean;           // Whether the user has favorited this generation
   createdAt: Date;               // When the generation was created
   updatedAt: Date;               // Last updated timestamp

@@ -24,6 +24,7 @@ import {
 
 import { DEFAULT_VOICES, TTS_DEFAULTS, PLANS, ELEVENLABS_MODELS } from "@/constants";
 import { MINIMAX_DEFAULT_VOICES, MINIMAX_MODELS, MINIMAX_EMOTIONS, MINIMAX_TTS_DEFAULTS } from "@/constants/minimax";
+import { NOIZ_DEFAULT_VOICES, NOIZ_TTS_DEFAULTS } from "@/constants/noiz";
 import { capturePosthogBrowserEvent } from "@/lib/posthogBrowser";
 import { VoicePicker } from "@/components/ui/voice-picker";
 import {
@@ -73,6 +74,16 @@ const minimaxVoices: VoicePickerVoice[] = MINIMAX_DEFAULT_VOICES.map((voice) => 
   },
 }));
 
+const noizVoices: VoicePickerVoice[] = NOIZ_DEFAULT_VOICES.map((voice) => ({
+  voiceId: voice.id,
+  name: voice.name,
+  previewUrl: undefined,
+  labels: {
+    description: voice.category,
+    "use case": voice.category,
+  },
+}));
+
 const suggestionChips = [
   { icon: Book, label: "Narrate a story" },
   { icon: Smile, label: "Tell a silly joke" },
@@ -100,19 +111,25 @@ export function TTSClient({ userPlan = "free", currentUsage }: TTSClientProps) {
   const hasTrackedInitialVoiceSelection = useRef(false);
 
   const voiceFromUrl = searchParams?.get("voice");
+  const providerFromUrl = searchParams?.get("provider") as ProviderType | null;
 
   // Provider state
-  const [provider, setProvider] = useState<ProviderType>("elevenlabs");
+  const [provider, setProvider] = useState<ProviderType>(
+    providerFromUrl && ["elevenlabs", "minimax", "noiz"].includes(providerFromUrl)
+      ? providerFromUrl
+      : "elevenlabs"
+  );
 
   // Form state
   const [text, setText] = useState("");
-  const [voices, setVoices] = useState<VoicePickerVoice[]>(fallbackVoices);
+  const initialVoices = provider === "minimax" ? minimaxVoices : provider === "noiz" ? noizVoices : fallbackVoices;
+  const [voices, setVoices] = useState<VoicePickerVoice[]>(initialVoices);
   const getInitialVoiceId = () => {
     if (voiceFromUrl) {
-      const validVoice = voices.find((v) => v.voiceId === voiceFromUrl);
+      const validVoice = initialVoices.find((v) => v.voiceId === voiceFromUrl);
       if (validVoice) return validVoice.voiceId;
     }
-    return voices[0]?.voiceId ?? DEFAULT_VOICES[0]?.id;
+    return initialVoices[0]?.voiceId ?? DEFAULT_VOICES[0]?.id;
   };
   const [selectedVoiceId, setSelectedVoiceId] = useState<string>(getInitialVoiceId);
   const [stability, setStability] = useState(TTS_DEFAULTS.stability);
@@ -128,11 +145,18 @@ export function TTSClient({ userPlan = "free", currentUsage }: TTSClientProps) {
   const [mmPitch, setMmPitch] = useState(MINIMAX_TTS_DEFAULTS.pitch);
   const [mmEmotion, setMmEmotion] = useState<string>("");
 
+  // Noiz-specific state
+  const [noizSpeed, setNoizSpeed] = useState(NOIZ_TTS_DEFAULTS.speed);
+  const [noizQualityPreset, setNoizQualityPreset] = useState(NOIZ_TTS_DEFAULTS.qualityPreset);
+
   const handleProviderChange = (p: ProviderType) => {
     setProvider(p);
     if (p === "minimax") {
       setVoices(minimaxVoices);
       setSelectedVoiceId(minimaxVoices[0]?.voiceId ?? "");
+    } else if (p === "noiz") {
+      setVoices(noizVoices);
+      setSelectedVoiceId(noizVoices[0]?.voiceId ?? "");
     } else {
       setVoices(fallbackVoices);
       setSelectedVoiceId(fallbackVoices[0]?.voiceId ?? DEFAULT_VOICES[0]?.id);
@@ -179,11 +203,45 @@ export function TTSClient({ userPlan = "free", currentUsage }: TTSClientProps) {
   }, [selectedVoiceId, voices]);
 
   useEffect(() => {
-    // Fetch default voices AND user's custom voices (designed, cloned, etc.)
+    // Fetch voices based on current provider
     let cancelled = false;
     const run = async () => {
       try {
-        // Fetch both in parallel
+        if (provider === "noiz") {
+          const res = await fetch("/api/voices/noiz?voice_type=built-in&limit=100");
+          if (res.ok) {
+            const json = await res.json();
+            const apiVoices: VoicePickerVoice[] = (json.voices ?? [])
+              .map((v: Record<string, unknown>) => {
+                const voiceId = typeof v.voiceId === "string" ? v.voiceId : null;
+                const name = typeof v.name === "string" ? v.name : null;
+                if (!voiceId || !name) return null;
+                return {
+                  voiceId,
+                  name,
+                  previewUrl: undefined,
+                  labels: {
+                    description: typeof v.category === "string" ? v.category : undefined,
+                    "use case": typeof v.category === "string" ? v.category : undefined,
+                  },
+                };
+              })
+              .filter((v: VoicePickerVoice | null): v is VoicePickerVoice => v !== null);
+
+            if (!cancelled && apiVoices.length) {
+              setVoices(apiVoices);
+              setSelectedVoiceId(apiVoices[0].voiceId);
+            }
+          }
+          return;
+        }
+
+        if (provider === "minimax") {
+          // Minimax uses hardcoded voices
+          return;
+        }
+
+        // ElevenLabs: fetch default + custom voices
         const [defaultRes, myRes] = await Promise.all([
           fetch("/api/voices?defaultOnly=true&limit=100&sortBy=name"),
           fetch("/api/voices/my-voices").catch(() => null),
@@ -216,14 +274,12 @@ export function TTSClient({ userPlan = "free", currentUsage }: TTSClientProps) {
             .filter((v): v is VoicePickerVoice => v !== null);
         }
 
-        // Merge user's custom voices (designed, cloned) — they appear at the top
         if (myRes && myRes.ok) {
           const myJson = (await myRes.json()) as { voices?: Array<Record<string, unknown>> };
           const myVoices = (myJson.voices ?? [])
             .map(mapVoice)
             .filter((v): v is VoicePickerVoice => v !== null);
 
-          // Deduplicate: user voices take priority
           const defaultIds = new Set(myVoices.map((v) => v.voiceId));
           const dedupedDefaults = apiVoices.filter((v) => !defaultIds.has(v.voiceId));
           apiVoices = [...myVoices, ...dedupedDefaults];
@@ -239,7 +295,7 @@ export function TTSClient({ userPlan = "free", currentUsage }: TTSClientProps) {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [provider]);
 
   useEffect(() => {
     if (voiceFromUrl) {
@@ -303,7 +359,16 @@ export function TTSClient({ userPlan = "free", currentUsage }: TTSClientProps) {
     setDuration(0);
 
     try {
-      const body = provider === "minimax"
+      const body = provider === "noiz"
+        ? {
+            text,
+            voiceId: selectedVoiceId,
+            provider: "noiz",
+            speed: noizSpeed,
+            qualityPreset: noizQualityPreset,
+            outputFormat: "mp3",
+          }
+        : provider === "minimax"
         ? {
             text,
             voiceId: selectedVoiceId,
@@ -589,6 +654,16 @@ export function TTSClient({ userPlan = "free", currentUsage }: TTSClientProps) {
                 >
                   Minimax
                 </button>
+                <button
+                  onClick={() => handleProviderChange("noiz")}
+                  className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    provider === "noiz"
+                      ? "bg-black dark:bg-white text-white dark:text-black"
+                      : "bg-gray-100 dark:bg-[#1a1a1a] text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-[#222]"
+                  }`}
+                >
+                  Noiz
+                </button>
               </div>
             </div>
 
@@ -619,6 +694,8 @@ export function TTSClient({ userPlan = "free", currentUsage }: TTSClientProps) {
                     </option>
                   ))}
                 </select>
+              ) : provider === "noiz" ? (
+                <p className="text-xs text-gray-500 dark:text-gray-400">Noiz uses automatic model selection</p>
               ) : (
                 <select
                   value={elevenModel}
@@ -634,7 +711,7 @@ export function TTSClient({ userPlan = "free", currentUsage }: TTSClientProps) {
               )}
             </div>
 
-uld you change this carda and text to             {provider === "minimax" ? (
+            {provider === "minimax" ? (
               <>
                 <div className="space-y-6">
                   <SliderControl
@@ -700,6 +777,35 @@ uld you change this carda and text to             {provider === "minimax" ? (
                   </button>
                 </div>
               </>
+            ) : provider === "noiz" ? (
+              <div className="space-y-6">
+                <SliderControl
+                  label="Speed"
+                  leftLabel="Slower"
+                  rightLabel="Faster"
+                  value={noizSpeed * 50}
+                  onChange={(v) => setNoizSpeed(v / 50)}
+                  min={0}
+                  max={100}
+                />
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-black dark:text-white">Quality Preset</label>
+                  <select
+                    value={noizQualityPreset}
+                    onChange={(e) => setNoizQualityPreset(Number(e.target.value))}
+                    className="w-full p-3 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-xl text-sm font-medium text-gray-900 dark:text-gray-100 hover:border-gray-300 dark:hover:border-[#444] transition-colors cursor-pointer outline-none"
+                  >
+                    <option value={0}>Draft</option>
+                    <option value={1}>Standard</option>
+                    <option value={2}>High Quality</option>
+                  </select>
+                </div>
+                <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl">
+                  <p className="text-xs text-yellow-700 dark:text-yellow-400">
+                    Noiz AI supports up to 200 characters per generation.
+                  </p>
+                </div>
+              </div>
             ) : (
               <>
                 <div className="space-y-6">
@@ -901,6 +1007,16 @@ uld you change this carda and text to             {provider === "minimax" ? (
                     >
                       Minimax
                     </button>
+                    <button
+                      onClick={() => handleProviderChange("noiz")}
+                      className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        provider === "noiz"
+                          ? "bg-black dark:bg-white text-white dark:text-black"
+                          : "bg-gray-100 dark:bg-[#1a1a1a] text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-[#222]"
+                      }`}
+                    >
+                      Noiz
+                    </button>
                   </div>
                 </div>
                 <div className="space-y-2">
@@ -927,6 +1043,8 @@ uld you change this carda and text to             {provider === "minimax" ? (
                         </option>
                       ))}
                     </select>
+                  ) : provider === "noiz" ? (
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Noiz uses automatic model selection</p>
                   ) : (
                     <select
                       value={elevenModel}
@@ -984,6 +1102,35 @@ uld you change this carda and text to             {provider === "minimax" ? (
                           </option>
                         ))}
                       </select>
+                    </div>
+                  </div>
+                ) : provider === "noiz" ? (
+                  <div className="space-y-6">
+                    <SliderControl
+                      label="Speed"
+                      leftLabel="Slower"
+                      rightLabel="Faster"
+                      value={noizSpeed * 50}
+                      onChange={(v) => setNoizSpeed(v / 50)}
+                      min={0}
+                      max={100}
+                    />
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-black dark:text-white">Quality Preset</label>
+                      <select
+                        value={noizQualityPreset}
+                        onChange={(e) => setNoizQualityPreset(Number(e.target.value))}
+                        className="w-full p-3 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-xl text-sm font-medium text-gray-900 dark:text-gray-100 hover:border-gray-300 dark:hover:border-[#444] transition-colors cursor-pointer outline-none"
+                      >
+                        <option value={0}>Draft</option>
+                        <option value={1}>Standard</option>
+                        <option value={2}>High Quality</option>
+                      </select>
+                    </div>
+                    <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl">
+                      <p className="text-xs text-yellow-700 dark:text-yellow-400">
+                        Noiz AI supports up to 200 characters per generation.
+                      </p>
                     </div>
                   </div>
                 ) : (
