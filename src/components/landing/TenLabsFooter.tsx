@@ -76,8 +76,7 @@ export default function TenLabsFooter() {
   return (
     <footer className="relative" data-testid="footer-tenlabs">
       <div
-        className="absolute inset-0"
-        style={{ background: "linear-gradient(180deg, #000 0%, #050505 100%)" }}
+        className="absolute inset-0 bg-gradient-to-b from-gray-50 to-white dark:from-[#000] dark:to-[#050505]"
         aria-hidden
       />
 
@@ -86,15 +85,15 @@ export default function TenLabsFooter() {
           <div className="flex flex-col gap-3" data-testid="footer-brand">
             <div className="flex items-center gap-2" data-testid="footer-brand-row">
               <div
-                className="text-[15px] font-semibold tracking-tight text-white"
+                className="text-[15px] font-semibold tracking-tight text-black dark:text-white"
                 style={{ fontFamily: "Plus Jakarta Sans, var(--font-sans)" }}
                 data-testid="text-footer-brand"
               >
                 TenLabs
               </div>
             </div>
-            <button className="inline-flex w-fit items-center gap-2 text-xs text-white/55 hover:text-white/75 transition">
-              <span className="text-white/55" aria-hidden>
+            <button className="inline-flex w-fit items-center gap-2 text-xs text-black/55 dark:text-white/55 hover:text-black/75 dark:hover:text-white/75 transition">
+              <span className="text-black/55 dark:text-white/55" aria-hidden>
                 ✦
               </span>
               English
@@ -104,13 +103,13 @@ export default function TenLabsFooter() {
           <div className="grid gap-x-10 gap-y-10 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6">
             {cols.map((c) => (
               <div key={c.title}>
-                <div className="text-xs text-white/40">{c.title}</div>
+                <div className="text-xs text-black/40 dark:text-white/40">{c.title}</div>
                 <div className="mt-4 grid gap-2">
                   {c.items.map((it) => (
                     <Link
                       key={it.href + it.label}
                       href={it.href}
-                      className="text-sm text-white/70 hover:text-white transition"
+                      className="text-sm text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white transition"
                     >
                       {it.label}
                     </Link>
@@ -121,9 +120,9 @@ export default function TenLabsFooter() {
           </div>
         </div>
 
-        <div className="mt-14 border-t border-white/10" />
+        <div className="mt-14 border-t border-black/10 dark:border-white/10" />
 
-        <div className="mt-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4 text-xs text-white/45">
+        <div className="mt-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4 text-xs text-black/45 dark:text-white/45">
           <div>© {new Date().getFullYear()} TenLabs.ai. All rights reserved.</div>
           <div className="flex flex-wrap gap-4">
             {[
@@ -132,7 +131,7 @@ export default function TenLabsFooter() {
               { href: "/privacy", label: "Privacy" },
               { href: "/terms", label: "Terms" },
             ].map((l) => (
-              <Link key={l.href} href={l.href} className="hover:text-white transition">
+              <Link key={l.href} href={l.href} className="hover:text-black dark:hover:text-white transition">
                 {l.label}
               </Link>
             ))}

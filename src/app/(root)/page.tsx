@@ -114,13 +114,13 @@ function OrbDemo({ state }: { state: AgentState }) {
         />
         <div className="absolute inset-0 rounded-full tenlabs-noise hidden md:block" />
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/35 px-3 py-1.5 text-xs text-white/70">
+          <div className="inline-flex items-center gap-2 rounded-full border border-black/10 dark:border-white/10 bg-black/20 dark:bg-black/35 px-3 py-1.5 text-xs text-black/70 dark:text-white/70">
             <span className="relative flex size-2">
-              <span className="absolute inline-flex h-full w-full rounded-full opacity-30 bg-white/70" />
+              <span className="absolute inline-flex h-full w-full rounded-full opacity-30 bg-black/70 dark:bg-white/70" />
               <motion.span
                 className={cn(
                   "relative inline-flex size-2 rounded-full",
-                  state === "speaking" ? "bg-white" : state === "thinking" ? "bg-white/80" : "bg-white/70"
+                  state === "speaking" ? "bg-black dark:bg-white" : state === "thinking" ? "bg-black/80 dark:bg-white/80" : "bg-black/70 dark:bg-white/70"
                 )}
                 animate={{
                   scale: state === "speaking" ? [1, 1.35, 1] : state === "thinking" ? [1, 1.2, 1] : [1, 1.15, 1],
@@ -239,16 +239,16 @@ function TextToSpeechDemo() {
   }, [playing]);
 
   return (
-    <Card className="border-white/10 bg-white/[0.03] hover:bg-white/[0.045] transition tenlabs-ring tenlabs-glass">
+    <Card className="border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.03] hover:bg-black/[0.045] dark:hover:bg-white/[0.045] transition tenlabs-ring tenlabs-glass">
       <div className="p-5">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <div className="text-xs text-white/55">Text to Speech</div>
-            <div className="mt-1 text-base font-medium text-white" style={{ fontFamily: "Plus Jakarta Sans, var(--font-sans)" }}>
+            <div className="text-xs text-black/55 dark:text-white/55">Text to Speech</div>
+            <div className="mt-1 text-base font-medium text-black dark:text-white" style={{ fontFamily: "Plus Jakarta Sans, var(--font-sans)" }}>
               Generate lifelike audio from any script
             </div>
           </div>
-          <Button onClick={() => setPlaying((v) => !v)} className="bg-white text-black hover:bg-white/90">
+          <Button onClick={() => setPlaying((v) => !v)} className="bg-black dark:bg-white text-white dark:text-black hover:bg-black/90 dark:hover:bg-white/90">
             {playing ? <><Pause className="mr-2 size-4" /> Stop</> : <><Play className="mr-2 size-4" /> Generate</>}
           </Button>
         </div>
@@ -260,7 +260,7 @@ function TextToSpeechDemo() {
               onClick={() => setPreset(p)}
               className={cn(
                 "rounded-full border px-3 py-1 text-xs transition",
-                p.id === preset.id ? "border-white/20 bg-white text-black" : "border-white/10 bg-white/5 text-white/75 hover:bg-white/10"
+                p.id === preset.id ? "border-black/20 dark:border-white/20 bg-black dark:bg-white text-white dark:text-black" : "border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 text-black/75 dark:text-white/75 hover:bg-black/10 dark:hover:bg-white/10"
               )}
             >
               {p.label}
@@ -269,8 +269,8 @@ function TextToSpeechDemo() {
         </div>
 
         <div className="mt-4 grid gap-3 md:grid-cols-3">
-          <div className="rounded-2xl border border-white/10 bg-black/25 p-3">
-            <div className="text-[11px] text-white/55">Voice</div>
+          <div className="rounded-2xl border border-black/10 dark:border-white/10 bg-black/10 dark:bg-black/25 p-3">
+            <div className="text-[11px] text-black/55 dark:text-white/55">Voice</div>
             <div className="mt-1 flex gap-2">
               {["Atlas", "Nova", "Sable"].map((v) => (
                 <button
@@ -278,7 +278,7 @@ function TextToSpeechDemo() {
                   onClick={() => setVoice(v)}
                   className={cn(
                     "flex-1 rounded-xl border px-2 py-2 text-xs transition",
-                    v === voice ? "border-white/20 bg-white/10 text-white" : "border-white/10 bg-white/5 text-white/70 hover:bg-white/10"
+                    v === voice ? "border-black/20 dark:border-white/20 bg-black/10 dark:bg-white/10 text-black dark:text-white" : "border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 text-black/70 dark:text-white/70 hover:bg-black/10 dark:hover:bg-white/10"
                   )}
                 >
                   {v}
@@ -287,8 +287,8 @@ function TextToSpeechDemo() {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-white/10 bg-black/25 p-3">
-            <div className="text-[11px] text-white/55">Style</div>
+          <div className="rounded-2xl border border-black/10 dark:border-white/10 bg-black/10 dark:bg-black/25 p-3">
+            <div className="text-[11px] text-black/55 dark:text-white/55">Style</div>
             <div className="mt-1 flex gap-2">
               {["Neutral", "Warm", "Cinematic"].map((s) => (
                 <button
@@ -296,7 +296,7 @@ function TextToSpeechDemo() {
                   onClick={() => setStyle(s)}
                   className={cn(
                     "flex-1 rounded-xl border px-2 py-2 text-xs transition",
-                    s === style ? "border-white/20 bg-white/10 text-white" : "border-white/10 bg-white/5 text-white/70 hover:bg-white/10"
+                    s === style ? "border-black/20 dark:border-white/20 bg-black/10 dark:bg-white/10 text-black dark:text-white" : "border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 text-black/70 dark:text-white/70 hover:bg-black/10 dark:hover:bg-white/10"
                   )}
                 >
                   {s}
@@ -305,11 +305,11 @@ function TextToSpeechDemo() {
             </div>
             </div>
 
-          <div className="rounded-2xl border border-white/10 bg-black/25 p-3">
-            <div className="text-[11px] text-white/55">Export</div>
+          <div className="rounded-2xl border border-black/10 dark:border-white/10 bg-black/10 dark:bg-black/25 p-3">
+            <div className="text-[11px] text-black/55 dark:text-white/55">Export</div>
             <div className="mt-1 grid grid-cols-2 gap-2">
               {["WAV", "MP3", "48kHz", "24kHz"].map((t) => (
-                <div key={t} className="rounded-xl border border-white/10 bg-white/5 px-2 py-2 text-[11px] text-white/70">
+                <div key={t} className="rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-2 py-2 text-[11px] text-black/70 dark:text-white/70">
                   {t}
                 </div>
                 ))}
@@ -317,30 +317,30 @@ function TextToSpeechDemo() {
             </div>
           </div>
 
-        <div className="mt-4 rounded-2xl border border-white/10 bg-black/25 p-3">
+        <div className="mt-4 rounded-2xl border border-black/10 dark:border-white/10 bg-black/10 dark:bg-black/25 p-3">
           <div className="flex items-center justify-between gap-3">
-            <div className="text-[11px] text-white/55">Script</div>
-            <div className="text-[11px] text-white/45">{text.length.toLocaleString()} characters</div>
+            <div className="text-[11px] text-black/55 dark:text-white/55">Script</div>
+            <div className="text-[11px] text-black/45 dark:text-white/45">{text.length.toLocaleString()} characters</div>
         </div>
           <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
-            className="mt-2 h-24 w-full resize-none rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-white/80 outline-none ring-0 placeholder:text-white/35 focus:border-white/20"
+            className="mt-2 h-24 w-full resize-none rounded-xl border border-black/10 dark:border-white/10 bg-black/[0.04] dark:bg-white/[0.04] px-3 py-2 text-sm text-black/80 dark:text-white/80 outline-none ring-0 placeholder:text-black/35 dark:placeholder:text-white/35 focus:border-black/20 dark:focus:border-white/20"
             placeholder="Paste a script…"
           />
         </div>
 
-        <div className="mt-4 rounded-2xl border border-white/10 bg-black/25 p-3">
+        <div className="mt-4 rounded-2xl border border-black/10 dark:border-white/10 bg-black/10 dark:bg-black/25 p-3">
           <div className="flex items-center justify-between gap-3">
-            <div className="text-xs text-white/55">Preview</div>
-            <Badge className="bg-white/10 text-white border border-white/10">{voice} · {style}</Badge>
+            <div className="text-xs text-black/55 dark:text-white/55">Preview</div>
+            <Badge className="bg-black/10 dark:bg-white/10 text-black dark:text-white border border-black/10 dark:border-white/10">{voice} · {style}</Badge>
           </div>
           <div className="mt-3">
             <SparkLine values={waveform} />
           </div>
           <div className="mt-3 flex items-center justify-between">
-            <div className="text-[11px] text-white/45">Demo waveform (visual only)</div>
-            <div className="text-[11px] text-white/45">00:00 / 00:12</div>
+            <div className="text-[11px] text-black/45 dark:text-white/45">Demo waveform (visual only)</div>
+            <div className="text-[11px] text-black/45 dark:text-white/45">00:00 / 00:12</div>
           </div>
         </div>
       </div>
@@ -364,13 +364,13 @@ function DubbingDemo() {
   return (
     <div className="grid gap-3">
       <div className="flex items-center justify-between">
-        <div className="text-sm text-white/75">Dubbing pipeline</div>
-        <Badge className="bg-white/10 text-white border border-white/10">Studio-grade</Badge>
+        <div className="text-sm text-black/75 dark:text-white/75">Dubbing pipeline</div>
+        <Badge className="bg-black/10 dark:bg-white/10 text-black dark:text-white border border-black/10 dark:border-white/10">Studio-grade</Badge>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
-          <div className="text-[11px] text-white/55">From</div>
+        <div className="rounded-2xl border border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.03] p-3">
+          <div className="text-[11px] text-black/55 dark:text-white/55">From</div>
           <div className="mt-2 grid gap-2">
             {languages.map((l) => (
               <button
@@ -378,7 +378,7 @@ function DubbingDemo() {
                 onClick={() => setFrom(l)}
                 className={cn(
                   "w-full rounded-xl border px-3 py-2 text-xs transition text-left",
-                  from.id === l.id ? "border-white/20 bg-white/10 text-white" : "border-white/10 bg-white/5 text-white/70 hover:bg-white/10"
+                  from.id === l.id ? "border-black/20 dark:border-white/20 bg-black/10 dark:bg-white/10 text-black dark:text-white" : "border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 text-black/70 dark:text-white/70 hover:bg-black/10 dark:hover:bg-white/10"
                 )}
               >
                 {l.label}
@@ -387,8 +387,8 @@ function DubbingDemo() {
                 </div>
               </div>
 
-        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
-          <div className="text-[11px] text-white/55">To</div>
+        <div className="rounded-2xl border border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.03] p-3">
+          <div className="text-[11px] text-black/55 dark:text-white/55">To</div>
           <div className="mt-2 grid gap-2">
             {languages.map((l) => (
               <button
@@ -396,7 +396,7 @@ function DubbingDemo() {
                 onClick={() => setTo(l)}
                 className={cn(
                   "w-full rounded-xl border px-3 py-2 text-xs transition text-left",
-                  to.id === l.id ? "border-white/20 bg-white/10 text-white" : "border-white/10 bg-white/5 text-white/70 hover:bg-white/10"
+                  to.id === l.id ? "border-black/20 dark:border-white/20 bg-black/10 dark:bg-white/10 text-black dark:text-white" : "border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 text-black/70 dark:text-white/70 hover:bg-black/10 dark:hover:bg-white/10"
                 )}
               >
                 {l.label}
@@ -406,27 +406,27 @@ function DubbingDemo() {
         </div>
       </div>
 
-      <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
+      <div className="rounded-2xl border border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.03] p-3">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <div className="text-xs text-white/70">Preserve tone</div>
-            <div className="text-[11px] text-white/45">Keeps pacing, emotion, and emphasis.</div>
+            <div className="text-xs text-black/70 dark:text-white/70">Preserve tone</div>
+            <div className="text-[11px] text-black/45 dark:text-white/45">Keeps pacing, emotion, and emphasis.</div>
           </div>
           <button
             onClick={() => setPreserveTone((v) => !v)}
             className={cn(
               "h-9 rounded-xl border px-3 text-xs transition",
-              preserveTone ? "border-white/20 bg-white text-black" : "border-white/10 bg-white/5 text-white/75"
+              preserveTone ? "border-black/20 dark:border-white/20 bg-black dark:bg-white text-white dark:text-black" : "border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 text-black/75 dark:text-white/75"
             )}
           >
             {preserveTone ? "On" : "Off"}
           </button>
           </div>
 
-        <div className="mt-3 rounded-xl border border-white/10 bg-black/25 px-3 py-3">
+        <div className="mt-3 rounded-xl border border-black/10 dark:border-white/10 bg-black/10 dark:bg-black/25 px-3 py-3">
           <div className="flex items-center justify-between">
-            <div className="text-[11px] text-white/55">Output</div>
-            <div className="text-[11px] text-white/45">{from.label} → {to.label}</div>
+            <div className="text-[11px] text-black/55 dark:text-white/55">Output</div>
+            <div className="text-[11px] text-black/45 dark:text-white/45">{from.label} → {to.label}</div>
                 </div>
           <div className="mt-2 flex items-end justify-center">
             <BarVizDemo state="speaking" />
@@ -453,20 +453,20 @@ function VoiceRemixDemo() {
   return (
     <div className="grid gap-3">
       <div className="flex items-center justify-between">
-        <div className="text-sm text-white/75">Voice changer / remix</div>
-        <Badge className="bg-white/10 text-white border border-white/10">Non-destructive</Badge>
+        <div className="text-sm text-black/75 dark:text-white/75">Voice changer / remix</div>
+        <Badge className="bg-black/10 dark:bg-white/10 text-black dark:text-white border border-black/10 dark:border-white/10">Non-destructive</Badge>
       </div>
 
       <div className="grid gap-2">
         {knobs.map((k) => {
           const v = values[k.id] ?? 0.5;
           return (
-            <div key={k.id} className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
+            <div key={k.id} className="rounded-2xl border border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.03] p-3">
               <div className="flex items-center justify-between">
-                <div className="text-xs text-white/70">{k.label}</div>
-                <div className="text-xs text-white/45">{Math.round(v * 100)}%</div>
+                <div className="text-xs text-black/70 dark:text-white/70">{k.label}</div>
+                <div className="text-xs text-black/45 dark:text-white/45">{Math.round(v * 100)}%</div>
               </div>
-              <div className="mt-2 h-2 rounded-full bg-white/10 overflow-hidden">
+              <div className="mt-2 h-2 rounded-full bg-black/10 dark:bg-white/10 overflow-hidden">
                 <motion.div
                   className="h-full rounded-full"
                   style={{ background: "linear-gradient(90deg, rgba(255,255,255,0.85), rgba(255,255,255,0.25))" }}
@@ -477,13 +477,13 @@ function VoiceRemixDemo() {
               <div className="mt-2 flex gap-2">
                 <button
                   onClick={() => setValues((cur) => ({ ...cur, [k.id]: Math.max(0, (cur[k.id] ?? 0.5) - 0.08) }))}
-                  className="flex-1 rounded-xl border border-white/10 bg-white/5 px-2 py-2 text-xs text-white/70 hover:bg-white/10 transition"
+                  className="flex-1 rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-2 py-2 text-xs text-black/70 dark:text-white/70 hover:bg-black/10 dark:hover:bg-white/10 transition"
                 >
                   −
                 </button>
                 <button
                   onClick={() => setValues((cur) => ({ ...cur, [k.id]: Math.min(1, (cur[k.id] ?? 0.5) + 0.08) }))}
-                  className="flex-1 rounded-xl border border-white/10 bg-white/5 px-2 py-2 text-xs text-white/70 hover:bg-white/10 transition"
+                  className="flex-1 rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-2 py-2 text-xs text-black/70 dark:text-white/70 hover:bg-black/10 dark:hover:bg-white/10 transition"
                 >
                   +
                 </button>
@@ -493,10 +493,10 @@ function VoiceRemixDemo() {
         })}
       </div>
 
-      <div className="rounded-2xl border border-white/10 bg-black/25 p-3">
+      <div className="rounded-2xl border border-black/10 dark:border-white/10 bg-black/10 dark:bg-black/25 p-3">
         <div className="flex items-center justify-between">
-          <div className="text-[11px] text-white/55">Preview</div>
-          <div className="text-[11px] text-white/45">A/B ready</div>
+          <div className="text-[11px] text-black/55 dark:text-white/55">Preview</div>
+          <div className="text-[11px] text-black/45 dark:text-white/45">A/B ready</div>
         </div>
         <div className="mt-2 flex items-end justify-center">
           <BarVizDemo state="speaking" />
@@ -514,12 +514,12 @@ function VoiceCloningDemo() {
   return (
     <div className="grid gap-3">
       <div className="flex items-center justify-between">
-        <div className="text-sm text-white/75">Voice cloning</div>
-        <Badge className="bg-white/10 text-white border border-white/10">Consent-first</Badge>
+        <div className="text-sm text-black/75 dark:text-white/75">Voice cloning</div>
+        <Badge className="bg-black/10 dark:bg-white/10 text-black dark:text-white border border-black/10 dark:border-white/10">Consent-first</Badge>
       </div>
 
-      <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
-        <div className="text-[11px] text-white/55">Workflow</div>
+      <div className="rounded-2xl border border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.03] p-3">
+        <div className="text-[11px] text-black/55 dark:text-white/55">Workflow</div>
         <div className="mt-2 grid grid-cols-3 gap-2">
           {(["upload", "train", "ready"] as const).map((s) => (
             <button
@@ -527,7 +527,7 @@ function VoiceCloningDemo() {
               onClick={() => setStep(s)}
               className={cn(
                 "rounded-xl border px-3 py-2 text-xs transition capitalize",
-                s === step ? "border-white/20 bg-white/10 text-white" : "border-white/10 bg-white/5 text-white/70 hover:bg-white/10"
+                s === step ? "border-black/20 dark:border-white/20 bg-black/10 dark:bg-white/10 text-black dark:text-white" : "border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 text-black/70 dark:text-white/70 hover:bg-black/10 dark:hover:bg-white/10"
               )}
             >
               {s}
@@ -535,37 +535,37 @@ function VoiceCloningDemo() {
             ))}
           </div>
 
-        <div className="mt-3 rounded-xl border border-white/10 bg-black/25 px-3 py-3">
+        <div className="mt-3 rounded-xl border border-black/10 dark:border-white/10 bg-black/10 dark:bg-black/25 px-3 py-3">
           {step === "upload" ? (
             <div>
-              <div className="text-xs text-white/70">Upload samples</div>
-              <div className="mt-1 text-[11px] text-white/45">3–5 minutes of clean speech for best results.</div>
+              <div className="text-xs text-black/70 dark:text-white/70">Upload samples</div>
+              <div className="mt-1 text-[11px] text-black/45 dark:text-white/45">3–5 minutes of clean speech for best results.</div>
         </div>
           ) : step === "train" ? (
             <div>
-              <div className="text-xs text-white/70">Train model</div>
-              <div className="mt-1 text-[11px] text-white/45">Quality checks + similarity tuning.</div>
+              <div className="text-xs text-black/70 dark:text-white/70">Train model</div>
+              <div className="mt-1 text-[11px] text-black/45 dark:text-white/45">Quality checks + similarity tuning.</div>
             </div>
           ) : (
             <div>
-              <div className="text-xs text-white/70">Ready to use</div>
-              <div className="mt-1 text-[11px] text-white/45">Generate speech that matches the target voice.</div>
+              <div className="text-xs text-black/70 dark:text-white/70">Ready to use</div>
+              <div className="mt-1 text-[11px] text-black/45 dark:text-white/45">Generate speech that matches the target voice.</div>
             </div>
           )}
         </div>
       </div>
 
-      <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
+      <div className="rounded-2xl border border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.03] p-3">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <div className="text-xs text-white/70">Verified consent</div>
-            <div className="text-[11px] text-white/45">Require permission and usage controls.</div>
+            <div className="text-xs text-black/70 dark:text-white/70">Verified consent</div>
+            <div className="text-[11px] text-black/45 dark:text-white/45">Require permission and usage controls.</div>
           </div>
           <button
             onClick={() => setConsent((v) => !v)}
             className={cn(
               "h-9 rounded-xl border px-3 text-xs transition",
-              consent ? "border-white/20 bg-white text-black" : "border-white/10 bg-white/5 text-white/75"
+              consent ? "border-black/20 dark:border-white/20 bg-black dark:bg-white text-white dark:text-black" : "border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 text-black/75 dark:text-white/75"
             )}
           >
             {consent ? "Verified" : "Not verified"}
@@ -573,10 +573,10 @@ function VoiceCloningDemo() {
         </div>
       </div>
 
-      <div className="rounded-2xl border border-white/10 bg-black/25 p-3">
+      <div className="rounded-2xl border border-black/10 dark:border-white/10 bg-black/10 dark:bg-black/25 p-3">
         <div className="flex items-center justify-between">
-          <div className="text-[11px] text-white/55">Similarity preview</div>
-          <div className="text-[11px] text-white/45">92% match</div>
+          <div className="text-[11px] text-black/55 dark:text-white/55">Similarity preview</div>
+          <div className="text-[11px] text-black/45 dark:text-white/45">92% match</div>
         </div>
         <div className="mt-2">
           <SparkLine values={Array.from({ length: 34 }).map((_, i) => 0.25 + Math.sin(i * 0.45) * 0.18 + 0.15)} />
@@ -605,7 +605,7 @@ function UseCaseCard({
   const DemoSection = (
     <div className="relative">
       <div className="absolute -inset-8 rounded-3xl" style={{ background: "var(--gradient-glow)", opacity: 0.7 }} />
-      <div className="relative rounded-3xl border border-white/10 bg-black/40 p-5 tenlabs-noise backdrop-blur-sm">
+      <div className="relative rounded-3xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-black/40 p-5 tenlabs-noise backdrop-blur-sm">
         {demo}
       </div>
     </div>
@@ -618,20 +618,14 @@ function UseCaseCard({
     )}>
       {/* Icon and title */}
       <div className="flex items-start gap-4 mb-6">
-        <div className="size-14 rounded-2xl border border-white/15 bg-gradient-to-br from-white/10 to-white/5 grid place-items-center text-white shadow-lg shadow-white/5 shrink-0">
+        <div className="size-14 rounded-2xl border border-black/15 dark:border-white/15 bg-gradient-to-br from-black/10 to-black/5 dark:from-white/10 dark:to-white/5 grid place-items-center text-black dark:text-white shadow-lg shadow-black/5 dark:shadow-white/5 shrink-0">
           {icon}
         </div>
         <div>
-          <div className="text-[10px] uppercase tracking-[0.2em] text-white/40 mb-2">Feature</div>
+          <div className="text-[10px] uppercase tracking-[0.2em] text-black/40 dark:text-white/40 mb-2">Feature</div>
           <h3
-            className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight"
-            style={{ 
-              fontFamily: "Plus Jakarta Sans, var(--font-sans)",
-              background: "linear-gradient(135deg, #ffffff 0%, #ffffff 60%, rgba(255,255,255,0.5) 100%)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text",
-            }}
+            className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight text-black dark:text-white"
+            style={{ fontFamily: "Plus Jakarta Sans, var(--font-sans)" }}
           >
             {title}
           </h3>
@@ -639,22 +633,14 @@ function UseCaseCard({
       </div>
 
       {/* Description with texture */}
-      <p 
-        className="text-lg md:text-xl leading-relaxed mb-8 max-w-lg"
-        style={{
-          background: "linear-gradient(180deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.55) 100%)",
-          WebkitBackgroundClip: "text",
-          WebkitTextFillColor: "transparent",
-          backgroundClip: "text",
-        }}
-      >
+      <p className="text-lg md:text-xl leading-relaxed mb-8 max-w-lg text-black/80 dark:text-white/80">
         {desc}
       </p>
 
       {/* Feature points */}
       <div className="grid gap-3 mb-8 max-w-md">
         {points.map((p) => (
-          <div key={p} className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3.5 text-sm text-white/75 hover:bg-white/[0.07] hover:border-white/15 transition-all duration-200">
+          <div key={p} className="flex items-start gap-3 rounded-xl border border-black/10 dark:border-white/10 bg-black/[0.04] dark:bg-white/[0.04] px-4 py-3.5 text-sm text-black/75 dark:text-white/75 hover:bg-black/[0.07] dark:hover:bg-white/[0.07] hover:border-black/15 dark:hover:border-white/15 transition-all duration-200">
             <div className="size-5 rounded-full bg-gradient-to-br from-emerald-400/20 to-emerald-400/10 grid place-items-center shrink-0 mt-0.5">
               <Check className="size-3 text-emerald-400" strokeWidth={3} />
             </div>
@@ -666,13 +652,13 @@ function UseCaseCard({
       {/* CTA buttons */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-3">
         <Link href={`/products/${title.toLowerCase().replace(/\s+/g, "-")}`}>
-          <Button className="bg-white text-black hover:bg-white/90 font-semibold px-6">
+          <Button className="bg-black dark:bg-white text-white dark:text-black hover:bg-black/90 dark:hover:bg-white/90 font-semibold px-6">
             Explore {title}
             <ArrowRight className="ml-2 size-4" />
           </Button>
         </Link>
         <Link href="/docs">
-          <Button variant="secondary" className="bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 hover:text-white/90">
+          <Button variant="secondary" className="bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 border border-black/10 dark:border-white/10 text-black/70 dark:text-white/70 hover:text-black/90 dark:hover:text-white/90">
             Read docs
           </Button>
         </Link>
@@ -712,24 +698,24 @@ function PricingCard({
   highlight?: boolean;
 }) {
   return (
-    <Card className={cn("h-full border-white/10 tenlabs-ring tenlabs-glass", highlight ? "bg-white/[0.06]" : "bg-white/[0.04]")}>
+    <Card className={cn("h-full border-black/10 dark:border-white/10 tenlabs-ring tenlabs-glass", highlight ? "bg-black/[0.06] dark:bg-white/[0.06]" : "bg-black/[0.04] dark:bg-white/[0.04]")}>
       <div className="p-6">
         <div className="flex items-center justify-between gap-3">
-          <div className="text-base font-semibold text-white" style={{ fontFamily: "Plus Jakarta Sans, var(--font-sans)" }}>
+          <div className="text-base font-semibold text-black dark:text-white" style={{ fontFamily: "Plus Jakarta Sans, var(--font-sans)" }}>
             {name}
           </div>
-          {highlight && <Badge className="bg-white text-black">Most popular</Badge>}
+          {highlight && <Badge className="bg-black dark:bg-white text-white dark:text-black">Most popular</Badge>}
         </div>
         <div className="mt-3 flex items-baseline gap-2">
-          <div className="text-4xl font-semibold tracking-tight text-white">{price}</div>
-          <div className="text-sm text-white/50">/mo</div>
+          <div className="text-4xl font-semibold tracking-tight text-black dark:text-white">{price}</div>
+          <div className="text-sm text-black/50 dark:text-white/50">/mo</div>
         </div>
-        <p className="mt-2 text-sm text-white/65">{desc}</p>
-        <Separator className="my-5 bg-white/10" />
-        <ul className="space-y-2.5 text-sm text-white/70">
+        <p className="mt-2 text-sm text-black/65 dark:text-white/65">{desc}</p>
+        <Separator className="my-5 bg-black/10 dark:bg-white/10" />
+        <ul className="space-y-2.5 text-sm text-black/70 dark:text-white/70">
           {items.map((it) => (
             <li key={it} className="flex items-start gap-2">
-              <Check className="mt-0.5 size-4 text-white/85" strokeWidth={2.4} />
+              <Check className="mt-0.5 size-4 text-black/85 dark:text-white/85" strokeWidth={2.4} />
               <span>{it}</span>
                   </li>
                 ))}
@@ -737,7 +723,7 @@ function PricingCard({
               <SignedOut>
           <Link href="/sign-up">
             <Button
-              className={cn("mt-6 w-full", highlight ? "bg-white text-black hover:bg-white/90" : "bg-white/8 text-white hover:bg-white/10 border border-white/10")}
+              className={cn("mt-6 w-full", highlight ? "bg-black dark:bg-white text-white dark:text-black hover:bg-black/90 dark:hover:bg-white/90" : "bg-black/5 dark:bg-white/5 text-black dark:text-white hover:bg-black/10 dark:hover:bg-white/10 border border-black/10 dark:border-white/10")}
               variant={highlight ? "default" : "secondary"}
             >
               Choose {name}
@@ -748,7 +734,7 @@ function PricingCard({
               <SignedIn>
           <Link href="/dashboard/billing">
             <Button
-              className={cn("mt-6 w-full", highlight ? "bg-white text-black hover:bg-white/90" : "bg-white/8 text-white hover:bg-white/10 border border-white/10")}
+              className={cn("mt-6 w-full", highlight ? "bg-black dark:bg-white text-white dark:text-black hover:bg-black/90 dark:hover:bg-white/90" : "bg-black/5 dark:bg-white/5 text-black dark:text-white hover:bg-black/10 dark:hover:bg-white/10 border border-black/10 dark:border-white/10")}
               variant={highlight ? "default" : "secondary"}
             >
               Choose {name}
@@ -765,10 +751,10 @@ function PricingCard({
 function FAQItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
   return (
-    <Card className="border-white/10 bg-white/[0.03] hover:bg-white/[0.04] transition tenlabs-ring">
+    <Card className="border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.03] hover:bg-black/[0.04] dark:hover:bg-white/[0.04] transition tenlabs-ring">
       <button className="w-full text-left p-5 flex items-start justify-between gap-4" onClick={() => setOpen((v) => !v)}>
         <div>
-          <div className="text-base font-medium text-white" style={{ fontFamily: "Plus Jakarta Sans, var(--font-sans)" }}>
+          <div className="text-base font-medium text-black dark:text-white" style={{ fontFamily: "Plus Jakarta Sans, var(--font-sans)" }}>
             {q}
               </div>
           <AnimatePresence initial={false}>
@@ -778,7 +764,7 @@ function FAQItem({ q, a }: { q: string; a: string }) {
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
                 transition={{ duration: 0.28, ease: "easeOut" }}
-                className="mt-2 text-sm text-white/65"
+                className="mt-2 text-sm text-black/65 dark:text-white/65"
               >
                 {a}
               </motion.p>
@@ -787,8 +773,8 @@ function FAQItem({ q, a }: { q: string; a: string }) {
               </div>
         <div
           className={cn(
-            "shrink-0 size-9 rounded-lg border border-white/10 bg-white/5 grid place-items-center text-white/70 transition",
-            open ? "bg-white/10 text-white" : "hover:bg-white/10"
+            "shrink-0 size-9 rounded-lg border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 grid place-items-center text-black/70 dark:text-white/70 transition",
+            open ? "bg-black/10 dark:bg-white/10 text-black dark:text-white" : "hover:bg-black/10 dark:hover:bg-white/10"
           )}
         >
           <motion.div animate={{ rotate: open ? 45 : 0 }} transition={{ duration: 0.2 }}>
@@ -807,14 +793,14 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 function SectionHeading({ eyebrow, title, desc }: { eyebrow: string; title: string; desc: string }) {
   return (
     <div className="max-w-2xl mx-auto text-center">
-      <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/70">
+      <div className="inline-flex items-center gap-2 rounded-full border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-3 py-1 text-xs text-black/70 dark:text-white/70">
         <Sparkles className="size-3.5" />
         <span>{eyebrow}</span>
       </div>
-      <h2 className="mt-4 text-balance text-3xl md:text-4xl font-semibold tracking-tight text-white" style={{ fontFamily: "Plus Jakarta Sans, var(--font-sans)" }}>
+      <h2 className="mt-4 text-balance text-3xl md:text-4xl font-semibold tracking-tight text-black dark:text-white" style={{ fontFamily: "Plus Jakarta Sans, var(--font-sans)" }}>
         {title}
       </h2>
-      <p className="mt-3 text-base text-white/65">{desc}</p>
+      <p className="mt-3 text-base text-black/65 dark:text-white/65">{desc}</p>
     </div>
   );
 }
@@ -874,8 +860,8 @@ function formatBlogDate(dateStr: string): string {
 function BlogPostCard({ post }: { post: BlogPost }) {
   return (
     <Link href={`/company/blog/${post.slug}`}>
-      <Card className="group h-full border-white/10 bg-white/[0.03] hover:bg-white/[0.05] transition tenlabs-ring overflow-hidden">
-        <div className="relative h-[160px] bg-gradient-to-br from-white/5 to-white/0 grid place-items-center">
+      <Card className="group h-full border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.03] hover:bg-black/[0.05] dark:hover:bg-white/[0.05] transition tenlabs-ring overflow-hidden">
+        <div className="relative h-[160px] bg-gradient-to-br from-black/5 to-transparent dark:from-white/5 dark:to-transparent grid place-items-center">
           {post.coverImage ? (
             <BlogImage
               src={post.coverImage}
@@ -885,32 +871,32 @@ function BlogPostCard({ post }: { post: BlogPost }) {
             />
           ) : (
             <div
-              className="text-lg font-semibold text-white/20"
+              className="text-lg font-semibold text-black/20 dark:text-white/20"
               style={{ fontFamily: "Plus Jakarta Sans, var(--font-sans)" }}
             >
               {post.category}
             </div>
           )}
           <div className="absolute top-3 left-3">
-            <span className="inline-flex items-center rounded-full border border-white/15 bg-black/50 px-2 py-0.5 text-[10px] uppercase tracking-[0.2em] text-white/70">
+            <span className="inline-flex items-center rounded-full border border-black/15 dark:border-white/15 bg-black/50 dark:bg-black/50 px-2 py-0.5 text-[10px] uppercase tracking-[0.2em] text-white/70">
               {post.category}
             </span>
           </div>
-          <div className="absolute top-3 right-3 size-7 rounded-full bg-white/10 border border-white/10 grid place-items-center opacity-0 group-hover:opacity-100 transition">
-            <ArrowUpRight className="size-3.5 text-white/70" />
+          <div className="absolute top-3 right-3 size-7 rounded-full bg-black/10 dark:bg-white/10 border border-black/10 dark:border-white/10 grid place-items-center opacity-0 group-hover:opacity-100 transition">
+            <ArrowUpRight className="size-3.5 text-black/70 dark:text-white/70" />
           </div>
         </div>
         <div className="p-5">
           <div
-            className="text-base font-medium tracking-tight text-white line-clamp-2"
+            className="text-base font-medium tracking-tight text-black dark:text-white line-clamp-2"
             style={{ fontFamily: "Plus Jakarta Sans, var(--font-sans)" }}
           >
             {post.title}
           </div>
-          <div className="mt-2 text-sm text-white/50 line-clamp-2">{post.description}</div>
-          <div className="mt-4 flex items-center gap-3 text-xs text-white/40">
+          <div className="mt-2 text-sm text-black/50 dark:text-white/50 line-clamp-2">{post.description}</div>
+          <div className="mt-4 flex items-center gap-3 text-xs text-black/40 dark:text-white/40">
             <span>{formatBlogDate(post.createdAt)}</span>
-            <span className="size-1 rounded-full bg-white/20" />
+            <span className="size-1 rounded-full bg-black/20 dark:bg-white/20" />
             <span>{post.author}</span>
           </div>
         </div>
@@ -941,8 +927,8 @@ function LatestPostsSection() {
   }, []);
 
   return (
-    <section id="latest-posts" className="relative py-16 md:py-22">
-      <div className="absolute inset-0" style={{ background: "#0a0a0a" }} />
+        <section id="latest-posts" className="relative py-16 md:py-22">
+      <div className="absolute inset-0 bg-gray-50 dark:bg-[#0a0a0a]" />
       <div className="relative mx-auto max-w-6xl px-4">
         <Reveal>
           <SectionHeading
@@ -984,12 +970,12 @@ export default function TenLabsLanding() {
   const reduce = useReducedMotion();
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-white dark:bg-black text-black dark:text-white transition-colors">
       <main>
         {/* Hero Section */}
         <section className="relative overflow-hidden min-h-[90vh]">
-          {/* Aurora background - hidden in light theme */}
-          <div className="absolute inset-0 hidden dark:block" style={{ zIndex: 0 }}>
+          {/* Aurora background - dark theme only */}
+          <div className="absolute inset-0 hidden dark:block" style={{ zIndex: 0 }} aria-hidden>
             <Aurora
               colorStops={["#000000", "#1e1e1e", "#060606", "#1c1c1c"]}
               amplitude={2.4}
@@ -1008,7 +994,7 @@ export default function TenLabsLanding() {
             <div className="grid items-center gap-12 md:grid-cols-[1.1fr_0.9fr]">
               <div>
                 <Reveal>
-                  <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/70">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-3 py-1 text-xs text-black/70 dark:text-white/70">
                     <Command className="size-3.5" />
                     <span>Next-gen AI voice & audio</span>
                   </div>
@@ -1024,7 +1010,7 @@ export default function TenLabsLanding() {
                 </Reveal>
 
                 <Reveal delay={0.1}>
-                  <p className="mt-5 max-w-xl text-base md:text-lg text-white/65">
+                  <p className="mt-5 max-w-xl text-base md:text-lg text-black/65 dark:text-white/65">
                     TenLabs.ai gives teams a single platform for lifelike speech, expressive voices, and audio workflows —
                     with components designed to feel fast, polished, and alive.
                   </p>
@@ -1034,7 +1020,7 @@ export default function TenLabsLanding() {
                   <div className="mt-7 flex flex-col sm:flex-row gap-3">
               <SignedOut>
                       <Link href="/sign-up">
-                        <Button className="h-11 bg-white text-black hover:bg-white/90">
+                        <Button className="h-11 bg-black dark:bg-white text-white dark:text-black hover:bg-black/90 dark:hover:bg-white/90">
                           Start free
                           <ArrowRight className="ml-2 size-4" />
                         </Button>
@@ -1042,14 +1028,14 @@ export default function TenLabsLanding() {
               </SignedOut>
               <SignedIn>
                       <Link href="/dashboard">
-                        <Button className="h-11 bg-white text-black hover:bg-white/90">
+                        <Button className="h-11 bg-black dark:bg-white text-white dark:text-black hover:bg-black/90 dark:hover:bg-white/90">
                           Go to Dashboard
                           <ArrowRight className="ml-2 size-4" />
                         </Button>
                 </Link>
               </SignedIn>
                     <Link href="/creative-platform">
-                      <Button variant="secondary" className="h-11 bg-white/5 hover:bg-white/10 border border-white/10">
+                      <Button variant="secondary" className="h-11 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 border border-black/10 dark:border-white/10">
                         <Play className="mr-2 size-4" />
                         Watch demo
                       </Button>
@@ -1064,15 +1050,15 @@ export default function TenLabsLanding() {
                       { icon: <Shield className="size-4" />, t: "Secure", d: "Enterprise-ready" },
                       { icon: <Globe className="size-4" />, t: "Global", d: "Multi-region delivery" },
                     ].map((m) => (
-                      <Card key={m.t} className="border-white/10 bg-white/[0.03] tenlabs-ring">
+                      <Card key={m.t} className="border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.03] tenlabs-ring">
                         <div className="p-4">
-                          <div className="flex items-center gap-2 text-white/85">
+                          <div className="flex items-center gap-2 text-black/85 dark:text-white/85">
                             {m.icon}
                             <div className="text-sm font-medium" style={{ fontFamily: "Plus Jakarta Sans, var(--font-sans)" }}>
                               {m.t}
                             </div>
                           </div>
-                          <div className="mt-2 text-xs text-white/55">{m.d}</div>
+                          <div className="mt-2 text-xs text-black/55 dark:text-white/55">{m.d}</div>
                         </div>
                       </Card>
                     ))}
@@ -1085,11 +1071,11 @@ export default function TenLabsLanding() {
                   <OrbDemo state={agent} />
 
                   <div className="mt-6 grid gap-3">
-                    <Card className="border-white/10 bg-white/[0.03] tenlabs-ring tenlabs-glass">
+                    <Card className="border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.03] tenlabs-ring tenlabs-glass">
                       <div className="p-4">
                         <div className="flex items-center justify-between">
-                          <div className="text-xs text-white/55">Live signal</div>
-                          <Badge className="bg-white/10 text-white border border-white/10">{agent}</Badge>
+                          <div className="text-xs text-black/55 dark:text-white/55">Live signal</div>
+                          <Badge className="bg-black/10 dark:bg-white/10 text-black dark:text-white border border-black/10 dark:border-white/10">{agent}</Badge>
                         </div>
                         <div className="mt-3">
                           <BarVizDemo state={agent} />
@@ -1097,7 +1083,7 @@ export default function TenLabsLanding() {
                       </div>
                     </Card>
 
-                    <Card className="border-white/10 bg-white/[0.03] tenlabs-ring">
+                    <Card className="border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.03] tenlabs-ring">
                       <div className="p-4 grid grid-cols-3 gap-3">
                         {[
                           { k: "Latency", v: "180ms" },
@@ -1105,8 +1091,8 @@ export default function TenLabsLanding() {
                           { k: "Uptime", v: "99.99%" },
                         ].map((s) => (
                           <div key={s.k}>
-                            <div className="text-xs text-white/55">{s.k}</div>
-                            <div className="mt-1 text-sm font-medium text-white" style={{ fontFamily: "Plus Jakarta Sans, var(--font-sans)" }}>
+                            <div className="text-xs text-black/55 dark:text-white/55">{s.k}</div>
+                            <div className="mt-1 text-sm font-medium text-black dark:text-white" style={{ fontFamily: "Plus Jakarta Sans, var(--font-sans)" }}>
                               {s.v}
                             </div>
                           </div>
@@ -1122,7 +1108,7 @@ export default function TenLabsLanding() {
 
         {/* Features Section */}
         <section id="features" className="relative py-16 md:py-22">
-          <div className="absolute inset-0" style={{ background: "#0a0a0a" }} />
+          <div className="absolute inset-0 bg-gray-50 dark:bg-[#0a0a0a]" />
           <div className="relative mx-auto max-w-6xl px-4">
             <Reveal>
               <SectionHeading
@@ -1139,17 +1125,17 @@ export default function TenLabsLanding() {
                 { icon: <Waves className="size-5" />, title: "Audio intelligence", desc: "Visualize waveforms and frequency energy so users trust what they hear." },
               ].map((f, i) => (
                 <Reveal key={f.title} delay={0.05 * i}>
-                  <Card className="border-white/10 bg-white/[0.03] hover:bg-white/[0.045] transition tenlabs-ring">
+                  <Card className="border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.03] hover:bg-black/[0.045] dark:hover:bg-white/[0.045] transition tenlabs-ring">
                     <div className="p-6">
-                      <div className="size-11 rounded-xl border border-white/10 bg-white/5 grid place-items-center text-white">
+                      <div className="size-11 rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 grid place-items-center text-black dark:text-white">
                         {f.icon}
             </div>
-                      <div className="mt-4 text-lg font-semibold text-white" style={{ fontFamily: "Plus Jakarta Sans, var(--font-sans)" }}>
+                      <div className="mt-4 text-lg font-semibold text-black dark:text-white" style={{ fontFamily: "Plus Jakarta Sans, var(--font-sans)" }}>
                         {f.title}
                       </div>
-                      <div className="mt-2 text-sm text-white/65">{f.desc}</div>
-                      <div className="mt-5 h-px bg-white/10" />
-                      <div className="mt-4 text-xs text-white/55">Built with composable UI blocks for fast iteration.</div>
+                      <div className="mt-2 text-sm text-black/65 dark:text-white/65">{f.desc}</div>
+                      <div className="mt-5 h-px bg-black/10 dark:bg-white/10" />
+                      <div className="mt-4 text-xs text-black/55 dark:text-white/55">Built with composable UI blocks for fast iteration.</div>
                     </div>
                   </Card>
                 </Reveal>
@@ -1160,7 +1146,7 @@ export default function TenLabsLanding() {
 
         {/* Use Cases Section */}
         <section id="use-cases" className="relative py-20 md:py-28">
-          <div className="absolute inset-0" style={{ background: "#0a0a0a" }} />
+          <div className="absolute inset-0 bg-gray-50 dark:bg-[#0a0a0a]" />
           <div
             className="absolute inset-0"
             style={{ background: "radial-gradient(circle at 50% -10%, rgba(255,255,255,0.12), transparent 55%)" }}
@@ -1168,14 +1154,14 @@ export default function TenLabsLanding() {
           <div className="relative mx-auto max-w-6xl px-4 mb-16">
             <Reveal>
               <div className="text-center max-w-3xl mx-auto">
-                <div className="text-xs text-white/45 uppercase tracking-widest">Use cases</div>
+                <div className="text-xs text-black/45 dark:text-white/45 uppercase tracking-widest">Use cases</div>
                 <h2
                   className="mt-4 text-3xl md:text-5xl font-medium tracking-tight"
                   style={{ fontFamily: "Plus Jakarta Sans, var(--font-sans)" }}
                 >
                   Voice workflows that ship
               </h2>
-                <p className="mt-4 text-[15px] leading-7 text-white/65">
+                <p className="mt-4 text-[15px] leading-7 text-black/65 dark:text-white/65">
                   Interactive demos for each use case — ready for product landing pages.
                 </p>
               </div>
@@ -1253,7 +1239,7 @@ export default function TenLabsLanding() {
 
         {/* Team Section */}
         <section id="team" className="relative py-16 md:py-22">
-          <div className="absolute inset-0 bg-black" />
+          <div className="absolute inset-0 bg-white dark:bg-black" />
           <div
             className="absolute inset-0"
             style={{ background: "radial-gradient(circle at 50% 0%, rgba(255,255,255,0.10), transparent 55%)" }}
@@ -1274,22 +1260,22 @@ export default function TenLabsLanding() {
                 { name: "Mina Patel", role: "Engineering", bio: "Builds realtime pipelines and component primitives that keep demos feeling instant." },
               ].map((m, i) => (
                 <Reveal key={m.name} delay={0.05 * i}>
-                  <Card className="border-white/10 bg-white/[0.03] hover:bg-white/[0.045] transition tenlabs-ring">
+                  <Card className="border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.03] hover:bg-black/[0.045] dark:hover:bg-white/[0.045] transition tenlabs-ring">
                     <div className="p-6">
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex items-center gap-3">
-                          <div className="size-12 rounded-2xl border border-white/10 bg-white/5 grid place-items-center text-white">
+                          <div className="size-12 rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 grid place-items-center text-black dark:text-white">
                             <UserRound className="size-5" />
                           </div>
                           <div>
-                            <div className="text-base font-semibold text-white" style={{ fontFamily: "Plus Jakarta Sans, var(--font-sans)" }}>
+                            <div className="text-base font-semibold text-black dark:text-white" style={{ fontFamily: "Plus Jakarta Sans, var(--font-sans)" }}>
                               {m.name}
                             </div>
-                            <div className="text-sm text-white/55">{m.role}</div>
+                            <div className="text-sm text-black/55 dark:text-white/55">{m.role}</div>
                           </div>
                         </div>
                       </div>
-                      <p className="mt-4 text-sm text-white/65">{m.bio}</p>
+                      <p className="mt-4 text-sm text-black/65 dark:text-white/65">{m.bio}</p>
                     </div>
                   </Card>
                 </Reveal>
@@ -1298,22 +1284,22 @@ export default function TenLabsLanding() {
 
             <Reveal delay={0.18}>
               <div className="mt-10">
-                <Card className="border-white/10 bg-white/[0.03] tenlabs-ring tenlabs-glass">
+                <Card className="border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.03] tenlabs-ring tenlabs-glass">
                   <div className="p-6 md:p-7 flex flex-col md:flex-row md:items-center justify-between gap-5">
                     <div>
-                      <div className="text-lg font-semibold text-white" style={{ fontFamily: "Plus Jakarta Sans, var(--font-sans)" }}>
+                      <div className="text-lg font-semibold text-black dark:text-white" style={{ fontFamily: "Plus Jakarta Sans, var(--font-sans)" }}>
                         We&apos;re hiring builders who care about craft
                       </div>
-                      <div className="mt-2 text-sm text-white/65">If you want to ship premium voice UX, we&apos;d love to talk.</div>
+                      <div className="mt-2 text-sm text-black/65 dark:text-white/65">If you want to ship premium voice UX, we&apos;d love to talk.</div>
                     </div>
                     <div className="flex items-center gap-2">
                       <Link href="/company/careers">
-                        <Button variant="secondary" className="bg-white/5 hover:bg-white/10 border border-white/10">
+                        <Button variant="secondary" className="bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 border border-black/10 dark:border-white/10">
                           View roles
                         </Button>
                       </Link>
                       <Link href="/company/about">
-                        <Button className="bg-white text-black hover:bg-white/90">
+                        <Button className="bg-black dark:bg-white text-white dark:text-black hover:bg-black/90 dark:hover:bg-white/90">
                           Contact
                           <ArrowRight className="ml-2 size-4" />
                         </Button>
@@ -1328,7 +1314,7 @@ export default function TenLabsLanding() {
 
         {/* Pricing Section */}
         <section id="pricing" className="relative py-16 md:py-22">
-          <div className="absolute inset-0" style={{ background: "#0a0a0a" }} />
+          <div className="absolute inset-0 bg-gray-50 dark:bg-[#0a0a0a]" />
           <div className="relative mx-auto max-w-6xl px-4">
             <Reveal>
               <SectionHeading
@@ -1352,19 +1338,19 @@ export default function TenLabsLanding() {
 
             <Reveal delay={0.18}>
               <div className="mt-10">
-                <Card className="border-white/10 bg-white/[0.03] tenlabs-ring">
+                <Card className="border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.03] tenlabs-ring">
                   <div className="p-6 md:p-7 grid gap-6 md:grid-cols-[1fr_0.9fr] md:items-center">
                     <div>
-                      <div className="text-xl font-semibold text-white" style={{ fontFamily: "Plus Jakarta Sans, var(--font-sans)" }}>
+                      <div className="text-xl font-semibold text-black dark:text-white" style={{ fontFamily: "Plus Jakarta Sans, var(--font-sans)" }}>
                         Get the launch notes
                       </div>
-                      <div className="mt-2 text-sm text-white/65">
+                      <div className="mt-2 text-sm text-black/65 dark:text-white/65">
                         Product updates, release drops, and new voices — in a low-noise email.
                       </div>
                     </div>
                     <div className="flex flex-col sm:flex-row gap-3">
-                      <Input placeholder="Email address" className="h-11 bg-black/30 border-white/10 focus-visible:ring-white/20" />
-                      <Button className="h-11 bg-white text-black hover:bg-white/90">Subscribe</Button>
+                      <Input placeholder="Email address" className="h-11 bg-black/5 dark:bg-black/30 border-black/10 dark:border-white/10 focus-visible:ring-black/20 dark:focus-visible:ring-white/20 text-black dark:text-white placeholder:text-black/40 dark:placeholder:text-white/40" />
+                      <Button className="h-11 bg-black dark:bg-white text-white dark:text-black hover:bg-black/90 dark:hover:bg-white/90">Subscribe</Button>
                     </div>
                   </div>
                 </Card>
@@ -1378,7 +1364,7 @@ export default function TenLabsLanding() {
 
         {/* FAQ Section */}
         <section id="faq" className="relative py-16 md:py-22">
-          <div className="absolute inset-0 bg-black" />
+          <div className="absolute inset-0 bg-white dark:bg-black" />
           <div className="relative mx-auto max-w-6xl px-4">
             <Reveal>
               <SectionHeading
@@ -1403,25 +1389,25 @@ export default function TenLabsLanding() {
 
             <Reveal delay={0.1}>
               <div className="mt-12">
-                <div className="rounded-[26px] border border-white/10 bg-white/[0.03] tenlabs-ring tenlabs-glass overflow-hidden shadow-[0_30px_140px_rgba(0,0,0,0.80)]">
+                <div className="rounded-[26px] border border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.03] tenlabs-ring tenlabs-glass overflow-hidden shadow-[0_30px_140px_rgba(0,0,0,0.15)] dark:shadow-[0_30px_140px_rgba(0,0,0,0.80)]">
                   <div className="p-7 md:p-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div>
-                      <div className="text-lg font-semibold text-white" style={{ fontFamily: "Plus Jakarta Sans, var(--font-sans)" }}>
+                      <div className="text-lg font-semibold text-black dark:text-white" style={{ fontFamily: "Plus Jakarta Sans, var(--font-sans)" }}>
                         TenLabs.ai
                       </div>
-                      <div className="mt-2 text-sm text-white/65">Premium voice UX, designed to feel alive.</div>
-                      <div className="mt-3 text-xs text-white/45">© {new Date().getFullYear()} TenLabs.ai. All rights reserved.</div>
+                      <div className="mt-2 text-sm text-black/65 dark:text-white/65">Premium voice UX, designed to feel alive.</div>
+                      <div className="mt-3 text-xs text-black/45 dark:text-white/45">© {new Date().getFullYear()} TenLabs.ai. All rights reserved.</div>
                     </div>
 
                     <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
                       <Link href="/pricing">
-                        <Button variant="secondary" className="h-11 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 px-5">
+                        <Button variant="secondary" className="h-11 rounded-full bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 border border-black/10 dark:border-white/10 px-5">
                           Contact sales
                         </Button>
                       </Link>
                 <SignedOut>
                         <Link href="/sign-up">
-                          <Button className="h-11 rounded-full bg-white text-black hover:bg-white/90 px-5">
+                          <Button className="h-11 rounded-full bg-black dark:bg-white text-white dark:text-black hover:bg-black/90 dark:hover:bg-white/90 px-5">
                             Start free
                             <ArrowRight className="ml-2 size-4" />
                           </Button>
@@ -1429,7 +1415,7 @@ export default function TenLabsLanding() {
                 </SignedOut>
                 <SignedIn>
                         <Link href="/dashboard">
-                          <Button className="h-11 rounded-full bg-white text-black hover:bg-white/90 px-5">
+                          <Button className="h-11 rounded-full bg-black dark:bg-white text-white dark:text-black hover:bg-black/90 dark:hover:bg-white/90 px-5">
                             Dashboard
                             <ArrowRight className="ml-2 size-4" />
                           </Button>

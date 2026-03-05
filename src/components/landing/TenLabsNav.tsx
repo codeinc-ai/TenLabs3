@@ -7,6 +7,7 @@ import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import { ArrowRight, Menu, X, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TenLabsLogo } from "@/components/TenLabsLogo";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 function cn(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");
@@ -108,8 +109,8 @@ export default function TenLabsNav({ variant = "sticky" }: TenLabsNavProps) {
     >
       <div
         className={cn(
-          "absolute inset-0 border-b border-white/5 transition-opacity",
-          sticky ? "bg-black/55 backdrop-blur-xl opacity-100" : "bg-transparent opacity-0"
+          "absolute inset-0 border-b border-black/5 dark:border-white/5 transition-opacity",
+          sticky ? "bg-white/80 dark:bg-black/55 backdrop-blur-xl opacity-100" : "bg-transparent opacity-0"
         )}
       />
       <div className="relative mx-auto max-w-6xl px-4">
@@ -122,7 +123,7 @@ export default function TenLabsNav({ variant = "sticky" }: TenLabsNavProps) {
             <Logo />
           </Link>
 
-          <div className="hidden md:flex items-center gap-7 text-sm text-white/70">
+          <div className="hidden md:flex items-center gap-7 text-sm text-black/70 dark:text-white/70">
             {top.map((it) => {
               if (it.label === "Creative Platform") {
                 return (
@@ -138,7 +139,7 @@ export default function TenLabsNav({ variant = "sticky" }: TenLabsNavProps) {
                     <button
                       className={cn(
                         "relative rounded-full px-2.5 py-1.5 transition",
-                        megaOpen ? "text-white" : "hover:text-white"
+                        megaOpen ? "text-black dark:text-white" : "hover:text-black dark:hover:text-white"
                       )}
                       aria-haspopup="menu"
                       aria-expanded={megaOpen}
@@ -156,22 +157,22 @@ export default function TenLabsNav({ variant = "sticky" }: TenLabsNavProps) {
                           className="absolute left-0 top-full z-50 mt-2"
                           role="menu"
                         >
-                          <div className="tenlabs-mega w-[860px] rounded-[28px] border border-white/10 bg-black/85 backdrop-blur-2xl tenlabs-ring overflow-hidden shadow-[0_30px_120px_rgba(0,0,0,0.75)]">
+                          <div className="tenlabs-mega w-[860px] rounded-[28px] border border-black/10 dark:border-white/10 bg-white/95 dark:bg-black/85 backdrop-blur-2xl tenlabs-ring overflow-hidden shadow-xl dark:shadow-[0_30px_120px_rgba(0,0,0,0.75)]">
                             <div className="grid grid-cols-12">
                               <div className="col-span-4 p-6">
-                                <div className="text-xs text-white/45">{mega.products.title}</div>
+                                <div className="text-xs text-black/45 dark:text-white/45">{mega.products.title}</div>
                                 <div className="mt-4 grid gap-4">
                                   {mega.products.items.map((x) => (
                                     <Link
                                       key={x.href}
                                       href={x.href}
-                                      className="group block rounded-2xl px-3 py-2.5 hover:bg-white/[0.05] transition"
+                                      className="group block rounded-2xl px-3 py-2.5 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] transition"
                                       onClick={() => setMegaOpen(false)}
                                     >
-                                      <div className="text-[13px] font-medium text-white/90 group-hover:text-white transition">
+                                      <div className="text-[13px] font-medium text-black/90 dark:text-white/90 group-hover:text-black dark:group-hover:text-white transition">
                                         {x.label}
                                       </div>
-                                      <div className="mt-0.5 text-[12px] text-white/45 group-hover:text-white/55 transition">
+                                      <div className="mt-0.5 text-[12px] text-black/45 dark:text-white/45 group-hover:text-black/55 dark:group-hover:text-white/55 transition">
                                         {x.desc}
                                       </div>
                                     </Link>
@@ -179,22 +180,22 @@ export default function TenLabsNav({ variant = "sticky" }: TenLabsNavProps) {
                                 </div>
                               </div>
 
-                              <div className="col-span-8 border-l border-white/5">
+                              <div className="col-span-8 border-l border-black/5 dark:border-white/5">
                                 <div className="grid grid-cols-2">
                                   <div className="p-6">
-                                    <div className="text-xs text-white/45">{mega.create.title}</div>
+                                    <div className="text-xs text-black/45 dark:text-white/45">{mega.create.title}</div>
                                     <div className="mt-4 grid gap-4">
                                       {mega.create.items.map((x) => (
                                         <Link
                                           key={x.href}
                                           href={x.href}
-                                          className="group block rounded-2xl px-3 py-2.5 hover:bg-white/[0.05] transition"
+                                          className="group block rounded-2xl px-3 py-2.5 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] transition"
                                           onClick={() => setMegaOpen(false)}
                                         >
                                           <div className="text-[13px] font-medium text-white/90 group-hover:text-white transition">
                                             {x.label}
                                           </div>
-                                          <div className="mt-0.5 text-[12px] text-white/45 group-hover:text-white/55 transition">
+                                          <div className="mt-0.5 text-[12px] text-black/45 dark:text-white/45 group-hover:text-black/55 dark:group-hover:text-white/55 transition">
                                             {x.desc}
                                           </div>
                                         </Link>
@@ -202,20 +203,20 @@ export default function TenLabsNav({ variant = "sticky" }: TenLabsNavProps) {
                                     </div>
                                   </div>
 
-                                  <div className="p-6 border-l border-white/5">
-                                    <div className="text-xs text-white/45">{mega.voice.title}</div>
+                                  <div className="p-6 border-l border-black/5 dark:border-white/5">
+                                    <div className="text-xs text-black/45 dark:text-white/45">{mega.voice.title}</div>
                                     <div className="mt-4 grid gap-4">
                                       {mega.voice.items.map((x) => (
                                         <Link
                                           key={x.href}
                                           href={x.href}
-                                          className="group block rounded-2xl px-3 py-2.5 hover:bg-white/[0.05] transition"
+                                          className="group block rounded-2xl px-3 py-2.5 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] transition"
                                           onClick={() => setMegaOpen(false)}
                                         >
                                           <div className="text-[13px] font-medium text-white/90 group-hover:text-white transition">
                                             {x.label}
                                           </div>
-                                          <div className="mt-0.5 text-[12px] text-white/45 group-hover:text-white/55 transition">
+                                          <div className="mt-0.5 text-[12px] text-black/45 dark:text-white/45 group-hover:text-black/55 dark:group-hover:text-white/55 transition">
                                             {x.desc}
                                           </div>
                                         </Link>
@@ -224,20 +225,20 @@ export default function TenLabsNav({ variant = "sticky" }: TenLabsNavProps) {
                                   </div>
                                 </div>
 
-                                <div className="px-6 py-5 border-t border-white/5">
+                                <div className="px-6 py-5 border-t border-black/5 dark:border-white/5">
                                   <Link
                                     href="/products/tts"
-                                    className="group flex items-center gap-3 rounded-2xl bg-white/[0.04] hover:bg-white/[0.06] transition px-4 py-3"
+                                    className="group flex items-center gap-3 rounded-2xl bg-black/[0.03] dark:bg-white/[0.04] hover:bg-black/[0.05] dark:hover:bg-white/[0.06] transition px-4 py-3"
                                     onClick={() => setMegaOpen(false)}
                                   >
-                                    <div className="size-10 rounded-2xl bg-gradient-to-br from-white/20 to-white/5 border border-white/10 grid place-items-center" aria-hidden>
-                                      <div className="text-sm font-semibold text-white/90">V3</div>
+                                    <div className="size-10 rounded-2xl bg-gradient-to-br from-black/15 to-black/5 dark:from-white/20 dark:to-white/5 border border-black/10 dark:border-white/10 grid place-items-center" aria-hidden>
+                                      <div className="text-sm font-semibold text-black/90 dark:text-white/90">V3</div>
                                     </div>
                                     <div className="min-w-0">
-                                      <div className="text-[13px] font-medium text-white/90 group-hover:text-white">
+                                      <div className="text-[13px] font-medium text-black/90 dark:text-white/90 group-hover:text-black dark:group-hover:text-white">
                                         Meet TenLabs v3 (alpha)
                                       </div>
-                                      <div className="mt-0.5 text-[12px] text-white/45 group-hover:text-white/55">
+                                      <div className="mt-0.5 text-[12px] text-black/45 dark:text-white/45 group-hover:text-black/55 dark:group-hover:text-white/55">
                                         The most expressive Text to Speech model
                                       </div>
                                     </div>
@@ -273,7 +274,7 @@ export default function TenLabsNav({ variant = "sticky" }: TenLabsNavProps) {
                     <button
                       className={cn(
                         "relative rounded-full px-2.5 py-1.5 transition",
-                        resourcesOpen ? "text-white" : "hover:text-white"
+                        resourcesOpen ? "text-black dark:text-white" : "hover:text-black dark:hover:text-white"
                       )}
                       aria-haspopup="menu"
                       aria-expanded={resourcesOpen}
@@ -291,19 +292,19 @@ export default function TenLabsNav({ variant = "sticky" }: TenLabsNavProps) {
                           className="absolute left-0 top-full z-50 mt-2"
                           role="menu"
                         >
-                          <div className="w-[360px] rounded-[26px] border border-white/10 bg-black/85 backdrop-blur-2xl tenlabs-ring overflow-hidden shadow-[0_30px_120px_rgba(0,0,0,0.75)]">
+                          <div className="w-[360px] rounded-[26px] border border-black/10 dark:border-white/10 bg-white/95 dark:bg-black/85 backdrop-blur-2xl tenlabs-ring overflow-hidden shadow-xl dark:shadow-[0_30px_120px_rgba(0,0,0,0.75)]">
                             <div className="p-6">
-                              <div className="text-xs text-white/45">Company</div>
+                              <div className="text-xs text-black/45 dark:text-white/45">Company</div>
                               <div className="mt-4 grid gap-3">
                                 {resourcesItems.map((x) => (
                                   <Link
                                     key={x.href}
                                     href={x.href}
-                                    className="group block rounded-2xl px-3 py-2.5 hover:bg-white/[0.05] transition"
+                                    className="group block rounded-2xl px-3 py-2.5 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] transition"
                                     onClick={() => setResourcesOpen(false)}
                                   >
                                     <div
-                                      className="text-[22px] leading-[1.05] tracking-[-0.02em] font-medium text-white/92 group-hover:text-white"
+                                      className="text-[22px] leading-[1.05] tracking-[-0.02em] font-medium text-black/92 dark:text-white/92 group-hover:text-black dark:group-hover:text-white"
                                       style={{ fontFamily: "Plus Jakarta Sans, var(--font-sans)" }}
                                     >
                                       {x.label}
@@ -330,7 +331,7 @@ export default function TenLabsNav({ variant = "sticky" }: TenLabsNavProps) {
                 <Link
                   key={it.label}
                   href={it.href}
-                  className="hover:text-white transition"
+                  className="hover:text-black dark:hover:text-white transition"
                 >
                   {it.label}
                 </Link>
@@ -339,24 +340,25 @@ export default function TenLabsNav({ variant = "sticky" }: TenLabsNavProps) {
           </div>
 
           <div className="flex items-center gap-2">
+            <ThemeToggle />
             <SignedOut>
               <Link href="/sign-in">
                 <Button
                   variant="secondary"
-                  className="hidden sm:inline-flex bg-white/5 hover:bg-white/10 border border-white/10 text-white"
+                  className="hidden sm:inline-flex bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 border border-black/10 dark:border-white/10 text-black dark:text-white"
                 >
                   Log in
                 </Button>
               </Link>
               <Link href="/sign-up">
-                <Button className="hidden sm:inline-flex bg-white text-black hover:bg-white/90 border border-white/10">
+                <Button className="hidden sm:inline-flex bg-black dark:bg-white text-white dark:text-black hover:bg-black/90 dark:hover:bg-white/90 border border-black/10 dark:border-white/10">
                   Sign up
                 </Button>
               </Link>
             </SignedOut>
             <SignedIn>
               <Link href="/dashboard">
-                <Button className="hidden sm:inline-flex bg-white text-black hover:bg-white/90 border border-white/10">
+                <Button className="hidden sm:inline-flex bg-black dark:bg-white text-white dark:text-black hover:bg-black/90 dark:hover:bg-white/90 border border-black/10 dark:border-white/10">
                   Dashboard
                 </Button>
               </Link>
@@ -370,7 +372,7 @@ export default function TenLabsNav({ variant = "sticky" }: TenLabsNavProps) {
             </SignedIn>
 
             <button
-              className="sm:hidden size-10 rounded-xl border border-white/10 bg-white/5 text-white/85 hover:bg-white/10 transition grid place-items-center"
+              className="sm:hidden size-10 rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 text-black/85 dark:text-white/85 hover:bg-black/10 dark:hover:bg-white/10 transition grid place-items-center"
               onClick={() => setOpen(true)}
               aria-label="Open menu"
             >
@@ -389,11 +391,11 @@ export default function TenLabsNav({ variant = "sticky" }: TenLabsNavProps) {
               transition={{ duration: 0.22, ease: "easeOut" }}
               className="sm:hidden"
             >
-              <div className="mt-2 rounded-2xl border border-white/10 bg-black/75 backdrop-blur-xl tenlabs-ring overflow-hidden max-h-[85vh] overflow-y-auto">
+              <div className="mt-2 rounded-2xl border border-black/10 dark:border-white/10 bg-white/95 dark:bg-black/75 backdrop-blur-xl tenlabs-ring overflow-hidden max-h-[85vh] overflow-y-auto">
                 <div className="p-3 flex items-center justify-between">
-                  <div className="text-xs text-white/55">Menu</div>
+                  <div className="text-xs text-black/55 dark:text-white/55">Menu</div>
                   <button
-                    className="size-9 rounded-xl border border-white/10 bg-white/5 text-white/80 hover:bg-white/10 transition grid place-items-center"
+                    className="size-9 rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 text-black/80 dark:text-white/80 hover:bg-black/10 dark:hover:bg-white/10 transition grid place-items-center"
                     onClick={() => {
                       setOpen(false);
                       setMobileMegaOpen(false);
@@ -415,11 +417,11 @@ export default function TenLabsNav({ variant = "sticky" }: TenLabsNavProps) {
                               setMobileMegaOpen((v) => !v);
                               setMobileResourcesOpen(false);
                             }}
-                            className="flex w-full items-center justify-between rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white/80 hover:bg-white/[0.08] transition"
+                            className="flex w-full items-center justify-between rounded-xl border border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.04] px-4 py-3 text-sm text-black/80 dark:text-white/80 hover:bg-black/[0.06] dark:hover:bg-white/[0.08] transition"
                           >
                             <span>{it.label}</span>
                             <ChevronDown
-                              className={cn("size-4 text-white/45 transition-transform", mobileMegaOpen && "rotate-180")}
+                              className={cn("size-4 text-black/45 dark:text-white/45 transition-transform", mobileMegaOpen && "rotate-180")}
                             />
                           </button>
                           <AnimatePresence>
@@ -431,7 +433,7 @@ export default function TenLabsNav({ variant = "sticky" }: TenLabsNavProps) {
                                 transition={{ duration: 0.2 }}
                                 className="overflow-hidden"
                               >
-                                <div className="mt-1 ml-2 pl-4 border-l border-white/10 space-y-1">
+                                <div className="mt-1 ml-2 pl-4 border-l border-black/10 dark:border-white/10 space-y-1">
                                   {[
                                     ...mega.products.items,
                                     ...mega.create.items,
@@ -440,7 +442,7 @@ export default function TenLabsNav({ variant = "sticky" }: TenLabsNavProps) {
                                     <Link
                                       key={x.href}
                                       href={x.href}
-                                      className="block rounded-lg px-3 py-2.5 text-[13px] text-white/70 hover:bg-white/[0.06] hover:text-white transition"
+                                      className="block rounded-lg px-3 py-2.5 text-[13px] text-black/70 dark:text-white/70 hover:bg-black/[0.05] dark:hover:bg-white/[0.06] hover:text-black dark:hover:text-white transition"
                                       onClick={() => {
                                         setOpen(false);
                                         setMobileMegaOpen(false);
@@ -464,11 +466,11 @@ export default function TenLabsNav({ variant = "sticky" }: TenLabsNavProps) {
                               setMobileResourcesOpen((v) => !v);
                               setMobileMegaOpen(false);
                             }}
-                            className="flex w-full items-center justify-between rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white/80 hover:bg-white/[0.08] transition"
+                            className="flex w-full items-center justify-between rounded-xl border border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.04] px-4 py-3 text-sm text-black/80 dark:text-white/80 hover:bg-black/[0.06] dark:hover:bg-white/[0.08] transition"
                           >
                             <span>{it.label}</span>
                             <ChevronDown
-                              className={cn("size-4 text-white/45 transition-transform", mobileResourcesOpen && "rotate-180")}
+                              className={cn("size-4 text-black/45 dark:text-white/45 transition-transform", mobileResourcesOpen && "rotate-180")}
                             />
                           </button>
                           <AnimatePresence>
@@ -480,12 +482,12 @@ export default function TenLabsNav({ variant = "sticky" }: TenLabsNavProps) {
                                 transition={{ duration: 0.2 }}
                                 className="overflow-hidden"
                               >
-                                <div className="mt-1 ml-2 pl-4 border-l border-white/10 space-y-1">
+                                <div className="mt-1 ml-2 pl-4 border-l border-black/10 dark:border-white/10 space-y-1">
                                   {resourcesItems.map((x) => (
                                     <Link
                                       key={x.href}
                                       href={x.href}
-                                      className="block rounded-lg px-3 py-2.5 text-[13px] text-white/70 hover:bg-white/[0.06] hover:text-white transition"
+                                      className="block rounded-lg px-3 py-2.5 text-[13px] text-black/70 dark:text-white/70 hover:bg-black/[0.05] dark:hover:bg-white/[0.06] hover:text-black dark:hover:text-white transition"
                                       onClick={() => {
                                         setOpen(false);
                                         setMobileResourcesOpen(false);
@@ -505,11 +507,11 @@ export default function TenLabsNav({ variant = "sticky" }: TenLabsNavProps) {
                       <Link
                         key={it.label}
                         href={it.href}
-                        className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white/80 hover:bg-white/[0.08] transition"
+                        className="flex items-center justify-between rounded-xl border border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.04] px-4 py-3 text-sm text-black/80 dark:text-white/80 hover:bg-black/[0.06] dark:hover:bg-white/[0.08] transition"
                         onClick={() => setOpen(false)}
                       >
                         <span>{it.label}</span>
-                        <ArrowRight className="size-4 text-white/45" />
+                        <ArrowRight className="size-4 text-black/45 dark:text-white/45" />
                       </Link>
                     );
                   })}
@@ -519,20 +521,20 @@ export default function TenLabsNav({ variant = "sticky" }: TenLabsNavProps) {
                       <Link href="/sign-in" onClick={() => setOpen(false)}>
                         <Button
                           variant="secondary"
-                          className="w-full bg-white/5 hover:bg-white/10 border border-white/10 text-white"
+                          className="w-full bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 border border-black/10 dark:border-white/10 text-black dark:text-white"
                         >
                           Log in
                         </Button>
                       </Link>
                       <Link href="/sign-up" onClick={() => setOpen(false)}>
-                        <Button className="w-full bg-white text-black hover:bg-white/90">
+                        <Button className="w-full bg-black dark:bg-white text-white dark:text-black hover:bg-black/90 dark:hover:bg-white/90">
                           Sign up
                         </Button>
                       </Link>
                     </SignedOut>
                     <SignedIn>
                       <Link href="/dashboard" className="col-span-2" onClick={() => setOpen(false)}>
-                        <Button className="w-full bg-white text-black hover:bg-white/90">
+                        <Button className="w-full bg-black dark:bg-white text-white dark:text-black hover:bg-black/90 dark:hover:bg-white/90">
                           Dashboard
                         </Button>
                       </Link>
