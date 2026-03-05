@@ -1,12 +1,13 @@
 // src/types/StripePayload.ts
 
 /**
- * Represents minimal Stripe subscription/billing info
+ * Represents billing/checkout info for Polar.sh integration.
+ * Kept for backward compatibility.
  */
 export interface StripePayload {
   userId: string;         // User making the payment
   plan: "free" | "starter" | "creator" | "pro"; // Plan being purchased
   amount: number;         // Amount in cents
   currency: string;       // Currency code, e.g., 'usd'
-  stripeSessionId?: string; // Optional: Stripe checkout session
+  polarCheckoutId?: string; // Polar checkout session ID
 }

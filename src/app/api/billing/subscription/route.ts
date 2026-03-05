@@ -4,7 +4,7 @@ import { auth } from "@clerk/nextjs/server";
 import * as Sentry from "@sentry/nextjs";
 import {
   getSubscriptionInfo,
-  upgradePlan,
+  createCheckoutSession,
   cancelSubscription,
 } from "@/lib/services/billingService";
 
@@ -33,8 +33,9 @@ export async function GET() {
 
 /**
  * POST /api/billing/subscription
- * Upgrade to a new plan.
- * Body: { plan: "pro" }
+ * Create a Polar checkout session for upgrading to a new plan.
+ * Body: { plan: "starter" | "creator" | "pro" }
+ * Returns: { success: true, checkoutUrl: "..." }
  */
 export async function POST(req: NextRequest) {
   try {
@@ -54,17 +55,17 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const result = await upgradePlan(userId, plan);
+    const result = await createCheckoutSession(userId, plan);
 
     if (!result.success) {
       return NextResponse.json({ error: result.error }, { status: 400 });
     }
 
-    return NextResponse.json({ success: true, message: "Plan upgraded successfully" });
+    return NextResponse.json({ success: true, checkoutUrl: result.checkoutUrl });
   } catch (error) {
     Sentry.captureException(error);
     return NextResponse.json(
-      { error: "Failed to upgrade plan" },
+      { error: "Failed to create checkout session" },
       { status: 500 }
     );
   }
@@ -72,7 +73,7 @@ export async function POST(req: NextRequest) {
 
 /**
  * DELETE /api/billing/subscription
- * Cancel subscription.
+ * Cancel subscription via Polar.
  */
 export async function DELETE() {
   try {

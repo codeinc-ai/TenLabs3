@@ -4,6 +4,7 @@ import { connectToDB } from "@/lib/mongodb";
 import { User } from "@/models/User";
 import { PLANS, BILLING_PLANS } from "@/constants";
 import { getOrCreateUserWithMockData } from "@/lib/services/seedService";
+import { polar } from "@/lib/polar";
 
 /**
  * ==========================================
@@ -30,6 +31,8 @@ export interface SubscriptionInfo {
   appliedCoupon?: string;
   planExpiresAt?: string;
   discountPercent?: number;
+  polarSubscriptionId?: string;
+  polarCustomerId?: string;
 }
 
 /**
@@ -77,9 +80,6 @@ export interface BillingOverview {
   };
 }
 
-// Note: Invoices and payment methods will come from Stripe when integrated.
-// For now, these return empty arrays until Stripe is connected.
-
 /**
  * ==========================================
  * Get Subscription Info
@@ -123,18 +123,41 @@ export async function getSubscriptionInfo(
     const planLimits = PLANS[plan];
     const planDetails = BILLING_PLANS[plan];
 
-    // Calculate period dates (mock: 30-day billing cycle)
-    const periodStart = new Date();
-    periodStart.setDate(1); // First of current month
-    const periodEnd = new Date(periodStart);
-    periodEnd.setMonth(periodEnd.getMonth() + 1);
+    // Try to get live subscription data from Polar
+    let periodStart = new Date();
+    let periodEnd = new Date();
+    let cancelAtPeriodEnd = false;
+    let interval: "month" | "year" = "month";
+    let priceAmount = planDetails.price.monthly * 100;
+
+    if (user.polarSubscriptionId) {
+      try {
+        const polarSub = await polar.subscriptions.get({
+          id: user.polarSubscriptionId,
+        });
+        periodStart = polarSub.currentPeriodStart;
+        periodEnd = polarSub.currentPeriodEnd ? polarSub.currentPeriodEnd : periodEnd;
+        cancelAtPeriodEnd = polarSub.cancelAtPeriodEnd;
+        interval = polarSub.recurringInterval === "year" ? "year" : "month";
+        priceAmount = polarSub.amount;
+      } catch {
+        // Fall back to calculated dates
+        periodStart.setDate(1);
+        periodEnd = new Date(periodStart);
+        periodEnd.setMonth(periodEnd.getMonth() + 1);
+      }
+    } else {
+      periodStart.setDate(1);
+      periodEnd = new Date(periodStart);
+      periodEnd.setMonth(periodEnd.getMonth() + 1);
+    }
 
     return {
       plan,
-      status: "active",
+      status: (user.polarSubscriptionStatus === "canceled" ? "canceled" : "active") as SubscriptionInfo["status"],
       currentPeriodStart: periodStart.toISOString(),
       currentPeriodEnd: periodEnd.toISOString(),
-      cancelAtPeriodEnd: false,
+      cancelAtPeriodEnd,
       usage: {
         charactersUsed: user.usage?.charactersUsed || 0,
         charactersLimit: planLimits.maxChars,
@@ -142,13 +165,15 @@ export async function getSubscriptionInfo(
         generationsLimit: planLimits.maxGenerations,
       },
       price: {
-        amount: planDetails.price.monthly * 100, // cents
+        amount: priceAmount,
         currency: "usd",
-        interval: "month",
+        interval,
       },
       appliedCoupon: user.appliedCoupon || undefined,
       planExpiresAt: user.planExpiresAt ? new Date(user.planExpiresAt).toISOString() : undefined,
       discountPercent: user.discountPercent || undefined,
+      polarSubscriptionId: user.polarSubscriptionId || undefined,
+      polarCustomerId: user.polarCustomerId || undefined,
     };
   } catch (error) {
     Sentry.captureException(error);
@@ -159,32 +184,56 @@ export async function getSubscriptionInfo(
 
 /**
  * ==========================================
- * Get Invoices
+ * Get Invoices from Polar
  * ==========================================
- * Returns invoices from Stripe (when integrated).
- * Currently returns empty array until Stripe is connected.
  */
 export async function getInvoices(
   clerkId: string,
   options: { limit?: number; offset?: number } = {}
 ): Promise<{ invoices: Invoice[]; total: number }> {
-  // TODO: Implement Stripe invoice fetching
-  // Parameters will be used when Stripe is integrated
-  void clerkId;
-  void options;
-  return { invoices: [], total: 0 };
+  try {
+    await connectToDB();
+    const user = await User.findOne({ clerkId });
+    if (!user?.polarCustomerId) {
+      return { invoices: [], total: 0 };
+    }
+
+    const limit = options.limit || 10;
+    const page = Math.floor((options.offset || 0) / limit) + 1;
+
+    const orders = await polar.orders.list({
+      customerId: user.polarCustomerId,
+      limit,
+      page,
+    });
+
+    const invoices: Invoice[] = orders.result.items.map((order) => ({
+      id: order.id,
+      date: order.createdAt.toISOString(),
+      amount: order.totalAmount,
+      currency: order.currency,
+      status: "paid" as const,
+      description: order.product?.name || "Subscription",
+    }));
+
+    return {
+      invoices,
+      total: orders.result.pagination.totalCount,
+    };
+  } catch (error) {
+    Sentry.captureException(error);
+    console.error("[billingService] Failed to get invoices:", error);
+    return { invoices: [], total: 0 };
+  }
 }
 
 /**
  * ==========================================
  * Get Payment Methods
  * ==========================================
- * Returns payment methods from Stripe (when integrated).
- * Currently returns empty array until Stripe is connected.
+ * Payment methods are managed by Polar's customer portal.
  */
 export async function getPaymentMethods(clerkId: string): Promise<PaymentMethod[]> {
-  // TODO: Implement Stripe payment method fetching
-  // Parameter will be used when Stripe is integrated
   void clerkId;
   return [];
 }
@@ -203,7 +252,6 @@ export async function getBillingOverview(
     getPaymentMethods(clerkId),
   ]);
 
-  // Calculate next invoice for paid users
   const nextInvoice = subscription.plan !== "free"
     ? {
         date: subscription.currentPeriodEnd,
@@ -222,35 +270,47 @@ export async function getBillingOverview(
 
 /**
  * ==========================================
- * Upgrade Plan (Mock)
+ * Upgrade Plan via Polar Checkout
  * ==========================================
+ * Creates a Polar checkout session and returns the URL.
  */
-export async function upgradePlan(
+export async function createCheckoutSession(
   clerkId: string,
   newPlan: "starter" | "creator" | "pro"
-): Promise<{ success: boolean; error?: string }> {
+): Promise<{ success: boolean; checkoutUrl?: string; error?: string }> {
+  const productIdMap: Record<string, string | undefined> = {
+    starter: process.env.POLAR_STARTER_PRODUCT_ID,
+    creator: process.env.POLAR_CREATOR_PRODUCT_ID,
+    pro: process.env.POLAR_PRO_PRODUCT_ID,
+  };
+
+  const productId = productIdMap[newPlan];
+  if (!productId) {
+    return { success: false, error: "Product not configured for this plan" };
+  }
+
   try {
     await connectToDB();
+    const user = await User.findOne({ clerkId });
 
-    const result = await User.updateOne(
-      { clerkId },
-      { $set: { plan: newPlan } }
-    );
+    const checkout = await polar.checkouts.create({
+      products: [productId],
+      externalCustomerId: clerkId,
+      ...(user?.email ? { customerEmail: user.email } : {}),
+      ...(user?.name ? { customerName: user.name } : {}),
+      successUrl: `${process.env.NEXT_PUBLIC_APP_URL || ""}/billing?checkout=success&checkout_id={CHECKOUT_ID}`,
+    });
 
-    if (result.modifiedCount === 0) {
-      return { success: false, error: "User not found" };
-    }
-
-    return { success: true };
+    return { success: true, checkoutUrl: checkout.url };
   } catch (error) {
     Sentry.captureException(error);
-    return { success: false, error: "Failed to upgrade plan" };
+    return { success: false, error: "Failed to create checkout session" };
   }
 }
 
 /**
  * ==========================================
- * Cancel Subscription (Mock)
+ * Cancel Subscription via Polar
  * ==========================================
  */
 export async function cancelSubscription(
@@ -258,17 +318,23 @@ export async function cancelSubscription(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     await connectToDB();
+    const user = await User.findOne({ clerkId });
 
-    // In production, this would set cancelAtPeriodEnd = true
-    // For mock, we just downgrade to free
-    const result = await User.updateOne(
-      { clerkId },
-      { $set: { plan: "free" } }
-    );
-
-    if (result.modifiedCount === 0) {
-      return { success: false, error: "User not found" };
+    if (!user?.polarSubscriptionId) {
+      return { success: false, error: "No active subscription found" };
     }
+
+    await polar.subscriptions.update({
+      id: user.polarSubscriptionId,
+      subscriptionUpdate: {
+        cancelAtPeriodEnd: true,
+      },
+    });
+
+    await User.updateOne(
+      { clerkId },
+      { $set: { polarSubscriptionStatus: "canceled" } }
+    );
 
     return { success: true };
   } catch (error) {

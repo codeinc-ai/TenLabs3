@@ -29,6 +29,10 @@ export interface IUser extends Document {
     dialogueGenerationsUsed: number;   // Number of dialogue generations
     dialogueCharactersUsed: number;    // Characters used for dialogue
   };
+  // Polar.sh billing
+  polarCustomerId?: string;      // Polar customer ID
+  polarSubscriptionId?: string;  // Polar subscription ID
+  polarSubscriptionStatus?: string; // Polar subscription status
   // Coupon tracking
   appliedCoupon?: string;        // Currently active coupon code
   couponExpiresAt?: Date;        // When the coupon discount expires
@@ -66,6 +70,10 @@ const UserSchema: Schema = new Schema<IUser>(
       dialogueGenerationsUsed: { type: Number, default: 0 },
       dialogueCharactersUsed: { type: Number, default: 0 },
     },
+    // Polar.sh billing
+    polarCustomerId: { type: String },
+    polarSubscriptionId: { type: String },
+    polarSubscriptionStatus: { type: String },
     // Coupon tracking
     appliedCoupon: { type: String },
     couponExpiresAt: { type: Date },

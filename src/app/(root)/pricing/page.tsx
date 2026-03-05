@@ -305,7 +305,7 @@ function PlanCard({ plan }: { plan: Plan }) {
             </Link>
           </SignedOut>
           <SignedIn>
-            <Link href="/dashboard">
+            <Link href={plan.id === "free" ? "/dashboard" : "/billing"}>
               <button
                 className={cn(
                   "h-10 w-full rounded-full text-sm font-medium transition",

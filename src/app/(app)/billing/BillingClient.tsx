@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import * as Sentry from "@sentry/nextjs";
 import {
@@ -16,6 +17,7 @@ import {
   Crown,
   ArrowRight,
   Tag,
+  ExternalLink,
 } from "lucide-react";
 
 import { BILLING_PLANS, PLANS } from "@/constants";
@@ -43,10 +45,27 @@ interface BillingClientProps {
 }
 
 export function BillingClient({ initialData, userEmail }: BillingClientProps) {
+  const searchParams = useSearchParams();
   const [data, setData] = useState<BillingOverview | null>(initialData);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+
+  // Handle checkout success redirect
+  useEffect(() => {
+    if (searchParams.get("checkout") === "success") {
+      setSuccess("Payment successful! Your plan will be activated shortly.");
+      // Refresh billing data after a brief delay for webhook processing
+      const timer = setTimeout(async () => {
+        const billingRes = await fetch("/api/billing");
+        if (billingRes.ok) {
+          const newData = await billingRes.json();
+          setData(newData);
+        }
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [searchParams]);
 
   // Dialog states
   const [upgradeDialogOpen, setUpgradeDialogOpen] = useState(false);
@@ -75,7 +94,7 @@ export function BillingClient({ initialData, userEmail }: BillingClientProps) {
   const charsPercent = Math.min((charsUsed / charsLimit) * 100, 100);
   const gensPercent = Math.min((gensUsed / gensLimit) * 100, 100);
 
-  // Handle upgrade
+  // Handle upgrade - redirects to Polar checkout
   const handleUpgrade = async () => {
     setLoading(true);
     setError(null);
@@ -89,23 +108,17 @@ export function BillingClient({ initialData, userEmail }: BillingClientProps) {
 
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.error || "Failed to upgrade");
+        throw new Error(errorData.error || "Failed to create checkout");
       }
 
-      // Refresh billing data
-      const billingRes = await fetch("/api/billing");
-      if (billingRes.ok) {
-        const newData = await billingRes.json();
-        setData(newData);
+      const data = await res.json();
+      if (data.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
       }
-
-      setSuccess(`Successfully upgraded to ${selectedUpgradePlan.charAt(0).toUpperCase() + selectedUpgradePlan.slice(1)} plan!`);
-      setUpgradeDialogOpen(false);
     } catch (err) {
       const e = err instanceof Error ? err : new Error("Unknown error");
       setError(e.message);
       Sentry.captureException(e);
-    } finally {
       setLoading(false);
     }
   };
@@ -333,19 +346,21 @@ export function BillingClient({ initialData, userEmail }: BillingClientProps) {
               </Button>
             )}
             {isPaid && (
-              <Button
-                variant="outline"
-                onClick={() => setCancelDialogOpen(true)}
-              >
-                Cancel Subscription
-              </Button>
+              <>
+                <Button variant="outline" asChild>
+                  <a href="/api/portal">
+                    <ExternalLink className="mr-2 h-4 w-4" />
+                    Manage Subscription
+                  </a>
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setCancelDialogOpen(true)}
+                >
+                  Cancel Subscription
+                </Button>
+              </>
             )}
-            <Button variant="outline" asChild>
-              <Link href="/billing/payment-methods">
-                <CreditCard className="mr-2 h-4 w-4" />
-                Payment Methods
-              </Link>
-            </Button>
             <Button variant="outline" asChild>
               <Link href="/billing/invoices">
                 <Receipt className="mr-2 h-4 w-4" />
@@ -510,18 +525,18 @@ export function BillingClient({ initialData, userEmail }: BillingClientProps) {
                 </p>
               </div>
             </Link>
-            <Link
-              href="/billing/payment-methods"
+            <a
+              href="/api/portal"
               className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors"
             >
               <CreditCard className="h-5 w-5 text-muted-foreground" />
               <div>
-                <p className="font-medium">Payment Methods</p>
+                <p className="font-medium">Manage Subscription</p>
                 <p className="text-xs text-muted-foreground">
-                  Manage your cards
+                  View orders, payment methods & subscription
                 </p>
               </div>
-            </Link>
+            </a>
             <Link
               href="/usage"
               className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors"
@@ -577,7 +592,7 @@ export function BillingClient({ initialData, userEmail }: BillingClientProps) {
               </div>
             )}
             <div className="text-sm text-muted-foreground">
-              <p>Your subscription will start immediately. You can cancel anytime.</p>
+              <p>You&apos;ll be redirected to our secure checkout to complete your purchase. Your subscription will start immediately after payment.</p>
               {userEmail && (
                 <p className="mt-2">
                   Receipt will be sent to: <span className="font-medium">{userEmail}</span>
@@ -597,12 +612,12 @@ export function BillingClient({ initialData, userEmail }: BillingClientProps) {
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Processing...
+                  Redirecting to checkout...
                 </>
               ) : (
                 <>
                   <Sparkles className="mr-2 h-4 w-4" />
-                  Confirm Upgrade
+                  Proceed to Checkout
                 </>
               )}
             </Button>
