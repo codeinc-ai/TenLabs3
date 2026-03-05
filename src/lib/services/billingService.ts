@@ -304,6 +304,8 @@ export async function createCheckoutSession(
     return { success: true, checkoutUrl: checkout.url };
   } catch (error) {
     Sentry.captureException(error);
+    const message = error instanceof Error ? error.message : "Failed to create checkout session";
+    console.error("[billingService] Checkout error:", message);
     return { success: false, error: "Failed to create checkout session" };
   }
 }

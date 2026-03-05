@@ -8,5 +8,5 @@ export const GET = CustomerPortal({
     const { userId } = await auth();
     return userId || "";
   },
-  server: (process.env.POLAR_ENVIRONMENT as "sandbox" | "production") || "production",
+  server: process.env.POLAR_ENVIRONMENT?.trim() === "sandbox" ? "sandbox" : "production",
 });
