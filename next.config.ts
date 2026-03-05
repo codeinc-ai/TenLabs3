@@ -50,6 +50,9 @@ const nextConfig: NextConfig = {
     // PostHog: API key is safe to expose to the client.
     POSTHOG_API_KEY: process.env.POSTHOG_API_KEY,
     POSTHOG_API_HOST: process.env.POSTHOG_API_HOST,
+
+    // Clerk: required for prerender of auth-protected pages (must be set at build time).
+    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
   },
 };
 

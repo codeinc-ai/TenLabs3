@@ -95,8 +95,6 @@ const CouponSchema: Schema = new Schema<ICoupon>(
   }
 );
 
-// Index for fast lookups by code
-CouponSchema.index({ code: 1 });
 // Index for admin listing (active + expiry)
 CouponSchema.index({ isActive: 1, expiresAt: 1 });
 

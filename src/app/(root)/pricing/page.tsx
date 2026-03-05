@@ -1,10 +1,10 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback } from "react";
 import Link from "next/link";
 import { SignedIn, SignedOut } from "@clerk/nextjs";
-import { ChevronDown, Check, Minus, Plus, ArrowRight } from "lucide-react";
+import { ChevronDown, Check, Minus, Plus, ArrowRight, Loader2 } from "lucide-react";
 import { Reveal } from "@/components/landing";
 import { Button } from "@/components/ui/button";
 
@@ -226,9 +226,11 @@ function BillingDropdown({ value, onChange }: { value: string; onChange: (v: str
 const auroraHoverGradient =
   "linear-gradient(135deg, rgba(139, 92, 246, 0.35) 0%, rgba(251, 146, 60, 0.25) 50%, rgba(239, 68, 68, 0.2) 100%)";
 
-function PlanCard({ plan }: { plan: Plan }) {
+function PlanCard({ plan, onCheckout, checkoutLoading }: { plan: Plan; onCheckout: (planId: string) => void; checkoutLoading: string | null }) {
   const highlighted = plan.highlight === "creator" || plan.highlight === "business";
   const hasBg = plan.highlight === "creator" || plan.highlight === "business";
+  const isPaidPlan = plan.id !== "free" && plan.id !== "enterprise";
+  const isLoading = checkoutLoading === plan.id;
 
   return (
     <div
@@ -305,16 +307,36 @@ function PlanCard({ plan }: { plan: Plan }) {
             </Link>
           </SignedOut>
           <SignedIn>
-            <Link href={plan.id === "free" ? "/dashboard" : "/billing"}>
+            {isPaidPlan ? (
               <button
+                onClick={() => onCheckout(plan.id)}
+                disabled={isLoading || checkoutLoading !== null}
                 className={cn(
-                  "h-10 w-full rounded-full text-sm font-medium transition",
-                  "bg-white text-black hover:bg-white/90"
+                  "h-10 w-full rounded-full text-sm font-medium transition inline-flex items-center justify-center gap-2",
+                  "bg-white text-black hover:bg-white/90 disabled:opacity-60 disabled:cursor-not-allowed"
                 )}
               >
-                {plan.cta}
+                {isLoading ? (
+                  <>
+                    <Loader2 className="size-4 animate-spin" />
+                    Redirecting...
+                  </>
+                ) : (
+                  plan.cta
+                )}
               </button>
-            </Link>
+            ) : (
+              <Link href="/dashboard">
+                <button
+                  className={cn(
+                    "h-10 w-full rounded-full text-sm font-medium transition",
+                    "bg-white text-black hover:bg-white/90"
+                  )}
+                >
+                  {plan.cta}
+                </button>
+              </Link>
+            )}
           </SignedIn>
         </div>
       </div>
@@ -575,11 +597,31 @@ export default function PricingPage() {
   const [billing, setBilling] = useState("Monthly billing");
   const [category, setCategory] = useState<CompareCategory>("Text to Speech");
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
 
   const topPlans = useMemo(() => {
     if (segment === "all") return consumerPlans;
     return consumerPlans.filter((p) => p.segment === "all" || p.segment === segment);
   }, [segment]);
+
+  const handleCheckout = useCallback(async (planId: string) => {
+    setCheckoutLoading(planId);
+    try {
+      const res = await fetch("/api/billing/subscription", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan: planId }),
+      });
+      const data = await res.json();
+      if (data.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
+      } else {
+        setCheckoutLoading(null);
+      }
+    } catch {
+      setCheckoutLoading(null);
+    }
+  }, []);
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -615,7 +657,7 @@ export default function PricingPage() {
             <div className="mt-10 grid gap-4 md:grid-cols-4">
               {topPlans.map((p) => (
                 <Reveal key={p.id} delay={p.id === "creator" ? 0.08 : 0.02}>
-                  <PlanCard plan={p} />
+                  <PlanCard plan={p} onCheckout={handleCheckout} checkoutLoading={checkoutLoading} />
                 </Reveal>
               ))}
             </div>
@@ -635,7 +677,7 @@ export default function PricingPage() {
               <div className="grid gap-4 md:grid-cols-3">
                 {businessPlans.map((p, i) => (
                   <Reveal key={p.id} delay={0.04 * i}>
-                    <PlanCard plan={p} />
+                    <PlanCard plan={p} onCheckout={handleCheckout} checkoutLoading={checkoutLoading} />
                   </Reveal>
                 ))}
               </div>

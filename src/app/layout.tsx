@@ -21,6 +21,9 @@ export const metadata: Metadata = {
     "Transform your text into natural, human-like speech with AI-powered voice synthesis. Create voiceovers, audiobooks, and podcasts with ultra-realistic voices.",
 };
 
+// Avoid static prerender so ClerkProvider runs at request time when env is available (fixes build when workers don't see .env)
+export const dynamic = "force-dynamic";
+
 export default function RootLayout({
   children,
 }: Readonly<{
