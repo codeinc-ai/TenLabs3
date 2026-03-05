@@ -293,10 +293,12 @@ export async function createCheckoutSession(
     await connectToDB();
     const user = await User.findOne({ clerkId });
 
+    // Only pass email if it's a real address (not mock seed data)
+    const isValidEmail = user?.email && !user.email.endsWith("@example.com");
     const checkout = await polar.checkouts.create({
       products: [productId],
       externalCustomerId: clerkId,
-      ...(user?.email ? { customerEmail: user.email } : {}),
+      ...(isValidEmail ? { customerEmail: user.email } : {}),
       ...(user?.name ? { customerName: user.name } : {}),
       successUrl: `${process.env.NEXT_PUBLIC_APP_URL || ""}/billing?checkout=success&checkout_id={CHECKOUT_ID}`,
     });
