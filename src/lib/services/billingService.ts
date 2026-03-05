@@ -302,11 +302,16 @@ export async function createCheckoutSession(
     });
 
     return { success: true, checkoutUrl: checkout.url };
-  } catch (error) {
+  } catch (error: unknown) {
     Sentry.captureException(error);
-    const message = error instanceof Error ? error.message : "Failed to create checkout session";
-    console.error("[billingService] Checkout error:", message);
-    return { success: false, error: "Failed to create checkout session" };
+    let detail = "Failed to create checkout session";
+    if (error instanceof Error) {
+      detail = error.message;
+    }
+    // Log Polar SDK error details
+    const sdkError = error as { statusCode?: number; body?: string };
+    console.error("[billingService] Checkout error:", detail, sdkError.statusCode, sdkError.body);
+    return { success: false, error: detail };
   }
 }
 
