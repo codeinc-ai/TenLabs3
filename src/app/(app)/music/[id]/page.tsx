@@ -9,7 +9,7 @@ import {
   ArrowUp,
   Loader2,
 } from "lucide-react";
-import { Speaker } from "@/components/speaker";
+import { MusicPlayer } from "@/components/music";
 
 interface GenerationData {
   id: string;
@@ -146,19 +146,19 @@ export default function MusicStudioPage() {
 
   if (loading) {
     return (
-      <div className="flex h-screen w-full items-center justify-center bg-[#0a0a0a]">
-        <Loader2 className="h-8 w-8 animate-spin text-white/50" />
+      <div className="flex min-h-[calc(100vh-4rem)] w-full items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-black/40 dark:text-white/50" />
       </div>
     );
   }
 
   if (error && !generation) {
     return (
-      <div className="flex h-screen w-full flex-col items-center justify-center gap-4 bg-[#0a0a0a] text-white">
-        <p className="text-sm text-red-400">{error}</p>
+      <div className="flex min-h-[calc(100vh-4rem)] w-full flex-col items-center justify-center gap-4 text-black dark:text-white">
+        <p className="text-sm text-red-500 dark:text-red-400">{error}</p>
         <Link
           href="/music"
-          className="rounded-lg bg-white/10 px-4 py-2 text-sm font-medium text-white hover:bg-white/20 transition-colors"
+          className="rounded-lg bg-black/5 px-4 py-2 text-sm font-medium text-black transition-colors hover:bg-black/10 dark:bg-white/10 dark:text-white dark:hover:bg-white/20"
         >
           Back to Music
         </Link>
@@ -167,155 +167,151 @@ export default function MusicStudioPage() {
   }
 
   return (
-    <div className="flex h-screen w-full flex-col bg-[#0a0a0a] text-white">
+    <div className="flex min-h-[calc(100vh-4rem)] w-full flex-col text-black dark:text-white">
       {/* Header */}
-      <header className="flex h-[52px] w-full shrink-0 items-center justify-between border-b border-[#1a1a1a] bg-[#0d0d0d] px-4">
+      <header className="sticky top-0 z-20 flex h-[52px] w-full shrink-0 items-center justify-between border-b border-black/10 bg-white/80 px-4 backdrop-blur-md dark:border-white/10 dark:bg-black/60">
         <Link
           href="/music"
-          className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-[#1a1a1a] transition-colors"
+          className="flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-sm font-medium text-black/70 transition-colors hover:bg-black/5 hover:text-black dark:text-white/70 dark:hover:bg-white/10 dark:hover:text-white"
         >
-          <ChevronLeft className="h-5 w-5" />
+          <ChevronLeft className="h-4 w-4" />
+          Back
         </Link>
-        <h1 className="absolute left-1/2 -translate-x-1/2 text-[15px] font-medium text-white">
+        <h1 className="absolute left-1/2 max-w-[50%] -translate-x-1/2 truncate text-[15px] font-medium">
           {generation?.prompt
-            ? generation.prompt.slice(0, 30) +
-              (generation.prompt.length > 30 ? "..." : "")
+            ? generation.prompt.slice(0, 40) +
+              (generation.prompt.length > 40 ? "..." : "")
             : "Music Generation"}
         </h1>
         <Link
           href="/music/history"
-          className="flex items-center gap-2 rounded-md px-3 py-1.5 text-[13px] font-medium text-white hover:bg-[#1a1a1a] transition-colors"
+          className="flex items-center gap-2 rounded-md px-3 py-1.5 text-[13px] font-medium text-black/70 transition-colors hover:bg-black/5 hover:text-black dark:text-white/70 dark:hover:bg-white/10 dark:hover:text-white"
         >
           <Grid2x2 className="h-4 w-4" />
-          Generations
+          <span className="hidden sm:inline">Generations</span>
         </Link>
       </header>
 
-      {/* Scrollable main content with sticky bar inside */}
-      <main className="flex-1 overflow-y-auto">
-        <div className="px-6 py-8 pb-4">
-          <div className="mx-auto max-w-[680px] space-y-8">
-            {/* Lyrics at top */}
-            <div className="space-y-4">
-              {parsedLyrics ? (
-                parsedLyrics.map((line) => {
-                  if (line.type === "blank") {
-                    return <div key={line.key} className="h-3" />;
-                  }
-                  if (line.type === "section") {
-                    return (
-                      <h3
-                        key={line.key}
-                        className="text-sm font-bold uppercase tracking-widest text-white/40"
-                      >
-                        {line.text}
-                      </h3>
-                    );
-                  }
-                  return (
-                    <p
-                      key={line.key}
-                      className="text-[15px] leading-7 text-white/80"
-                    >
-                      {line.text}
-                    </p>
-                  );
-                })
-              ) : (
-                <div className="rounded-xl bg-[#111] p-6">
-                  <p className="mb-2 text-xs font-medium uppercase tracking-widest text-white/30">
-                    Prompt
-                  </p>
-                  <p className="text-[15px] leading-7 text-white/70">
-                    {generation?.prompt}
-                  </p>
-                </div>
+      {/* Content */}
+      <div className="flex-1 px-6 py-8">
+        <div className="mx-auto max-w-[680px] space-y-8">
+          {/* Hero / now playing card */}
+          <div className="rounded-2xl border border-black/10 bg-black/[0.03] p-6 dark:border-white/10 dark:bg-white/[0.04]">
+            <p className="mb-1 text-xs font-medium uppercase tracking-widest text-black/40 dark:text-white/40">
+              Now playing
+            </p>
+            <h2 className="text-xl font-semibold tracking-tight">
+              {generation?.prompt || "Music Generation"}
+            </h2>
+
+            {/* Tags */}
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              {generation?.provider && (
+                <span className="rounded-full bg-black/5 px-3 py-1 text-xs font-medium capitalize text-black/70 dark:bg-white/10 dark:text-white/70">
+                  {generation.provider}
+                </span>
+              )}
+              {generation?.durationMs ? (
+                <span className="rounded-full bg-black/5 px-3 py-1 text-xs font-medium text-black/70 dark:bg-white/10 dark:text-white/70">
+                  {formatTime(generation.durationMs / 1000)}
+                </span>
+              ) : null}
+              {generation?.createdAt && (
+                <span className="text-xs text-black/40 dark:text-white/40">
+                  Generated{" "}
+                  {new Date(generation.createdAt).toLocaleDateString(undefined, {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                </span>
               )}
             </div>
 
-            {/* Style tags */}
-            {generation?.provider && (
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="rounded-full bg-[#1a1a1a] px-3 py-1 text-xs font-medium text-white/70">
-                  {generation.provider}
-                </span>
-                {generation.durationMs > 0 && (
-                  <span className="rounded-full bg-[#1a1a1a] px-3 py-1 text-xs font-medium text-white/70">
-                    {formatTime(generation.durationMs / 1000)}
-                  </span>
-                )}
-              </div>
-            )}
-
-            {/* Generation info */}
-            {generation?.createdAt && (
-              <p className="text-xs text-white/30">
-                Generated{" "}
-                {new Date(generation.createdAt).toLocaleDateString(undefined, {
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric",
-                })}
-              </p>
-            )}
-          </div>
-        </div>
-
-        {/* Sticky bar: prompt + Speaker - always visible at bottom */}
-        <div className="sticky bottom-0 z-20 mt-auto border-t border-[#1a1a1a] bg-[#0a0a0a]">
-          {/* Prompt input for regeneration */}
-          <div className="px-4 py-3">
-            <div className="mx-auto flex max-w-[680px] items-end gap-2">
-              <div className="flex-1 rounded-xl bg-[#1a1a1a] px-4 py-2">
-                <textarea
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  placeholder="Describe a new variation..."
-                  disabled={regenerating}
-                  rows={1}
-                  className="w-full resize-none bg-transparent text-sm leading-6 text-white placeholder:text-white/30 focus:outline-none disabled:opacity-50"
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault();
-                      handleRegenerate();
-                    }
-                  }}
+            {/* Player */}
+            {generation?.audioUrl && (
+              <div className="mt-5">
+                <MusicPlayer
+                  key={generation.audioUrl}
+                  src={generation.audioUrl}
+                  title={generation.prompt || "Music Generation"}
+                  autoPlay
                 />
               </div>
-              <button
-                onClick={handleRegenerate}
-                disabled={!prompt.trim() || regenerating}
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-black transition-colors hover:bg-white/90 disabled:cursor-default disabled:bg-[#5b5b64] disabled:text-[#242426]"
-              >
-                {regenerating ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <ArrowUp className="h-4 w-4" />
-                )}
-              </button>
-            </div>
-            {error && (
-              <p className="mx-auto mt-2 max-w-[680px] text-xs text-red-400">
-                {error}
-              </p>
             )}
           </div>
 
-          {/* Speaker component (waveform, play/pause, volume, no orbs) */}
-          {generation?.audioUrl && (
-            <div className="px-4 pb-4">
-              <Speaker
-                track={{
-                  url: generation.audioUrl,
-                  title: generation.prompt || "Music Generation",
-                }}
-                showOrbs={false}
-                className="border-[#1a1a1a] bg-[#111]"
-              />
+          {/* Lyrics */}
+          {parsedLyrics && (
+            <div className="space-y-4">
+              <h3 className="text-sm font-semibold uppercase tracking-widest text-black/40 dark:text-white/40">
+                Lyrics
+              </h3>
+              {parsedLyrics.map((line) => {
+                if (line.type === "blank") {
+                  return <div key={line.key} className="h-2" />;
+                }
+                if (line.type === "section") {
+                  return (
+                    <h4
+                      key={line.key}
+                      className="pt-2 text-xs font-bold uppercase tracking-widest text-black/40 dark:text-white/40"
+                    >
+                      {line.text}
+                    </h4>
+                  );
+                }
+                return (
+                  <p
+                    key={line.key}
+                    className="text-[15px] leading-7 text-black/80 dark:text-white/80"
+                  >
+                    {line.text}
+                  </p>
+                );
+              })}
             </div>
           )}
         </div>
-      </main>
+      </div>
+
+      {/* Sticky bar: regenerate prompt */}
+      <div className="sticky bottom-0 z-20 border-t border-black/10 bg-white/80 px-4 py-3 backdrop-blur-md dark:border-white/10 dark:bg-black/60">
+        <div className="mx-auto flex max-w-[680px] items-end gap-2">
+          <div className="flex-1 rounded-xl border border-black/10 bg-black/[0.03] px-4 py-2 dark:border-white/10 dark:bg-white/[0.04]">
+            <textarea
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              placeholder="Describe a new variation..."
+              disabled={regenerating}
+              rows={1}
+              className="w-full resize-none bg-transparent text-sm leading-6 text-black placeholder:text-black/30 focus:outline-none disabled:opacity-50 dark:text-white dark:placeholder:text-white/30"
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  handleRegenerate();
+                }
+              }}
+            />
+          </div>
+          <button
+            onClick={handleRegenerate}
+            disabled={!prompt.trim() || regenerating}
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-black text-white transition-colors hover:bg-black/90 disabled:cursor-default disabled:bg-black/20 disabled:text-white/50 dark:bg-white dark:text-black dark:hover:bg-white/90 dark:disabled:bg-white/20 dark:disabled:text-black/40"
+          >
+            {regenerating ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <ArrowUp className="h-4 w-4" />
+            )}
+          </button>
+        </div>
+        {error && (
+          <p className="mx-auto mt-2 max-w-[680px] text-xs text-red-500 dark:text-red-400">
+            {error}
+          </p>
+        )}
+      </div>
     </div>
   );
 }

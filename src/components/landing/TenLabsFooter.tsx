@@ -32,21 +32,10 @@ export default function TenLabsFooter() {
       ],
     },
     {
-      title: "Solutions",
-      items: [
-        { href: "/pricing", label: "For Teams" },
-        { href: "/pricing", label: "For Startups" },
-        { href: "/pricing", label: "Retail and E-Commerce" },
-        { href: "/pricing", label: "Customer Support" },
-        { href: "/agents-platform", label: "AI Voice Agents" },
-      ],
-    },
-    {
       title: "Resources",
       items: [
         { href: "/pricing", label: "Product Guides" },
         { href: "/company/blog", label: "Blog" },
-        { href: "/company/safety", label: "Safety" },
         { href: "/terms", label: "Terms" },
         { href: "/privacy", label: "Privacy" },
       ],
@@ -54,11 +43,8 @@ export default function TenLabsFooter() {
     {
       title: "Socials",
       items: [
-        { href: "https://twitter.com", label: "X" },
-        { href: "https://linkedin.com", label: "LinkedIn" },
-        { href: "https://github.com", label: "GitHub" },
+        { href: "https://instagram.com", label: "Instagram" },
         { href: "https://youtube.com", label: "YouTube" },
-        { href: "https://discord.com", label: "Discord" },
       ],
     },
     {

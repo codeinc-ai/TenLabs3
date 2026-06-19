@@ -149,7 +149,7 @@ export function STTClient({ userPlan = "free", currentUsage }: STTClientProps) {
   const [activeTab, setActiveTab] = useState<"upload" | "realtime">("upload");
   const [realtimeActive, setRealtimeActive] = useState(false);
 
-  // Reset Aurora when leaving the page or switching tabs
+  // Reset background when leaving the page or switching tabs
   useEffect(() => {
     return () => {
       window.dispatchEvent(

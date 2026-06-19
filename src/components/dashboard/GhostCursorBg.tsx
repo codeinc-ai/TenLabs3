@@ -1,18 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import dynamic from "next/dynamic";
-
-// Lazy-load Aurora so WebGL setup doesn't block initial paint
-const Aurora = dynamic(() => import("@/components/Aurora"), {
-  ssr: false,
-  loading: () => null,
-});
+import { HeroGradientBg } from "@/components/ui/hero-gradient-bg";
 
 /**
- * Aurora background for dashboard pages.
+ * Gradient background for dashboard pages.
  * Hides immediately when realtime scribe starts, shows when it stops.
- * Falls back to a CSS gradient if WebGL is unavailable.
  */
 export function GhostCursorBg() {
   const [hidden, setHidden] = useState(false);
@@ -40,11 +33,7 @@ export function GhostCursorBg() {
       style={{ zIndex: 0, opacity: hidden ? 0 : 1 }}
       aria-hidden="true"
     >
-      <Aurora
-        colorStops={["#1e1b4b", "#312e81", "#4c1d95"]}
-        amplitude={3}
-        blend={0.7}
-      />
+      <HeroGradientBg colorFrom="#000" colorTo="#4c1d95" />
     </div>
   );
 }

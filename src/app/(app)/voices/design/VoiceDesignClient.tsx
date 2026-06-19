@@ -23,7 +23,7 @@ import {
   AudioPlayerProgress,
   AudioPlayerTime,
 } from "@/components/ui/audio-player";
-import Aurora from "@/components/Aurora";
+import { HeroGradientBg } from "@/components/ui/hero-gradient-bg";
 import type { ProviderType } from "@/lib/providers/types";
 
 interface VoicePreview {
@@ -178,16 +178,11 @@ export function VoiceDesignClient() {
 
   return (
     <div className="relative min-h-screen bg-white dark:bg-black">
-      <div
-        className="absolute inset-0 w-full h-full min-h-screen overflow-hidden pointer-events-none hidden dark:block"
-        style={{ zIndex: 0 }}
-      >
-        <Aurora
-          colorStops={["#3b0764", "#7c3aed", "#a78bfa"]}
-          amplitude={3}
-          blend={0.7}
-        />
-      </div>
+      <HeroGradientBg
+        className="hidden dark:block pointer-events-none"
+        colorFrom="#000"
+        colorTo="#7c3aed"
+      />
 
       <div className="relative z-10 max-w-2xl mx-auto px-4 py-12">
         <Link

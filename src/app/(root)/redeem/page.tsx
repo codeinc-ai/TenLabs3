@@ -16,7 +16,7 @@ import {
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import Aurora from "@/components/Aurora";
+import { HeroGradientBg } from "@/components/ui/hero-gradient-bg";
 
 function Reveal({
   children,
@@ -158,23 +158,7 @@ export default function RedeemPage() {
           className="relative min-h-[80vh] flex items-center justify-center overflow-hidden"
           data-testid="section-redeem-hero"
         >
-          {/* Aurora background */}
-          <div className="absolute inset-0" style={{ zIndex: 0 }}>
-            <Aurora
-              colorStops={["#2a0ca1", "#d24646", "#281183"]}
-              amplitude={2}
-              blend={0.5}
-            />
-          </div>
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                "radial-gradient(circle at 50% 30%, rgba(255,255,255,0.04), rgba(0,0,0,0) 60%), linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(10,10,10,0.5) 100%)",
-              zIndex: 1,
-            }}
-            aria-hidden
-          />
+          <HeroGradientBg colorFrom="#0a0020" colorTo="#63e" />
           <div
             className="absolute inset-0 tenlabs-grid opacity-[0.14]"
             style={{ zIndex: 2 }}

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Search, Plus, ChevronRight, Play, Pause, Loader2 } from "lucide-react";
@@ -16,7 +16,9 @@ function WaveformBars({ playing = false }: { playing?: boolean }) {
         <div
           key={i}
           className={`w-[3px] min-h-[3px] rounded-full transition-all duration-300 ${
-            playing ? "bg-white/80 animate-pulse" : "bg-white/30"
+            playing
+              ? "bg-black/80 dark:bg-white/80 animate-pulse"
+              : "bg-black/25 dark:bg-white/30"
           }`}
           style={{ height: `${h}px` }}
         />
@@ -132,64 +134,60 @@ function formatTime(seconds: number) {
 export default function MusicPage() {
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [loadingId, setLoadingId] = useState<string | null>(null);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const currentIdRef = useRef<string | null>(null);
 
-  const playTrack = useCallback(
-    (trackId: string) => {
-      // If same track, toggle play/pause
-      if (playingId === trackId && audioRef.current) {
-        if (audioRef.current.paused) {
-          audioRef.current.play();
-          setPlayingId(trackId);
-        } else {
-          audioRef.current.pause();
-          setPlayingId(null);
-        }
-        return;
-      }
-
-      // Stop current audio
+  // Clean up audio when leaving the page.
+  useEffect(() => {
+    return () => {
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current.src = "";
       }
+    };
+  }, []);
 
-      setLoadingId(trackId);
-      setCurrentTime(0);
-      setDuration(0);
+  const playTrack = useCallback((trackId: string) => {
+    const current = audioRef.current;
 
-      const audio = new Audio(`/api/music/${trackId}`);
-      audioRef.current = audio;
-
-      audio.addEventListener("loadedmetadata", () => {
-        setDuration(audio.duration);
-      });
-      audio.addEventListener("timeupdate", () => {
-        setCurrentTime(audio.currentTime);
-      });
-      audio.addEventListener("ended", () => {
-        setPlayingId(null);
-        setCurrentTime(0);
-      });
-      audio.addEventListener("canplay", () => {
-        setLoadingId(null);
+    // Same track → toggle play/pause instantly (no reload).
+    if (currentIdRef.current === trackId && current) {
+      if (current.paused) {
+        current.play().catch(() => setPlayingId(null));
         setPlayingId(trackId);
-        audio.play().catch(() => {
-          setPlayingId(null);
-          setLoadingId(null);
-        });
-      });
-      audio.addEventListener("error", () => {
-        setLoadingId(null);
+      } else {
+        current.pause();
         setPlayingId(null);
-      });
+      }
+      return;
+    }
 
-      audio.load();
-    },
-    [playingId]
-  );
+    // Different track → stop the old one and start the new one immediately.
+    if (current) {
+      current.pause();
+    }
+
+    const audio = new Audio(`/api/music/${trackId}`);
+    audio.preload = "auto";
+    audioRef.current = audio;
+    currentIdRef.current = trackId;
+
+    audio.addEventListener("ended", () => setPlayingId(null));
+    audio.addEventListener("playing", () => setLoadingId(null));
+    audio.addEventListener("error", () => {
+      setLoadingId(null);
+      setPlayingId(null);
+    });
+
+    // Optimistically reflect the playing state right away so the UI feels
+    // instant; the loader only shows until the stream actually starts.
+    setLoadingId(trackId);
+    setPlayingId(trackId);
+    audio.play().catch(() => {
+      setLoadingId(null);
+      setPlayingId(null);
+    });
+  }, []);
 
   const featuredCollections = [
     {
@@ -235,12 +233,12 @@ export default function MusicPage() {
     : null;
 
   return (
-    <div className="flex flex-col min-h-[calc(100vh-4rem)] w-full pt-8 px-5 text-white">
+    <div className="flex flex-col min-h-[calc(100vh-4rem)] w-full pt-8 px-5 text-black dark:text-white">
       {/* Header */}
-      <header className="flex flex-col w-full max-w-[1152px] mx-auto mb-4 pb-4 border-b border-white/10">
+      <header className="flex flex-col w-full max-w-[1152px] mx-auto mb-4 pb-4 border-b border-black/10 dark:border-white/10">
         <div className="w-full pb-4">
           <div className="flex flex-row min-h-9 w-full items-center justify-between">
-            <h1 className="text-2xl font-semibold leading-8 tracking-[-0.15px] text-white">
+            <h1 className="text-2xl font-semibold leading-8 tracking-[-0.15px]">
               Music
             </h1>
           </div>
@@ -249,15 +247,15 @@ export default function MusicPage() {
           <nav className="inline-flex h-11 w-full gap-1.5 overflow-x-auto pt-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <Link
               href="/music"
-              className="relative flex items-center justify-center text-sm font-medium text-white border-b-2 border-white/90 pb-2.5 px-0 transition-all"
+              className="relative flex items-center justify-center text-sm font-medium text-black dark:text-white border-b-2 border-black/90 dark:border-white/90 pb-2.5 px-0 transition-all"
             >
-              <span className="flex items-center rounded-lg border border-[#323235] px-2.5 py-1">
+              <span className="flex items-center rounded-lg border border-black/15 dark:border-[#323235] px-2.5 py-1">
                 Explore
               </span>
             </Link>
             <Link
               href="/music/history"
-              className="relative flex items-center justify-center text-sm font-medium text-white/50 border-b-2 border-transparent pb-2.5 px-0 transition-all hover:text-white/70"
+              className="relative flex items-center justify-center text-sm font-medium text-black/50 dark:text-white/50 border-b-2 border-transparent pb-2.5 px-0 transition-all hover:text-black/70 dark:hover:text-white/70"
             >
               <span className="flex items-center rounded-lg border border-transparent px-2.5 py-1">
                 History
@@ -272,7 +270,7 @@ export default function MusicPage() {
         <a
           href="#music-prompt-box"
           aria-label="Skip to prompt box"
-          className="sr-only focus:not-sr-only focus:absolute focus:p-2 focus:bg-white/10 focus:rounded"
+          className="sr-only focus:not-sr-only focus:absolute focus:p-2 focus:bg-black/10 dark:focus:bg-white/10 focus:rounded"
         >
           Skip to prompt box
         </a>
@@ -285,14 +283,14 @@ export default function MusicPage() {
                 type="button"
                 aria-label="Previous page"
                 disabled
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-[#0f0f10] text-[#494950] opacity-0 cursor-default"
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 dark:bg-[#0f0f10] text-black/30 dark:text-[#494950] opacity-0 cursor-default"
               >
                 <Icon7 className="h-[18px] w-[18px] flex-shrink-0 -scale-x-100" />
               </button>
               <button
                 type="button"
                 aria-label="Next page"
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-[#0f0f10]/90 text-white hover:bg-[#0f0f10] transition-colors"
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100/90 dark:bg-[#0f0f10]/90 text-black dark:text-white hover:bg-gray-200 dark:hover:bg-[#0f0f10] transition-colors"
               >
                 <Icon8 className="h-[18px] w-[18px] flex-shrink-0" />
               </button>
@@ -344,28 +342,28 @@ export default function MusicPage() {
           {/* Search bar */}
           <div className="relative flex h-10 w-full">
             <Search
-              className="absolute left-2.5 top-1/2 -translate-y-1/2 h-[18px] w-[18px] text-white/50 pointer-events-none"
+              className="absolute left-2.5 top-1/2 -translate-y-1/2 h-[18px] w-[18px] text-black/40 dark:text-white/50 pointer-events-none"
               aria-hidden
             />
             <input
               type="search"
               placeholder="Search for music, genres, or moods"
               aria-label="Search for music, genres, or moods"
-              className="w-full h-10 pl-9 pr-3 py-2 bg-[#0f0f10] border border-white/10 rounded-xl text-sm font-medium text-white placeholder:text-white/50 focus:outline-none focus:ring-1 focus:ring-white/20"
+              className="w-full h-10 pl-9 pr-3 py-2 bg-black/[0.03] dark:bg-[#0f0f10] border border-black/10 dark:border-white/10 rounded-xl text-sm font-medium text-black dark:text-white placeholder:text-black/40 dark:placeholder:text-white/50 focus:outline-none focus:ring-1 focus:ring-black/20 dark:focus:ring-white/20"
             />
           </div>
 
           {/* Filter buttons */}
           <div className="relative flex flex-row items-center gap-1.5 overflow-x-auto overflow-y-hidden py-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <div
-              className="absolute right-0 top-0 bottom-0 w-12 z-10 pointer-events-none bg-gradient-to-l from-[#0f0f10] to-transparent"
+              className="absolute right-0 top-0 bottom-0 w-12 z-10 pointer-events-none bg-gradient-to-l from-white dark:from-[#0f0f10] to-transparent"
               aria-hidden
             />
             {FILTERS.map((label) => (
               <button
                 key={label}
                 type="button"
-                className="flex items-center gap-1 px-1.5 py-1.5 h-6 bg-[#0f0f10] border border-white/10 rounded-lg text-xs font-medium text-white whitespace-nowrap hover:bg-[#1a1a1a] transition-colors"
+                className="flex items-center gap-1 px-1.5 py-1.5 h-6 bg-black/[0.03] dark:bg-[#0f0f10] border border-black/10 dark:border-white/10 rounded-lg text-xs font-medium text-black dark:text-white whitespace-nowrap hover:bg-black/[0.06] dark:hover:bg-[#1a1a1a] transition-colors"
               >
                 <Plus className="h-3 w-3" />
                 {label}
@@ -379,7 +377,7 @@ export default function MusicPage() {
             <div className="flex flex-col gap-4">
               <Link
                 href="/music/explore/trending"
-                className="flex items-center gap-1 w-fit text-sm font-medium text-white hover:text-white/80 transition-colors"
+                className="flex items-center gap-1 w-fit text-sm font-medium text-black dark:text-white hover:text-black/80 dark:hover:text-white/80 transition-colors"
               >
                 Trending
                 <ChevronRight className="h-4 w-4" />
@@ -395,8 +393,8 @@ export default function MusicPage() {
                       onClick={() => playTrack(track.id)}
                       className={`flex items-center gap-3 p-2 rounded-xl cursor-pointer transition-colors text-left ${
                         isPlaying
-                          ? "bg-white/10"
-                          : "hover:bg-white/5"
+                          ? "bg-black/[0.06] dark:bg-white/10"
+                          : "hover:bg-black/[0.04] dark:hover:bg-white/5"
                       }`}
                     >
                       {/* Thumbnail with play/pause overlay */}
@@ -435,10 +433,10 @@ export default function MusicPage() {
                         )}
                       </div>
                       <div className="flex-1 min-w-0 flex flex-col justify-between gap-0.5">
-                        <p className={`text-sm font-medium truncate ${isPlaying ? "text-white" : "text-white"}`}>
+                        <p className="text-sm font-medium truncate text-black dark:text-white">
                           {track.title}
                         </p>
-                        <p className="text-xs text-white/50 truncate">
+                        <p className="text-xs text-black/50 dark:text-white/50 truncate">
                           {track.desc}
                         </p>
                       </div>
@@ -446,10 +444,10 @@ export default function MusicPage() {
                         <WaveformBars playing={isPlaying} />
                       </div>
                       <div className="flex flex-col items-end justify-between gap-0.5 min-w-[60px]">
-                        <p className="text-xs text-white/50 tabular-nums">
+                        <p className="text-xs text-black/50 dark:text-white/50 tabular-nums">
                           {track.duration}
                         </p>
-                        <p className="text-xs text-white/50 tabular-nums">
+                        <p className="text-xs text-black/50 dark:text-white/50 tabular-nums">
                           {track.bpm}
                         </p>
                       </div>
@@ -463,7 +461,7 @@ export default function MusicPage() {
             <div className="flex flex-col gap-4">
               <Link
                 href="/music/explore/newest"
-                className="flex items-center gap-1 w-fit text-sm font-medium text-white hover:text-white/80 transition-colors"
+                className="flex items-center gap-1 w-fit text-sm font-medium text-black dark:text-white hover:text-black/80 dark:hover:text-white/80 transition-colors"
               >
                 Newest
                 <ChevronRight className="h-4 w-4" />
@@ -472,7 +470,7 @@ export default function MusicPage() {
                 {NEWEST_TRACKS.map((track) => (
                   <div
                     key={track.id}
-                    className="flex items-center gap-3 p-2 rounded-xl cursor-pointer hover:bg-white/5 transition-colors"
+                    className="flex items-center gap-3 p-2 rounded-xl cursor-pointer hover:bg-black/[0.04] dark:hover:bg-white/5 transition-colors"
                   >
                     <div className="relative h-10 w-10 flex-shrink-0 rounded-lg overflow-hidden">
                       <Image
@@ -483,10 +481,10 @@ export default function MusicPage() {
                       />
                     </div>
                     <div className="flex-1 min-w-0 flex flex-col justify-between gap-0.5">
-                      <p className="text-sm font-medium text-white truncate">
+                      <p className="text-sm font-medium text-black dark:text-white truncate">
                         {track.title}
                       </p>
-                      <p className="text-xs text-white/50 truncate">
+                      <p className="text-xs text-black/50 dark:text-white/50 truncate">
                         {track.artist}
                       </p>
                     </div>
@@ -494,10 +492,10 @@ export default function MusicPage() {
                       <WaveformBars />
                     </div>
                     <div className="flex flex-col items-end justify-between gap-0.5 min-w-[60px]">
-                      <p className="text-xs text-white/50 tabular-nums">
+                      <p className="text-xs text-black/50 dark:text-white/50 tabular-nums">
                         {track.duration}
                       </p>
-                      <p className="text-xs text-white/50 tabular-nums">
+                      <p className="text-xs text-black/50 dark:text-white/50 tabular-nums">
                         {track.bpm}
                       </p>
                     </div>
@@ -511,7 +509,7 @@ export default function MusicPage() {
           <div className="mt-8">
             <Link
               href="/music/explore/genres"
-              className="flex items-center gap-1 w-fit text-sm font-medium text-white hover:text-white/80 transition-colors"
+              className="flex items-center gap-1 w-fit text-sm font-medium text-black dark:text-white hover:text-black/80 dark:hover:text-white/80 transition-colors"
             >
               Genres
               <ChevronRight className="h-4 w-4" />
@@ -527,52 +525,90 @@ export default function MusicPage() {
 
       {/* Now Playing bar – fixed at bottom */}
       {nowPlayingTrack && (
-        <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-white/10 bg-[#111]/95 backdrop-blur-md">
-          {/* Progress bar */}
-          <div className="h-0.5 w-full bg-white/10">
-            <div
-              className="h-full bg-white transition-all duration-200"
-              style={{ width: `${duration ? (currentTime / duration) * 100 : 0}%` }}
-            />
-          </div>
-          <div className="flex items-center gap-3 px-4 py-2.5 max-w-[1152px] mx-auto">
-            {/* Thumbnail */}
-            <div className="relative h-10 w-10 flex-shrink-0 rounded-lg overflow-hidden">
-              <Image
-                src={nowPlayingTrack.image}
-                alt={nowPlayingTrack.title}
-                fill
-                className="object-cover"
-              />
-            </div>
-            {/* Info */}
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-white truncate">
-                {nowPlayingTrack.title}
-              </p>
-              <p className="text-xs text-white/50 truncate">
-                {nowPlayingTrack.desc}
-              </p>
-            </div>
-            {/* Time */}
-            <span className="text-xs text-white/40 tabular-nums hidden sm:block">
-              {formatTime(currentTime)} / {formatTime(duration)}
-            </span>
-            {/* Play/Pause */}
-            <button
-              type="button"
-              onClick={() => playTrack(nowPlayingTrack.id)}
-              className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-black hover:bg-white/90 transition-colors flex-shrink-0"
-            >
-              {playingId === nowPlayingTrack.id ? (
-                <Pause className="h-3.5 w-3.5" />
-              ) : (
-                <Play className="h-3.5 w-3.5 ml-0.5" />
-              )}
-            </button>
-          </div>
-        </div>
+        <NowPlayingBar
+          track={nowPlayingTrack}
+          audioRef={audioRef}
+          isPlaying={playingId === nowPlayingTrack.id}
+          onToggle={() => playTrack(nowPlayingTrack.id)}
+        />
       )}
+    </div>
+  );
+}
+
+/**
+ * Bottom "Now Playing" bar.
+ *
+ * Owns its own progress/time updates via direct DOM refs + rAF so the heavy
+ * track grid above never re-renders while audio is playing.
+ */
+function NowPlayingBar({
+  track,
+  audioRef,
+  isPlaying,
+  onToggle,
+}: {
+  track: { id: string; title: string; desc: string; image: string };
+  audioRef: React.RefObject<HTMLAudioElement | null>;
+  isPlaying: boolean;
+  onToggle: () => void;
+}) {
+  const fillRef = useRef<HTMLDivElement>(null);
+  const timeRef = useRef<HTMLSpanElement>(null);
+  const rafRef = useRef<number>(0);
+
+  useEffect(() => {
+    if (!isPlaying) {
+      cancelAnimationFrame(rafRef.current);
+      return;
+    }
+    const loop = () => {
+      const audio = audioRef.current;
+      if (audio && audio.duration > 0) {
+        const pct = (audio.currentTime / audio.duration) * 100;
+        if (fillRef.current) fillRef.current.style.width = `${pct}%`;
+        if (timeRef.current) {
+          timeRef.current.textContent = `${formatTime(audio.currentTime)} / ${formatTime(audio.duration)}`;
+        }
+      }
+      rafRef.current = requestAnimationFrame(loop);
+    };
+    rafRef.current = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [isPlaying, audioRef, track.id]);
+
+  return (
+    <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-black/10 bg-white/95 backdrop-blur-md dark:border-white/10 dark:bg-[#111]/95">
+      {/* Progress bar */}
+      <div className="h-0.5 w-full bg-black/10 dark:bg-white/10">
+        <div ref={fillRef} className="h-full bg-black dark:bg-white" style={{ width: "0%" }} />
+      </div>
+      <div className="flex items-center gap-3 px-4 py-2.5 max-w-[1152px] mx-auto">
+        <div className="relative h-10 w-10 flex-shrink-0 rounded-lg overflow-hidden">
+          <Image src={track.image} alt={track.title} fill className="object-cover" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium text-black dark:text-white truncate">{track.title}</p>
+          <p className="text-xs text-black/50 dark:text-white/50 truncate">{track.desc}</p>
+        </div>
+        <span
+          ref={timeRef}
+          className="text-xs text-black/40 dark:text-white/40 tabular-nums hidden sm:block"
+        >
+          0:00 / 0:00
+        </span>
+        <button
+          type="button"
+          onClick={onToggle}
+          className="flex h-8 w-8 items-center justify-center rounded-full bg-black text-white hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-white/90 transition-colors flex-shrink-0"
+        >
+          {isPlaying ? (
+            <Pause className="h-3.5 w-3.5" />
+          ) : (
+            <Play className="h-3.5 w-3.5 ml-0.5" />
+          )}
+        </button>
+      </div>
     </div>
   );
 }

@@ -28,7 +28,7 @@ import {
   AudioPlayerTime,
   AudioPlayerDuration,
 } from "@/components/ui/audio-player";
-import Aurora from "@/components/Aurora";
+import { HeroGradientBg } from "@/components/ui/hero-gradient-bg";
 import type { ProviderType } from "@/lib/providers/types";
 
 const MAX_FILES = 25;
@@ -189,16 +189,11 @@ export function VoiceCloneClient() {
 
   return (
     <div className="relative min-h-screen bg-white dark:bg-black">
-      <div
-        className="absolute inset-0 w-full h-full min-h-screen overflow-hidden pointer-events-none hidden dark:block"
-        style={{ zIndex: 0 }}
-      >
-        <Aurora
-          colorStops={["#064e3b", "#059669", "#34d399"]}
-          amplitude={3}
-          blend={0.7}
-        />
-      </div>
+      <HeroGradientBg
+        className="hidden dark:block pointer-events-none"
+        colorFrom="#000"
+        colorTo="#059669"
+      />
 
       <div className="relative z-10 max-w-2xl mx-auto px-4 py-12">
         <Link

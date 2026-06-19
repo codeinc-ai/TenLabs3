@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useRef } from "react";
-import { useRouter } from "next/navigation";
-import { Clock, Music2, Gem, ArrowUp, Loader2, Play, Pause, Download } from "lucide-react";
+import React, { useState } from "react";
+import { Clock, Music2, Gem, ArrowUp, Loader2 } from "lucide-react";
+import { MusicPlayer } from "./MusicPlayer";
 
 const PLACEHOLDER =
   "Compose an emotional orchestral piece with expressive strings, gentle woodwinds, and a slow, cinematic build-up.";
@@ -16,8 +16,12 @@ const DURATION_OPTIONS = [
   { label: "5 min", value: 300000 },
 ];
 
+interface GeneratedTrack {
+  url: string;
+  title: string;
+}
+
 export function MusicPromptBox() {
-  const router = useRouter();
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -28,12 +32,7 @@ export function MusicPromptBox() {
   const [activeTab, setActiveTab] = useState<"prompt" | "lyrics">("prompt");
   const [lyrics, setLyrics] = useState("");
 
-
-  const [audioUrl, setAudioUrl] = useState<string | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const audioRef = useRef<HTMLAudioElement>(null);
+  const [track, setTrack] = useState<GeneratedTrack | null>(null);
 
   const isEmpty = prompt.trim().length === 0;
 
@@ -44,10 +43,7 @@ export function MusicPromptBox() {
 
     setLoading(true);
     setError(null);
-    setAudioUrl(null);
-    setIsPlaying(false);
-    setCurrentTime(0);
-    setDuration(0);
+    setTrack(null);
 
     try {
       const body: Record<string, unknown> = { prompt: prompt.trim(), provider };
@@ -75,8 +71,10 @@ export function MusicPromptBox() {
         throw new Error("Invalid response from server");
       }
 
-      setAudioUrl(json.data.audioUrl);
+      const generatedTitle = prompt.trim().slice(0, 60) || "Music Generation";
+      setTrack({ url: json.data.audioUrl, title: generatedTitle });
 
+      // Persist for the detail/history pages without navigating away.
       if (json.data?.generationId) {
         try {
           sessionStorage.setItem(
@@ -94,29 +92,12 @@ export function MusicPromptBox() {
         } catch {
           // sessionStorage may be unavailable
         }
-        router.push(`/music/${json.data.generationId}`);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to generate music");
     } finally {
       setLoading(false);
     }
-  };
-
-  const togglePlayPause = () => {
-    if (!audioRef.current) return;
-    if (isPlaying) {
-      audioRef.current.pause();
-    } else {
-      audioRef.current.play();
-    }
-    setIsPlaying(!isPlaying);
-  };
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
   const selectedDuration = DURATION_OPTIONS.find((d) => d.value === durationMs);
@@ -305,56 +286,13 @@ export function MusicPromptBox() {
         </div>
       )}
 
-      {audioUrl && (
-        <div className="p-4 bg-[rgba(50,50,53,0.8)] rounded-xl">
-          <audio
-            ref={audioRef}
-            src={audioUrl}
-            onPlay={() => setIsPlaying(true)}
-            onPause={() => setIsPlaying(false)}
-            onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
-            onLoadedMetadata={(e) => setDuration(e.currentTarget.duration)}
-            onEnded={() => {
-              setIsPlaying(false);
-              setCurrentTime(0);
-            }}
-          />
-          <div className="flex items-center gap-3">
-            <button
-              onClick={togglePlayPause}
-              className="w-10 h-10 bg-white rounded-full flex items-center justify-center hover:bg-white/90 transition-colors flex-shrink-0"
-            >
-              {isPlaying ? (
-                <Pause size={18} className="text-black" />
-              ) : (
-                <Play size={18} className="text-black ml-0.5" />
-              )}
-            </button>
-            <div className="flex-1">
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-white/50 tabular-nums w-10 text-right">
-                  {formatTime(currentTime)}
-                </span>
-                <div className="flex-1 h-1 bg-white/10 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-white rounded-full transition-all"
-                    style={{ width: `${duration ? (currentTime / duration) * 100 : 0}%` }}
-                  />
-                </div>
-                <span className="text-xs text-white/50 tabular-nums w-10">
-                  {formatTime(duration)}
-                </span>
-              </div>
-            </div>
-            <a
-              href={audioUrl}
-              download="music.mp3"
-              className="p-2 text-white/50 hover:text-white hover:bg-white/10 rounded-lg transition-colors flex-shrink-0"
-            >
-              <Download size={16} />
-            </a>
-          </div>
-        </div>
+      {track && (
+        <MusicPlayer
+          key={track.url}
+          src={track.url}
+          title={track.title}
+          autoPlay
+        />
       )}
     </div>
   );
