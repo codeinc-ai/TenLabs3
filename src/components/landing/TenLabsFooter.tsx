@@ -38,6 +38,7 @@ export default function TenLabsFooter() {
         { href: "/company/blog", label: "Blog" },
         { href: "/terms", label: "Terms" },
         { href: "/privacy", label: "Privacy" },
+        { href: "/policy", label: "Acceptable Use" },
       ],
     },
     {
