@@ -20,6 +20,7 @@ import {
   Zap,
   MessageSquare,
   PenSquare,
+  Music,
   Tag,
 } from "lucide-react";
 
@@ -65,6 +66,7 @@ const PLAYGROUND_ITEMS: NavItem[] = [
 
 const PRODUCTS_ITEMS: NavItem[] = [
   { href: "/studio", label: "Studio", icon: MonitorPlay },
+  { href: "/music", label: "Music", icon: Music },
   { href: "/dubbing", label: "Dubbing", icon: Film },
   { href: "/stt", label: "Speech to Text", icon: Keyboard },
   { href: "/audio-native", label: "Audio Native", icon: Languages },

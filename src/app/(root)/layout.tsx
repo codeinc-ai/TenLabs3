@@ -6,7 +6,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen flex flex-col bg-white dark:bg-black transition-colors">
+    <div className="min-h-screen flex flex-col overflow-x-hidden bg-white dark:bg-black transition-colors">
       {/* Navigation */}
       <TenLabsNav variant="sticky" />
 

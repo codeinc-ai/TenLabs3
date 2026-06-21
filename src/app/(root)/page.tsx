@@ -970,7 +970,7 @@ export default function TenLabsLanding() {
   const reduce = useReducedMotion();
 
   return (
-    <div className="min-h-screen bg-white dark:bg-black text-black dark:text-white transition-colors">
+    <div className="min-h-screen overflow-x-hidden bg-white dark:bg-black text-black dark:text-white transition-colors">
       <main>
         {/* Hero Section */}
         <section className="relative overflow-hidden min-h-[90vh]">

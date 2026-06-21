@@ -116,9 +116,37 @@ export function DashboardHeader({ title, icon, onMobileMenuClick }: DashboardHea
         {/* Theme Toggle */}
         <ThemeToggle />
         
-        <button className="p-2 text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors">
-          <Bell size={20} />
-        </button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              aria-label="Notifications"
+              className="p-2 text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
+            >
+              <Bell size={20} />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-80 p-0">
+            <div className="flex items-center justify-between px-4 py-3">
+              <p className="text-sm font-medium">Notifications</p>
+              <Link
+                href="/settings/notifications"
+                className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Settings
+              </Link>
+            </div>
+            <DropdownMenuSeparator className="my-0" />
+            <div className="flex flex-col items-center justify-center gap-2 px-4 py-10 text-center">
+              <span className="flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
+                <Bell size={18} className="text-gray-400 dark:text-gray-500" />
+              </span>
+              <p className="text-sm font-medium">You're all caught up</p>
+              <p className="text-xs text-muted-foreground">
+                New notifications will show up here.
+              </p>
+            </div>
+          </DropdownMenuContent>
+        </DropdownMenu>
 
         {/* User Menu */}
         <DropdownMenu>

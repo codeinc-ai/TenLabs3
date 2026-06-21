@@ -22,9 +22,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface AccountClientProps {
   plan: "free" | "starter" | "creator" | "pro";
-  maxCredits: number;
-  charactersUsed: number;
-  generationsUsed: number;
 }
 
 const PLAN_LABELS: Record<AccountClientProps["plan"], string> = {
@@ -34,18 +31,14 @@ const PLAN_LABELS: Record<AccountClientProps["plan"], string> = {
   pro: "Pro",
 };
 
-function formatNumber(num: number): string {
-  if (num >= 1_000_000) return `${(num / 1_000_000).toFixed(1)}M`;
-  if (num >= 1_000) return `${(num / 1_000).toFixed(1)}K`;
-  return num.toString();
-}
+const PLAN_DESCRIPTIONS: Record<AccountClientProps["plan"], string> = {
+  free: "You're on the Free plan. Upgrade for more credits and features.",
+  starter: "You're on the Starter plan.",
+  creator: "You're on the Creator plan.",
+  pro: "You're on the Pro plan — thanks for your support.",
+};
 
-export function AccountClient({
-  plan,
-  maxCredits,
-  charactersUsed,
-  generationsUsed,
-}: AccountClientProps) {
+export function AccountClient({ plan }: AccountClientProps) {
   const { user, isLoaded } = useUser();
   const { signOut } = useClerk();
 
@@ -106,11 +99,6 @@ export function AccountClient({
         year: "numeric",
       })
     : "—";
-
-  const creditPct =
-    maxCredits > 0
-      ? Math.min(100, Math.round((charactersUsed / maxCredits) * 100))
-      : 0;
 
   return (
     <div className="mx-auto w-full max-w-3xl px-5 py-8 sm:py-10">
@@ -260,41 +248,16 @@ export function AccountClient({
             </Link>
           </div>
 
-          {/* Credit usage */}
-          <div className="mt-6">
-            <div className="mb-2 flex items-center justify-between text-sm">
-              <span className="text-black/60 dark:text-white/60">
-                Credits used this period
-              </span>
-              <span className="font-medium tabular-nums text-black dark:text-white">
-                {formatNumber(charactersUsed)} / {formatNumber(maxCredits)}
-              </span>
-            </div>
-            <div className="h-2 w-full overflow-hidden rounded-full bg-black/10 dark:bg-white/10">
-              <div
-                className="h-full rounded-full bg-black transition-all dark:bg-white"
-                style={{ width: `${creditPct}%` }}
-              />
-            </div>
-            <div className="mt-4 grid grid-cols-2 gap-4">
-              <div className="rounded-xl border border-black/10 px-4 py-3 dark:border-white/10">
-                <p className="text-xs text-black/45 dark:text-white/45">
-                  Generations
-                </p>
-                <p className="mt-0.5 text-lg font-semibold tabular-nums text-black dark:text-white">
-                  {formatNumber(generationsUsed)}
-                </p>
-              </div>
-              <div className="rounded-xl border border-black/10 px-4 py-3 dark:border-white/10">
-                <p className="text-xs text-black/45 dark:text-white/45">
-                  Remaining credits
-                </p>
-                <p className="mt-0.5 text-lg font-semibold tabular-nums text-black dark:text-white">
-                  {formatNumber(Math.max(0, maxCredits - charactersUsed))}
-                </p>
-              </div>
-            </div>
-          </div>
+          <p className="mt-4 text-sm text-black/55 dark:text-white/55">
+            {PLAN_DESCRIPTIONS[plan]}{" "}
+            <Link
+              href="/usage"
+              className="font-medium text-black underline-offset-4 hover:underline dark:text-white"
+            >
+              View detailed usage
+            </Link>
+            .
+          </p>
         </section>
 
         {/* Quick links */}
